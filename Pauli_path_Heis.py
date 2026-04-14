@@ -233,9 +233,13 @@ def evolve_many_paths_with_1q_noise(
                 sign, amp
             )
 
+            
+            eta_q1 = eta[q1]
+            eta_q2 = eta[q2]
+                
             # touched-qubit noise
-            sign, amp, damp = apply_1q_diag_noise(pauli, q1, eta, sign, amp, damp)
-            sign, amp, damp = apply_1q_diag_noise(pauli, q2, eta, sign, amp, damp)
+            sign, amp, damp = apply_1q_diag_noise(pauli, q1, eta_q1, sign, amp, damp)
+            sign, amp, damp = apply_1q_diag_noise(pauli, q2, eta_q2, sign, amp, damp)
 
             # or use this instead if you want full-layer noise:
             # sign, amp, damp = apply_1q_noise_layer(pauli, eta, sign, amp, damp)
@@ -290,7 +294,52 @@ def contrib_stats(x):
     m2 = total_2/n_samples
 
 
-    return m1, np.sqrt(m2 - m1**1)
+    return m1, np.sqrt(m2 - m1**2)
+
+import numpy as np
+import numba as nb
+
+@nb.njit
+def count_pm(P_out, s_out):
+    n = P_out.shape[0]
+    n_p = 0
+    n_m = 0
+
+    for j in range(n):
+        val = obs_value_numba(P_out[j]) * s_out[j]
+        if val == 1:
+            n_p += 1
+        elif val == -1:
+            n_m += 1
+
+    return n_p, n_m
+
+
+@nb.njit
+def split_logs_pm(P_out, s_out, amp_out, damp_out):
+    n_p, n_m = count_pm(P_out, s_out)
+
+    amp_p = np.empty(n_p, dtype=np.float64)
+    damp_p = np.empty(n_p, dtype=np.float64)
+    amp_m = np.empty(n_m, dtype=np.float64)
+    damp_m = np.empty(n_m, dtype=np.float64)
+
+    ip = 0
+    im = 0
+
+    for j in range(P_out.shape[0]):
+        val = obs_value_numba(P_out[j]) * s_out[j]
+
+        if val == 1:
+            amp_p[ip] = np.log(amp_out[j])
+            damp_p[ip] = -np.log(damp_out[j])
+            ip += 1
+        elif val == -1:
+            amp_m[im] = np.log(amp_out[j])
+            damp_m[im] = -np.log(damp_out[j])
+            im += 1
+
+    return amp_p, damp_p, amp_m, damp_m
 
 
 
