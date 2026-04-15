@@ -154,6 +154,57 @@ def apply_1q_noise_layer(pauli, eta, sign, amp, damp):
             damp *= eta
     return sign, amp, damp
 
+@njit
+def pauli_diag_factors_from_lambda(lam_xyz):
+    """
+    lam_xyz[q,0] = lambda_x on qubit q
+    lam_xyz[q,1] = lambda_y on qubit q
+    lam_xyz[q,2] = lambda_z on qubit q
+
+    Returns eta_xyz[q,0:3] = damping factors for X,Y,Z on qubit q.
+    """
+    n_qubits = lam_xyz.shape[0]
+    eta_xyz = np.empty((n_qubits, 3), dtype=np.float64)
+
+    for q in range(n_qubits):
+        lx = lam_xyz[q, 0]
+        ly = lam_xyz[q, 1]
+        lz = lam_xyz[q, 2]
+
+        ex = np.exp(-2.0 * lx)
+        ey = np.exp(-2.0 * ly)
+        ez = np.exp(-2.0 * lz)
+
+        # X, Y, Z damping factors
+        eta_xyz[q, 0] = ey + ez - 1.0   # factor on X
+        eta_xyz[q, 1] = ex + ez - 1.0   # factor on Y
+        eta_xyz[q, 2] = ex + ey - 1.0   # factor on Z
+
+    return eta_xyz
+
+@njit
+def apply_1q_pauli_channel(pauli, q, eta_xyz, sign, amp, damp):
+    """
+    Pauli-transfer action of the anisotropic Pauli channel:
+      I -> I
+      X -> eta_x * X
+      Y -> eta_y * Y
+      Z -> eta_z * Z
+
+    pauli[q] encoding:
+      0 = I, 1 = X, 2 = Y, 3 = Z
+    """
+    p = pauli[q]
+
+    if p == 1:         # X
+        damp *= eta_xyz[q, 0]
+    elif p == 2:       # Y
+        damp *= eta_xyz[q, 1]
+    elif p == 3:       # Z
+        damp *= eta_xyz[q, 2]
+
+    return sign, amp, damp
+
 
 @njit
 def apply_1q_noise_layer_eta_array(pauli, etas, sign, amp, damp):
@@ -203,7 +254,7 @@ def evolve_many_paths_with_1q_noise(
     gates,
     trans_codes, probs, is_commuting, branch_sign,
     amp_factr,
-    eta,
+    eta_xyz,
     n_samples
 ):
     n_qubits = init_pauli.shape[0]
@@ -234,12 +285,15 @@ def evolve_many_paths_with_1q_noise(
             )
 
             
-            eta_q1 = eta[q1]
-            eta_q2 = eta[q2]
+            eta_q1 = eta_xyz[q1,:]
+            eta_q2 = eta_xyz[q2,:]
                 
             # touched-qubit noise
-            sign, amp, damp = apply_1q_diag_noise(pauli, q1, eta_q1, sign, amp, damp)
-            sign, amp, damp = apply_1q_diag_noise(pauli, q2, eta_q2, sign, amp, damp)
+            # sign, amp, damp = apply_1q_diag_noise(pauli, q1, eta_q1, sign, amp, damp)
+            # sign, amp, damp = apply_1q_diag_noise(pauli, q2, eta_q2, sign, amp, damp)
+
+            sign, amp, damp = apply_1q_pauli_channel(pauli, q1, eta_xyz, sign, amp, damp)
+            sign, amp, damp = apply_1q_pauli_channel(pauli, q2, eta_xyz, sign, amp, damp)
 
             # or use this instead if you want full-layer noise:
             # sign, amp, damp = apply_1q_noise_layer(pauli, eta, sign, amp, damp)
