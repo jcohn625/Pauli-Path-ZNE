@@ -280,6 +280,43 @@ bond dimensions, not by monotonic approach.
 For local weak-angle observables, `chi=32` or `64` may already be good. For
 nonlocal observables or stronger `phi`, check `chi=128`, `256`, or higher.
 
+## Step Series Without Repeated Runs
+
+Use `evolve_observable_backward_series` to compute values for steps
+`0, 1, ..., max_steps` in one pass:
+
+```python
+from pauli_mps_solver import evolve_observable_backward_series, pauli_zz
+
+values, final_mps, info = evolve_observable_backward_series(
+    pauli_zz(n_qubits, 0, 1),
+    n_qubits=n_qubits,
+    phi=phi,
+    lam_xyz=lam_xyz,
+    max_steps=12,
+    chi_max=256,
+    return_final_mps=True,
+)
+
+for step, value in enumerate(values):
+    print(step, value)
+```
+
+This is faster than calling `evolve_observable_backward_mps` separately for
+each step count because it reuses the previously evolved observable.
+
+Important limitation: the one-pass series helper is for time-independent
+circuits. `lam_xyz` must have shape:
+
+```text
+(n_qubits, 3)
+(2, n_qubits, 3)
+```
+
+For a fully time-dependent schedule, the adjoint order depends on the requested
+final step, so separate calls are safer unless you intentionally want repeated
+identical steps.
+
 ## SVD Backends
 
 `svd_method="auto"` is recommended.

@@ -1019,6 +1019,184 @@ def evolve_observable_backward_mps(
     return value
 
 
+def evolve_observable_backward_series(
+    final_pauli: str | Sequence[int] | np.ndarray,
+    *,
+    n_qubits: int,
+    phi: float,
+    lam_xyz: np.ndarray,
+    max_steps: int,
+    chi_max: int | None = None,
+    cutoff: float = 1e-12,
+    svd_method: Literal["auto", "full", "sparse", "randomized"] = "auto",
+    oversample: int = 24,
+    n_iter: int = 1,
+    canonicalize: bool = True,
+    parallel_kernels: bool | KernelMode = "auto",
+    use_lightcone: bool = True,
+    enforce_global_parity: bool = True,
+    noise_model: NoiseModel = "independent",
+    return_final_mps: bool = False,
+) -> np.ndarray | tuple[np.ndarray, PauliMPS, dict]:
+    """
+    Compute observable values for Trotter steps ``0, 1, ..., max_steps``.
+
+    This avoids rerunning the full solver for each step count. It is intended
+    for time-independent circuits, where ``lam_xyz`` has shape ``(n_qubits, 3)``
+    or ``(2, n_qubits, 3)``. For a fully time-dependent noise schedule, the
+    adjoint order depends on the requested final step, so use separate calls to
+    ``evolve_observable_backward_mps`` unless you deliberately want repeated
+    identical steps.
+    """
+    if n_qubits % 2 != 0:
+        raise ValueError("Blocked even-bond MPS requires an even number of qubits.")
+    if max_steps < 0:
+        raise ValueError("max_steps must be nonnegative.")
+
+    lam = np.asarray(lam_xyz, dtype=np.float64)
+    if lam.shape not in ((n_qubits, 3), (2, n_qubits, 3)):
+        raise ValueError(
+            "evolve_observable_backward_series currently requires time-independent "
+            "noise with shape (n_qubits,3) or (2,n_qubits,3)."
+        )
+
+    pauli = parse_pauli_string(final_pauli, n_qubits)
+    parity = pauli_parity_vector(pauli)
+    n_blocks = n_qubits // 2
+    if enforce_global_parity and not has_singlet_compatible_global_parity(pauli):
+        values = np.zeros(max_steps + 1, dtype=np.float64)
+        if return_final_mps:
+            info = {
+                "max_bond_by_step": np.ones(max_steps + 1, dtype=np.int64),
+                "active_blocks_by_step": np.zeros(max_steps + 1, dtype=np.int64),
+                "bond_dims": np.ones(n_blocks + 1, dtype=np.int64),
+                "noise_model": noise_model,
+                "svd_method": svd_method,
+                "parallel_kernels": parallel_kernels,
+                "use_lightcone": use_lightcone,
+                "global_pauli_parity": np.array(parity, dtype=np.int8),
+                "parity_filtered": True,
+            }
+            return values, _zero_block_mps(n_blocks), info
+        return values
+
+    lam_schedule = normalize_lambda_schedule(lam, 1, n_qubits)
+    eta_even = pauli_diag_factors_from_lambda(lam_schedule[0, 0], noise_model)
+    eta_odd = pauli_diag_factors_from_lambda(lam_schedule[0, 1], noise_model)
+    even_diag = build_block_noise_diag(eta_even)
+    odd_diag = build_block_noise_diag(eta_odd)
+    trans_codes, coeffs, n_branches = build_heisenberg_pauli_transfer(phi)
+
+    values = np.empty(max_steps + 1, dtype=np.float64)
+    max_bond_by_step = np.zeros(max_steps + 1, dtype=np.int64)
+    active_counts = np.zeros(max_steps + 1, dtype=np.int64)
+    interval_history: list[list[tuple[int, int]]] = []
+    discarded_by_step = np.zeros(max_steps, dtype=np.float64)
+
+    if use_lightcone:
+        islands = _initial_islands_from_pauli(pauli)
+        if not islands:
+            values[:] = 1.0
+            final_mps = _identity_block_mps(n_blocks)
+            max_bond_by_step[:] = 1
+            interval_history = [[] for _ in range(max_steps + 1)]
+        else:
+            values[0] = _contract_islands_with_singlet_product(islands)
+            max_bond_by_step[0] = max(max(island.mps.bond_dims) for island in islands)
+            active_counts[0] = sum(island.right - island.left + 1 for island in islands)
+            interval_history.append([(island.left, island.right) for island in islands])
+
+            for step in range(1, max_steps + 1):
+                islands = [_expand_island(island, n_blocks) for island in islands]
+                islands = _merge_touching_islands(islands)
+
+                discarded = 0.0
+                for island in islands:
+                    sl = slice(island.left, island.right + 1)
+                    apply_block_noise_inplace(
+                        island.mps, odd_diag[sl], parallel_kernels=parallel_kernels
+                    )
+                    discarded += apply_odd_layer_inplace(
+                        island.mps,
+                        trans_codes,
+                        coeffs,
+                        n_branches,
+                        chi_max=chi_max,
+                        cutoff=cutoff,
+                        svd_method=svd_method,
+                        oversample=oversample,
+                        n_iter=n_iter,
+                        canonicalize=canonicalize,
+                        parallel_kernels=parallel_kernels,
+                    )
+                    apply_block_noise_inplace(
+                        island.mps, even_diag[sl], parallel_kernels=parallel_kernels
+                    )
+                    apply_even_layer_inplace(
+                        island.mps,
+                        trans_codes,
+                        coeffs,
+                        n_branches,
+                        parallel_kernels=parallel_kernels,
+                    )
+
+                islands = _merge_touching_islands(islands)
+                values[step] = _contract_islands_with_singlet_product(islands)
+                discarded_by_step[step - 1] = discarded
+                max_bond_by_step[step] = max(max(island.mps.bond_dims) for island in islands)
+                active_counts[step] = sum(
+                    island.right - island.left + 1 for island in islands
+                )
+                interval_history.append([(island.left, island.right) for island in islands])
+
+            final_mps = _full_mps_from_islands(islands, n_blocks)
+    else:
+        mps = product_pauli_mps(pauli)
+        values[0] = contract_with_singlet_product(mps)
+        max_bond_by_step[0] = max(mps.bond_dims)
+
+        for step in range(1, max_steps + 1):
+            apply_block_noise_inplace(mps, odd_diag, parallel_kernels=parallel_kernels)
+            discarded_by_step[step - 1] = apply_odd_layer_inplace(
+                mps,
+                trans_codes,
+                coeffs,
+                n_branches,
+                chi_max=chi_max,
+                cutoff=cutoff,
+                svd_method=svd_method,
+                oversample=oversample,
+                n_iter=n_iter,
+                canonicalize=canonicalize,
+                parallel_kernels=parallel_kernels,
+            )
+            apply_block_noise_inplace(mps, even_diag, parallel_kernels=parallel_kernels)
+            apply_even_layer_inplace(
+                mps, trans_codes, coeffs, n_branches, parallel_kernels=parallel_kernels
+            )
+            values[step] = contract_with_singlet_product(mps)
+            max_bond_by_step[step] = max(mps.bond_dims)
+
+        final_mps = mps
+
+    if return_final_mps:
+        info = {
+            "discarded_by_step": discarded_by_step,
+            "max_bond_by_step": max_bond_by_step,
+            "active_blocks_by_step": active_counts,
+            "active_intervals_by_step": interval_history,
+            "bond_dims": np.array(final_mps.bond_dims, dtype=np.int64),
+            "noise_model": noise_model,
+            "svd_method": svd_method,
+            "parallel_kernels": parallel_kernels,
+            "use_lightcone": use_lightcone,
+            "global_pauli_parity": np.array(parity, dtype=np.int8),
+            "parity_filtered": False,
+        }
+        return values, final_mps, info
+    return values
+
+
 def mps_to_dense(mps: PauliMPS) -> np.ndarray:
     """Reconstruct the dense blocked coefficient tensor. Use only for tests."""
     T = mps.tensors[0][0, :, :]
