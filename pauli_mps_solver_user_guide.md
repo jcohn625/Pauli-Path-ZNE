@@ -64,7 +64,8 @@ evolve_observable_backward_mps(
     parallel_kernels="auto",
     use_lightcone=True,
     enforce_global_parity=True,
-    noise_model="independent",
+    noise_model="legacy_sum",
+    noise_placement="gate",
     return_mps=False,
 )
 ```
@@ -91,6 +92,10 @@ evolve_observable_backward_mps(
 (n_steps, 2, n_qubits, 3)  fully time-dependent schedule
 (2*n_steps, n_qubits, 3)   flattened half-layer schedule
 ```
+
+For the default sampler-compatible placement, the even/odd entries are used as
+the damping after the corresponding touched-gate layer. With
+`noise_placement="layer"`, they are interpreted as full half-layer damping.
 
 The lambda columns are:
 
@@ -134,7 +139,8 @@ enforce_global_parity=True
 canonicalize=True
 parallel_kernels="auto"
 svd_method="auto"
-noise_model="independent"
+noise_model="legacy_sum"
+noise_placement="gate"
 ```
 
 You usually only need to set:
@@ -219,10 +225,24 @@ value = evolve_observable_backward_mps(
 The default is:
 
 ```python
+noise_model="legacy_sum"
+```
+
+This matches `Pauli_path_Heis.pauli_diag_factors_from_lambda`:
+
+```text
+eta_X = exp(-2 lambda_y) + exp(-2 lambda_z) - 1
+eta_Y = exp(-2 lambda_x) + exp(-2 lambda_z) - 1
+eta_Z = exp(-2 lambda_x) + exp(-2 lambda_y) - 1
+```
+
+You can also use:
+
+```python
 noise_model="independent"
 ```
 
-This applies independent Pauli noise channels:
+which applies independent Pauli noise channels:
 
 ```text
 eta_X = exp(-2 lambda_y) exp(-2 lambda_z)
@@ -230,18 +250,31 @@ eta_Y = exp(-2 lambda_x) exp(-2 lambda_z)
 eta_Z = exp(-2 lambda_x) exp(-2 lambda_y)
 ```
 
-For compatibility with some older path-sampling files, use:
+## Noise Placement
+
+The default is:
 
 ```python
-noise_model="legacy_sum"
+noise_placement="gate"
 ```
 
-which uses:
+This matches `Pauli_path_Heis.evolve_many_paths_with_1q_noise`: after each
+two-qubit gate update, only the two qubits touched by that gate receive
+diagonal Pauli damping. Since gates inside one even/odd layer are disjoint, the
+MPS applies this as one touched-qubit diagonal layer after the odd gate layer
+and one after the even gate layer.
+
+For the older MPS convention, use:
+
+```python
+noise_placement="layer"
+```
+
+This applies full-chain damping at each half-layer in the physical adjoint
+order:
 
 ```text
-eta_X = exp(-2 lambda_y) + exp(-2 lambda_z) - 1
-eta_Y = exp(-2 lambda_x) + exp(-2 lambda_z) - 1
-eta_Z = exp(-2 lambda_x) + exp(-2 lambda_y) - 1
+odd noise -> odd gates -> even noise -> even gates
 ```
 
 ## Bond Dimension Sweeps

@@ -23,7 +23,8 @@ from scipy.sparse.linalg import svds
 CHAR_TO_INT = {"I": 0, "X": 1, "Y": 2, "Z": 3}
 INT_TO_CHAR = np.array(["I", "X", "Y", "Z"])
 
-NoiseModel = Literal["independent", "legacy_sum"]
+NoiseModel = Literal["legacy_sum", "independent"]
+NoisePlacement = Literal["gate", "touched_gate", "layer"]
 KernelMode = Literal["auto", "parallel", "serial"]
 
 
@@ -229,7 +230,7 @@ def normalize_lambda_schedule(
     )
 
 
-def pauli_diag_factors_from_lambda(lam_xyz: np.ndarray, noise_model: NoiseModel = "independent") -> np.ndarray:
+def pauli_diag_factors_from_lambda(lam_xyz: np.ndarray, noise_model: NoiseModel = "legacy_sum") -> np.ndarray:
     """
     Convert lambda_x/y/z rates to Pauli-basis damping factors.
 
@@ -257,6 +258,15 @@ def pauli_diag_factors_from_lambda(lam_xyz: np.ndarray, noise_model: NoiseModel 
     return eta
 
 
+def normalize_noise_placement(noise_placement: NoisePlacement) -> Literal["gate", "layer"]:
+    """Normalize noise-placement aliases."""
+    if noise_placement == "touched_gate":
+        return "gate"
+    if noise_placement in ("gate", "layer"):
+        return noise_placement
+    raise ValueError("noise_placement must be 'gate', 'touched_gate', or 'layer'.")
+
+
 def build_block_noise_diag(eta_xyz: np.ndarray) -> np.ndarray:
     """Return block-local diagonal noise factors with shape ``(n_blocks, 16)``."""
     n_qubits = eta_xyz.shape[0]
@@ -268,6 +278,44 @@ def build_block_noise_diag(eta_xyz: np.ndarray) -> np.ndarray:
             lf = 1.0 if left == 0 else eta_xyz[2 * b, left - 1]
             for right in range(4):
                 rf = 1.0 if right == 0 else eta_xyz[2 * b + 1, right - 1]
+                out[b, 4 * left + right] = lf * rf
+    return out
+
+
+def build_touched_layer_noise_diag(eta_xyz: np.ndarray, layer: Literal["even", "odd"]) -> np.ndarray:
+    """
+    Return block-local noise factors for qubits touched by one gate layer.
+
+    This matches ``Pauli_path_Heis.evolve_many_paths_with_1q_noise``: after
+    each two-qubit gate, only the two qubits in that gate receive damping.
+    Gates inside one even/odd layer are disjoint, so this is equivalent to one
+    diagonal layer over the touched qubits.
+    """
+    n_qubits = eta_xyz.shape[0]
+    if n_qubits % 2 != 0:
+        raise ValueError("Blocked even-bond MPS requires an even number of qubits.")
+    touched = np.zeros(n_qubits, dtype=np.bool_)
+    if layer == "even":
+        for q in range(0, n_qubits - 1, 2):
+            touched[q] = True
+            touched[q + 1] = True
+    elif layer == "odd":
+        for q in range(1, n_qubits - 1, 2):
+            touched[q] = True
+            touched[q + 1] = True
+    else:
+        raise ValueError("layer must be 'even' or 'odd'.")
+
+    out = np.ones((n_qubits // 2, 16), dtype=np.float64)
+    for b in range(n_qubits // 2):
+        for left in range(4):
+            lf = 1.0
+            if touched[2 * b] and left != 0:
+                lf = eta_xyz[2 * b, left - 1]
+            for right in range(4):
+                rf = 1.0
+                if touched[2 * b + 1] and right != 0:
+                    rf = eta_xyz[2 * b + 1, right - 1]
                 out[b, 4 * left + right] = lf * rf
     return out
 
@@ -747,6 +795,7 @@ def _evolve_observable_backward_lightcone(
     canonicalize: bool,
     parallel_kernels: bool | KernelMode,
     noise_model: NoiseModel,
+    noise_placement: Literal["gate", "layer"],
     return_mps: bool,
 ) -> float | tuple[float, PauliMPS, dict]:
     n_blocks = n_qubits // 2
@@ -760,6 +809,7 @@ def _evolve_observable_backward_lightcone(
                 "max_bond_by_backward_step": np.ones(n_steps + 1, dtype=np.int64),
                 "bond_dims": np.ones(n_blocks + 1, dtype=np.int64),
                 "noise_model": noise_model,
+                "noise_placement": noise_placement,
                 "svd_method": svd_method,
                 "parallel_kernels": parallel_kernels,
                 "use_lightcone": True,
@@ -783,39 +833,71 @@ def _evolve_observable_backward_lightcone(
 
         eta_odd = pauli_diag_factors_from_lambda(lam_schedule[t, 1], noise_model)
         eta_even = pauli_diag_factors_from_lambda(lam_schedule[t, 0], noise_model)
-        odd_diag = build_block_noise_diag(eta_odd)
-        even_diag = build_block_noise_diag(eta_even)
+        if noise_placement == "layer":
+            odd_diag = build_block_noise_diag(eta_odd)
+            even_diag = build_block_noise_diag(eta_even)
+        else:
+            odd_diag = build_touched_layer_noise_diag(eta_odd, "odd")
+            even_diag = build_touched_layer_noise_diag(eta_even, "even")
 
         discarded = 0.0
         new_islands = []
         for island in islands:
             sl = slice(island.left, island.right + 1)
-            apply_block_noise_inplace(
-                island.mps, odd_diag[sl], parallel_kernels=parallel_kernels
-            )
-            discarded += apply_odd_layer_inplace(
-                island.mps,
-                trans_codes,
-                coeffs,
-                n_branches,
-                chi_max=chi_max,
-                cutoff=cutoff,
-                svd_method=svd_method,
-                oversample=oversample,
-                n_iter=n_iter,
-                canonicalize=canonicalize,
-                parallel_kernels=parallel_kernels,
-            )
-            apply_block_noise_inplace(
-                island.mps, even_diag[sl], parallel_kernels=parallel_kernels
-            )
-            apply_even_layer_inplace(
-                island.mps,
-                trans_codes,
-                coeffs,
-                n_branches,
-                parallel_kernels=parallel_kernels,
-            )
+            if noise_placement == "layer":
+                apply_block_noise_inplace(
+                    island.mps, odd_diag[sl], parallel_kernels=parallel_kernels
+                )
+                discarded += apply_odd_layer_inplace(
+                    island.mps,
+                    trans_codes,
+                    coeffs,
+                    n_branches,
+                    chi_max=chi_max,
+                    cutoff=cutoff,
+                    svd_method=svd_method,
+                    oversample=oversample,
+                    n_iter=n_iter,
+                    canonicalize=canonicalize,
+                    parallel_kernels=parallel_kernels,
+                )
+                apply_block_noise_inplace(
+                    island.mps, even_diag[sl], parallel_kernels=parallel_kernels
+                )
+                apply_even_layer_inplace(
+                    island.mps,
+                    trans_codes,
+                    coeffs,
+                    n_branches,
+                    parallel_kernels=parallel_kernels,
+                )
+            else:
+                discarded += apply_odd_layer_inplace(
+                    island.mps,
+                    trans_codes,
+                    coeffs,
+                    n_branches,
+                    chi_max=chi_max,
+                    cutoff=cutoff,
+                    svd_method=svd_method,
+                    oversample=oversample,
+                    n_iter=n_iter,
+                    canonicalize=canonicalize,
+                    parallel_kernels=parallel_kernels,
+                )
+                apply_block_noise_inplace(
+                    island.mps, odd_diag[sl], parallel_kernels=parallel_kernels
+                )
+                apply_even_layer_inplace(
+                    island.mps,
+                    trans_codes,
+                    coeffs,
+                    n_branches,
+                    parallel_kernels=parallel_kernels,
+                )
+                apply_block_noise_inplace(
+                    island.mps, even_diag[sl], parallel_kernels=parallel_kernels
+                )
             new_islands.append(island)
 
         islands = _merge_touching_islands(new_islands)
@@ -838,6 +920,7 @@ def _evolve_observable_backward_lightcone(
             "active_intervals": interval_history[-1],
             "bond_dims": np.array(full_mps.bond_dims, dtype=np.int64),
             "noise_model": noise_model,
+            "noise_placement": noise_placement,
             "svd_method": svd_method,
             "parallel_kernels": parallel_kernels,
             "use_lightcone": True,
@@ -862,7 +945,8 @@ def evolve_observable_backward_mps(
     parallel_kernels: bool | KernelMode = "auto",
     use_lightcone: bool = True,
     enforce_global_parity: bool = True,
-    noise_model: NoiseModel = "independent",
+    noise_model: NoiseModel = "legacy_sum",
+    noise_placement: NoisePlacement = "gate",
     return_mps: bool = False,
 ) -> float | tuple[float, PauliMPS, dict]:
     """
@@ -906,13 +990,19 @@ def evolve_observable_backward_mps(
         relative-parity sector that can contract with an even-bond singlet
         product.
     noise_model
-        ``"independent"`` for sequential single-Pauli channels or
-        ``"legacy_sum"`` to match several existing path-sampling modules.
+        ``"legacy_sum"`` matches ``Pauli_path_Heis.pauli_diag_factors_from_lambda``.
+        ``"independent"`` uses sequential single-Pauli channels.
+    noise_placement
+        ``"gate"`` matches ``Pauli_path_Heis.evolve_many_paths_with_1q_noise``:
+        apply damping only to the two qubits touched by each gate after that
+        gate update. ``"layer"`` keeps the older MPS convention of applying
+        full-chain damping before each backward layer.
     return_mps
         If true, return ``(value, mps, info)``.
     """
     if n_qubits % 2 != 0:
         raise ValueError("Blocked even-bond MPS requires an even number of qubits.")
+    noise_placement_norm = normalize_noise_placement(noise_placement)
 
     pauli = parse_pauli_string(final_pauli, n_qubits)
     parity = pauli_parity_vector(pauli)
@@ -924,6 +1014,7 @@ def evolve_observable_backward_mps(
                 "max_bond_by_backward_step": np.ones(n_steps + 1, dtype=np.int64),
                 "bond_dims": np.ones(n_blocks + 1, dtype=np.int64),
                 "noise_model": noise_model,
+                "noise_placement": noise_placement_norm,
                 "svd_method": svd_method,
                 "parallel_kernels": parallel_kernels,
                 "use_lightcone": use_lightcone,
@@ -953,6 +1044,7 @@ def evolve_observable_backward_mps(
             canonicalize=canonicalize,
             parallel_kernels=parallel_kernels,
             noise_model=noise_model,
+            noise_placement=noise_placement_norm,
             return_mps=return_mps,
         )
         if return_mps:
@@ -969,34 +1061,61 @@ def evolve_observable_backward_mps(
     max_bond_by_step[0] = max(mps.bond_dims)
 
     # Backward through each forward step:
-    #   forward: even gate -> even noise -> odd gate -> odd noise
-    #   backward: odd noise -> odd gate -> even noise -> even gate
+    #   layer placement: physical adjoint of full half-layer damping.
+    #   gate placement: matches Pauli_path_Heis' gate-update-then-touched-noise loop.
     for t in range(n_steps - 1, -1, -1):
         eta_odd = pauli_diag_factors_from_lambda(lam_schedule[t, 1], noise_model)
-        apply_block_noise_inplace(
-            mps, build_block_noise_diag(eta_odd), parallel_kernels=parallel_kernels
-        )
-        discarded = apply_odd_layer_inplace(
-            mps,
-            trans_codes,
-            coeffs,
-            n_branches,
-            chi_max=chi_max,
-            cutoff=cutoff,
-            svd_method=svd_method,
-            oversample=oversample,
-            n_iter=n_iter,
-            canonicalize=canonicalize,
-            parallel_kernels=parallel_kernels,
-        )
-
         eta_even = pauli_diag_factors_from_lambda(lam_schedule[t, 0], noise_model)
-        apply_block_noise_inplace(
-            mps, build_block_noise_diag(eta_even), parallel_kernels=parallel_kernels
-        )
-        apply_even_layer_inplace(
-            mps, trans_codes, coeffs, n_branches, parallel_kernels=parallel_kernels
-        )
+        if noise_placement_norm == "layer":
+            apply_block_noise_inplace(
+                mps, build_block_noise_diag(eta_odd), parallel_kernels=parallel_kernels
+            )
+            discarded = apply_odd_layer_inplace(
+                mps,
+                trans_codes,
+                coeffs,
+                n_branches,
+                chi_max=chi_max,
+                cutoff=cutoff,
+                svd_method=svd_method,
+                oversample=oversample,
+                n_iter=n_iter,
+                canonicalize=canonicalize,
+                parallel_kernels=parallel_kernels,
+            )
+            apply_block_noise_inplace(
+                mps, build_block_noise_diag(eta_even), parallel_kernels=parallel_kernels
+            )
+            apply_even_layer_inplace(
+                mps, trans_codes, coeffs, n_branches, parallel_kernels=parallel_kernels
+            )
+        else:
+            discarded = apply_odd_layer_inplace(
+                mps,
+                trans_codes,
+                coeffs,
+                n_branches,
+                chi_max=chi_max,
+                cutoff=cutoff,
+                svd_method=svd_method,
+                oversample=oversample,
+                n_iter=n_iter,
+                canonicalize=canonicalize,
+                parallel_kernels=parallel_kernels,
+            )
+            apply_block_noise_inplace(
+                mps,
+                build_touched_layer_noise_diag(eta_odd, "odd"),
+                parallel_kernels=parallel_kernels,
+            )
+            apply_even_layer_inplace(
+                mps, trans_codes, coeffs, n_branches, parallel_kernels=parallel_kernels
+            )
+            apply_block_noise_inplace(
+                mps,
+                build_touched_layer_noise_diag(eta_even, "even"),
+                parallel_kernels=parallel_kernels,
+            )
 
         step_index = n_steps - 1 - t
         discarded_by_step[step_index, 0] = discarded
@@ -1009,6 +1128,7 @@ def evolve_observable_backward_mps(
             "max_bond_by_backward_step": max_bond_by_step,
             "bond_dims": np.array(mps.bond_dims, dtype=np.int64),
             "noise_model": noise_model,
+            "noise_placement": noise_placement_norm,
             "svd_method": svd_method,
             "parallel_kernels": parallel_kernels,
             "use_lightcone": False,
@@ -1035,7 +1155,8 @@ def evolve_observable_backward_series(
     parallel_kernels: bool | KernelMode = "auto",
     use_lightcone: bool = True,
     enforce_global_parity: bool = True,
-    noise_model: NoiseModel = "independent",
+    noise_model: NoiseModel = "legacy_sum",
+    noise_placement: NoisePlacement = "gate",
     return_final_mps: bool = False,
 ) -> np.ndarray | tuple[np.ndarray, PauliMPS, dict]:
     """
@@ -1052,6 +1173,7 @@ def evolve_observable_backward_series(
         raise ValueError("Blocked even-bond MPS requires an even number of qubits.")
     if max_steps < 0:
         raise ValueError("max_steps must be nonnegative.")
+    noise_placement_norm = normalize_noise_placement(noise_placement)
 
     lam = np.asarray(lam_xyz, dtype=np.float64)
     if lam.shape not in ((n_qubits, 3), (2, n_qubits, 3)):
@@ -1071,6 +1193,7 @@ def evolve_observable_backward_series(
                 "active_blocks_by_step": np.zeros(max_steps + 1, dtype=np.int64),
                 "bond_dims": np.ones(n_blocks + 1, dtype=np.int64),
                 "noise_model": noise_model,
+                "noise_placement": noise_placement_norm,
                 "svd_method": svd_method,
                 "parallel_kernels": parallel_kernels,
                 "use_lightcone": use_lightcone,
@@ -1083,8 +1206,12 @@ def evolve_observable_backward_series(
     lam_schedule = normalize_lambda_schedule(lam, 1, n_qubits)
     eta_even = pauli_diag_factors_from_lambda(lam_schedule[0, 0], noise_model)
     eta_odd = pauli_diag_factors_from_lambda(lam_schedule[0, 1], noise_model)
-    even_diag = build_block_noise_diag(eta_even)
-    odd_diag = build_block_noise_diag(eta_odd)
+    if noise_placement_norm == "layer":
+        even_diag = build_block_noise_diag(eta_even)
+        odd_diag = build_block_noise_diag(eta_odd)
+    else:
+        even_diag = build_touched_layer_noise_diag(eta_even, "even")
+        odd_diag = build_touched_layer_noise_diag(eta_odd, "odd")
     trans_codes, coeffs, n_branches = build_heisenberg_pauli_transfer(phi)
 
     values = np.empty(max_steps + 1, dtype=np.float64)
@@ -1113,32 +1240,60 @@ def evolve_observable_backward_series(
                 discarded = 0.0
                 for island in islands:
                     sl = slice(island.left, island.right + 1)
-                    apply_block_noise_inplace(
-                        island.mps, odd_diag[sl], parallel_kernels=parallel_kernels
-                    )
-                    discarded += apply_odd_layer_inplace(
-                        island.mps,
-                        trans_codes,
-                        coeffs,
-                        n_branches,
-                        chi_max=chi_max,
-                        cutoff=cutoff,
-                        svd_method=svd_method,
-                        oversample=oversample,
-                        n_iter=n_iter,
-                        canonicalize=canonicalize,
-                        parallel_kernels=parallel_kernels,
-                    )
-                    apply_block_noise_inplace(
-                        island.mps, even_diag[sl], parallel_kernels=parallel_kernels
-                    )
-                    apply_even_layer_inplace(
-                        island.mps,
-                        trans_codes,
-                        coeffs,
-                        n_branches,
-                        parallel_kernels=parallel_kernels,
-                    )
+                    if noise_placement_norm == "layer":
+                        apply_block_noise_inplace(
+                            island.mps, odd_diag[sl], parallel_kernels=parallel_kernels
+                        )
+                        discarded += apply_odd_layer_inplace(
+                            island.mps,
+                            trans_codes,
+                            coeffs,
+                            n_branches,
+                            chi_max=chi_max,
+                            cutoff=cutoff,
+                            svd_method=svd_method,
+                            oversample=oversample,
+                            n_iter=n_iter,
+                            canonicalize=canonicalize,
+                            parallel_kernels=parallel_kernels,
+                        )
+                        apply_block_noise_inplace(
+                            island.mps, even_diag[sl], parallel_kernels=parallel_kernels
+                        )
+                        apply_even_layer_inplace(
+                            island.mps,
+                            trans_codes,
+                            coeffs,
+                            n_branches,
+                            parallel_kernels=parallel_kernels,
+                        )
+                    else:
+                        discarded += apply_odd_layer_inplace(
+                            island.mps,
+                            trans_codes,
+                            coeffs,
+                            n_branches,
+                            chi_max=chi_max,
+                            cutoff=cutoff,
+                            svd_method=svd_method,
+                            oversample=oversample,
+                            n_iter=n_iter,
+                            canonicalize=canonicalize,
+                            parallel_kernels=parallel_kernels,
+                        )
+                        apply_block_noise_inplace(
+                            island.mps, odd_diag[sl], parallel_kernels=parallel_kernels
+                        )
+                        apply_even_layer_inplace(
+                            island.mps,
+                            trans_codes,
+                            coeffs,
+                            n_branches,
+                            parallel_kernels=parallel_kernels,
+                        )
+                        apply_block_noise_inplace(
+                            island.mps, even_diag[sl], parallel_kernels=parallel_kernels
+                        )
 
                 islands = _merge_touching_islands(islands)
                 values[step] = _contract_islands_with_singlet_product(islands)
@@ -1156,24 +1311,44 @@ def evolve_observable_backward_series(
         max_bond_by_step[0] = max(mps.bond_dims)
 
         for step in range(1, max_steps + 1):
-            apply_block_noise_inplace(mps, odd_diag, parallel_kernels=parallel_kernels)
-            discarded_by_step[step - 1] = apply_odd_layer_inplace(
-                mps,
-                trans_codes,
-                coeffs,
-                n_branches,
-                chi_max=chi_max,
-                cutoff=cutoff,
-                svd_method=svd_method,
-                oversample=oversample,
-                n_iter=n_iter,
-                canonicalize=canonicalize,
-                parallel_kernels=parallel_kernels,
-            )
-            apply_block_noise_inplace(mps, even_diag, parallel_kernels=parallel_kernels)
-            apply_even_layer_inplace(
-                mps, trans_codes, coeffs, n_branches, parallel_kernels=parallel_kernels
-            )
+            if noise_placement_norm == "layer":
+                apply_block_noise_inplace(mps, odd_diag, parallel_kernels=parallel_kernels)
+                discarded_by_step[step - 1] = apply_odd_layer_inplace(
+                    mps,
+                    trans_codes,
+                    coeffs,
+                    n_branches,
+                    chi_max=chi_max,
+                    cutoff=cutoff,
+                    svd_method=svd_method,
+                    oversample=oversample,
+                    n_iter=n_iter,
+                    canonicalize=canonicalize,
+                    parallel_kernels=parallel_kernels,
+                )
+                apply_block_noise_inplace(mps, even_diag, parallel_kernels=parallel_kernels)
+                apply_even_layer_inplace(
+                    mps, trans_codes, coeffs, n_branches, parallel_kernels=parallel_kernels
+                )
+            else:
+                discarded_by_step[step - 1] = apply_odd_layer_inplace(
+                    mps,
+                    trans_codes,
+                    coeffs,
+                    n_branches,
+                    chi_max=chi_max,
+                    cutoff=cutoff,
+                    svd_method=svd_method,
+                    oversample=oversample,
+                    n_iter=n_iter,
+                    canonicalize=canonicalize,
+                    parallel_kernels=parallel_kernels,
+                )
+                apply_block_noise_inplace(mps, odd_diag, parallel_kernels=parallel_kernels)
+                apply_even_layer_inplace(
+                    mps, trans_codes, coeffs, n_branches, parallel_kernels=parallel_kernels
+                )
+                apply_block_noise_inplace(mps, even_diag, parallel_kernels=parallel_kernels)
             values[step] = contract_with_singlet_product(mps)
             max_bond_by_step[step] = max(mps.bond_dims)
 
@@ -1187,6 +1362,7 @@ def evolve_observable_backward_series(
             "active_intervals_by_step": interval_history,
             "bond_dims": np.array(final_mps.bond_dims, dtype=np.int64),
             "noise_model": noise_model,
+            "noise_placement": noise_placement_norm,
             "svd_method": svd_method,
             "parallel_kernels": parallel_kernels,
             "use_lightcone": use_lightcone,
@@ -1212,7 +1388,8 @@ def uncompressed_mps_reference(
     phi: float,
     lam_xyz: np.ndarray,
     n_steps: int,
-    noise_model: NoiseModel = "independent",
+    noise_model: NoiseModel = "legacy_sum",
+    noise_placement: NoisePlacement = "gate",
 ) -> float:
     """
     Uncompressed MPS reference for small beta tests.
@@ -1230,6 +1407,7 @@ def uncompressed_mps_reference(
         cutoff=0.0,
         svd_method="full",
         noise_model=noise_model,
+        noise_placement=noise_placement,
         return_mps=True,
     )
     return value
