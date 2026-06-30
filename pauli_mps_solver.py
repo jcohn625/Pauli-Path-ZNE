@@ -152,6 +152,38 @@ def build_heisenberg_pauli_transfer(phi: float):
     return trans_codes, coeffs, n_branches
 
 
+def build_odd_pair_transfer_tables(trans_codes, coeffs, n_branches):
+    """
+    Precompute odd-bond updates between neighboring blocked sites.
+
+    Odd gates act on the right Pauli of the left block and the left Pauli of
+    the right block. The tight Numba kernel sees every pair of block-local
+    codes many times, so decoding and recoding those pairs once avoids a large
+    amount of repeated integer work.
+    """
+    odd_new_a = np.empty((16, 16, 4), dtype=np.int8)
+    odd_new_b = np.empty((16, 16, 4), dtype=np.int8)
+    odd_coeffs = np.zeros((16, 16, 4), dtype=np.float64)
+    odd_n_branches = np.empty((16, 16), dtype=np.int64)
+
+    for code_a in range(16):
+        a_left = code_a // 4
+        a_right = code_a - 4 * a_left
+        for code_b in range(16):
+            b_left = code_b // 4
+            b_right = code_b - 4 * b_left
+            mid_code = 4 * a_right + b_left
+            n = int(n_branches[mid_code])
+            odd_n_branches[code_a, code_b] = n
+            for k in range(n):
+                out_mid = int(trans_codes[mid_code, k])
+                odd_new_a[code_a, code_b, k] = 4 * a_left + (out_mid // 4)
+                odd_new_b[code_a, code_b, k] = 4 * (out_mid % 4) + b_right
+                odd_coeffs[code_a, code_b, k] = coeffs[mid_code, k]
+
+    return odd_new_a, odd_new_b, odd_coeffs, odd_n_branches
+
+
 def parse_pauli_string(final_pauli: str | Sequence[int] | np.ndarray, n_qubits: int) -> np.ndarray:
     """Return an int8 Pauli vector of length ``n_qubits``."""
     if isinstance(final_pauli, str):
@@ -339,6 +371,14 @@ def _identity_block_tensor() -> np.ndarray:
     return a
 
 
+def _is_identity_block_tensor(A: np.ndarray) -> bool:
+    return (
+        A.shape == (1, 16, 1)
+        and A[0, 0, 0] == 1.0
+        and np.count_nonzero(A) == 1
+    )
+
+
 def _identity_block_mps(n_blocks: int) -> PauliMPS:
     return PauliMPS([_identity_block_tensor() for _ in range(n_blocks)])
 
@@ -494,51 +534,39 @@ def _apply_one_site_diag_inplace_serial(A, diag):
 
 
 @nb.njit(cache=True, parallel=True)
-def _apply_odd_transfer_theta(theta, trans_codes, coeffs, n_branches):
+def _apply_odd_transfer_theta(theta, odd_new_a, odd_new_b, odd_coeffs, odd_n_branches):
     chi_l, _, _, chi_r = theta.shape
     out = np.zeros_like(theta)
     for lr in nb.prange(chi_l * chi_r):
         l = lr // chi_r
         r = lr - l * chi_r
         for code_a in range(16):
-            a_left = code_a // 4
-            a_right = code_a - 4 * a_left
             for code_b in range(16):
-                b_left = code_b // 4
-                b_right = code_b - 4 * b_left
-                mid_code = 4 * a_right + b_left
                 val = theta[l, code_a, code_b, r]
                 if val == 0.0:
                     continue
-                for k in range(n_branches[mid_code]):
-                    out_mid = int(trans_codes[mid_code, k])
-                    new_a = 4 * a_left + (out_mid // 4)
-                    new_b = 4 * (out_mid % 4) + b_right
-                    out[l, new_a, new_b, r] += coeffs[mid_code, k] * val
+                for k in range(odd_n_branches[code_a, code_b]):
+                    new_a = int(odd_new_a[code_a, code_b, k])
+                    new_b = int(odd_new_b[code_a, code_b, k])
+                    out[l, new_a, new_b, r] += odd_coeffs[code_a, code_b, k] * val
     return out
 
 
 @nb.njit(cache=True)
-def _apply_odd_transfer_theta_serial(theta, trans_codes, coeffs, n_branches):
+def _apply_odd_transfer_theta_serial(theta, odd_new_a, odd_new_b, odd_coeffs, odd_n_branches):
     chi_l, _, _, chi_r = theta.shape
     out = np.zeros_like(theta)
     for l in range(chi_l):
         for r in range(chi_r):
             for code_a in range(16):
-                a_left = code_a // 4
-                a_right = code_a - 4 * a_left
                 for code_b in range(16):
-                    b_left = code_b // 4
-                    b_right = code_b - 4 * b_left
-                    mid_code = 4 * a_right + b_left
                     val = theta[l, code_a, code_b, r]
                     if val == 0.0:
                         continue
-                    for k in range(n_branches[mid_code]):
-                        out_mid = int(trans_codes[mid_code, k])
-                        new_a = 4 * a_left + (out_mid // 4)
-                        new_b = 4 * (out_mid % 4) + b_right
-                        out[l, new_a, new_b, r] += coeffs[mid_code, k] * val
+                    for k in range(odd_n_branches[code_a, code_b]):
+                        new_a = int(odd_new_a[code_a, code_b, k])
+                        new_b = int(odd_new_b[code_a, code_b, k])
+                        out[l, new_a, new_b, r] += odd_coeffs[code_a, code_b, k] * val
     return out
 
 
@@ -551,6 +579,8 @@ def apply_even_layer_inplace(
 ) -> None:
     """Apply all backward even-bond Heisenberg gates as one-site updates."""
     for i, A in enumerate(mps.tensors):
+        if _is_identity_block_tensor(A):
+            continue
         use_parallel = parallel_kernels is True or parallel_kernels == "parallel"
         if parallel_kernels == "auto":
             use_parallel = A.shape[0] * A.shape[2] >= 32768
@@ -567,6 +597,8 @@ def apply_block_noise_inplace(
 ) -> None:
     """Apply diagonal single-qubit Pauli noise factors to every blocked site."""
     for i, A in enumerate(mps.tensors):
+        if _is_identity_block_tensor(A):
+            continue
         use_parallel = parallel_kernels is True or parallel_kernels == "parallel"
         if parallel_kernels == "auto":
             use_parallel = A.size >= 524288
@@ -585,6 +617,8 @@ def right_canonicalize_inplace(mps: PauliMPS) -> None:
     """
     for site in range(mps.n_blocks - 1, 0, -1):
         A = mps.tensors[site]
+        if _is_identity_block_tensor(A):
+            continue
         chi_l, d, chi_r = A.shape
         mat = A.reshape(chi_l, d * chi_r)
         Q_t, R_t = np.linalg.qr(mat.T, mode="reduced")
@@ -719,6 +753,7 @@ def apply_odd_layer_inplace(
     n_iter: int = 1,
     canonicalize: bool = True,
     parallel_kernels: bool | KernelMode = "auto",
+    odd_pair_tables: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray] | None = None,
 ) -> float:
     """
     Apply all backward odd-bond Heisenberg gates as two-block TEBD updates.
@@ -728,18 +763,28 @@ def apply_odd_layer_inplace(
     if canonicalize and mps.n_blocks > 1:
         right_canonicalize_inplace(mps)
 
+    if odd_pair_tables is None:
+        odd_pair_tables = build_odd_pair_transfer_tables(trans_codes, coeffs, n_branches)
+    odd_new_a, odd_new_b, odd_coeffs, odd_n_branches = odd_pair_tables
+
     total_discarded = 0.0
     for site in range(mps.n_blocks - 1):
         A = mps.tensors[site]
         B = mps.tensors[site + 1]
+        if _is_identity_block_tensor(A) and _is_identity_block_tensor(B):
+            continue
         theta = np.einsum("lam,mbr->labr", A, B, optimize=True)
         use_parallel = parallel_kernels is True or parallel_kernels == "parallel"
         if parallel_kernels == "auto":
             use_parallel = A.shape[0] * B.shape[2] >= 32768
         if use_parallel:
-            theta = _apply_odd_transfer_theta(theta, trans_codes, coeffs, n_branches)
+            theta = _apply_odd_transfer_theta(
+                theta, odd_new_a, odd_new_b, odd_coeffs, odd_n_branches
+            )
         else:
-            theta = _apply_odd_transfer_theta_serial(theta, trans_codes, coeffs, n_branches)
+            theta = _apply_odd_transfer_theta_serial(
+                theta, odd_new_a, odd_new_b, odd_coeffs, odd_n_branches
+            )
 
         chi_l, d1, d2, chi_r = theta.shape
         mat = theta.reshape(chi_l * d1, d2 * chi_r)
@@ -785,6 +830,7 @@ def _evolve_observable_backward_lightcone(
     trans_codes,
     coeffs,
     n_branches,
+    odd_pair_tables: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray],
     lam_schedule: np.ndarray,
     n_steps: int,
     chi_max: int | None,
@@ -860,6 +906,7 @@ def _evolve_observable_backward_lightcone(
                     n_iter=n_iter,
                     canonicalize=canonicalize,
                     parallel_kernels=parallel_kernels,
+                    odd_pair_tables=odd_pair_tables,
                 )
                 apply_block_noise_inplace(
                     island.mps, even_diag[sl], parallel_kernels=parallel_kernels
@@ -884,6 +931,7 @@ def _evolve_observable_backward_lightcone(
                     n_iter=n_iter,
                     canonicalize=canonicalize,
                     parallel_kernels=parallel_kernels,
+                    odd_pair_tables=odd_pair_tables,
                 )
                 apply_block_noise_inplace(
                     island.mps, odd_diag[sl], parallel_kernels=parallel_kernels
@@ -1026,6 +1074,7 @@ def evolve_observable_backward_mps(
 
     lam_schedule = normalize_lambda_schedule(lam_xyz, n_steps, n_qubits)
     trans_codes, coeffs, n_branches = build_heisenberg_pauli_transfer(phi)
+    odd_pair_tables = build_odd_pair_transfer_tables(trans_codes, coeffs, n_branches)
 
     if use_lightcone:
         result = _evolve_observable_backward_lightcone(
@@ -1034,6 +1083,7 @@ def evolve_observable_backward_mps(
             trans_codes=trans_codes,
             coeffs=coeffs,
             n_branches=n_branches,
+            odd_pair_tables=odd_pair_tables,
             lam_schedule=lam_schedule,
             n_steps=n_steps,
             chi_max=chi_max,
@@ -1082,6 +1132,7 @@ def evolve_observable_backward_mps(
                 n_iter=n_iter,
                 canonicalize=canonicalize,
                 parallel_kernels=parallel_kernels,
+                odd_pair_tables=odd_pair_tables,
             )
             apply_block_noise_inplace(
                 mps, build_block_noise_diag(eta_even), parallel_kernels=parallel_kernels
@@ -1102,6 +1153,7 @@ def evolve_observable_backward_mps(
                 n_iter=n_iter,
                 canonicalize=canonicalize,
                 parallel_kernels=parallel_kernels,
+                odd_pair_tables=odd_pair_tables,
             )
             apply_block_noise_inplace(
                 mps,
@@ -1213,6 +1265,7 @@ def evolve_observable_backward_series(
         even_diag = build_touched_layer_noise_diag(eta_even, "even")
         odd_diag = build_touched_layer_noise_diag(eta_odd, "odd")
     trans_codes, coeffs, n_branches = build_heisenberg_pauli_transfer(phi)
+    odd_pair_tables = build_odd_pair_transfer_tables(trans_codes, coeffs, n_branches)
 
     values = np.empty(max_steps + 1, dtype=np.float64)
     max_bond_by_step = np.zeros(max_steps + 1, dtype=np.int64)
@@ -1256,6 +1309,7 @@ def evolve_observable_backward_series(
                             n_iter=n_iter,
                             canonicalize=canonicalize,
                             parallel_kernels=parallel_kernels,
+                            odd_pair_tables=odd_pair_tables,
                         )
                         apply_block_noise_inplace(
                             island.mps, even_diag[sl], parallel_kernels=parallel_kernels
@@ -1280,6 +1334,7 @@ def evolve_observable_backward_series(
                             n_iter=n_iter,
                             canonicalize=canonicalize,
                             parallel_kernels=parallel_kernels,
+                            odd_pair_tables=odd_pair_tables,
                         )
                         apply_block_noise_inplace(
                             island.mps, odd_diag[sl], parallel_kernels=parallel_kernels
@@ -1325,6 +1380,7 @@ def evolve_observable_backward_series(
                     n_iter=n_iter,
                     canonicalize=canonicalize,
                     parallel_kernels=parallel_kernels,
+                    odd_pair_tables=odd_pair_tables,
                 )
                 apply_block_noise_inplace(mps, even_diag, parallel_kernels=parallel_kernels)
                 apply_even_layer_inplace(
@@ -1343,6 +1399,7 @@ def evolve_observable_backward_series(
                     n_iter=n_iter,
                     canonicalize=canonicalize,
                     parallel_kernels=parallel_kernels,
+                    odd_pair_tables=odd_pair_tables,
                 )
                 apply_block_noise_inplace(mps, odd_diag, parallel_kernels=parallel_kernels)
                 apply_even_layer_inplace(
