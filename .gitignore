@@ -1,0 +1,26 @@
+.DS_Store
+
+# Python caches and test/tool caches
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.nbc
+*.nbi
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local plotting/cache directories
+.mplconfig/
+
+# Generated benchmark data and figures. Keep source scripts/notebooks tracked;
+# regenerate these artifacts locally unless a result is intentionally published.
+*.csv
+*.png
+*.pdf
+*.svg
+
+# Large local archives
+*.zip
