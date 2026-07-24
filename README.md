@@ -445,7 +445,7 @@ The median-of-means style summary used here is:
 ```math
 Q_{\mathrm{MoM}}(s)
 =
-\operatorname{median}_g Q_g(s).
+\mathrm{median}_g Q_g(s).
 ```
 
 `Q_pooled(s)` is the direct ratio-of-sums estimator. `Q_MoM(s)` is a
