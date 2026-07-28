@@ -143,6 +143,70 @@ fit_outputs = run_zne_fit_compare(
 fit_outputs["summary_csv"]
 ```
 
+Parameter guide:
+
+```text
+q_groups
+  Grouped Q CSV from final_dp_mom_convergence_sweep.py. Must contain method,
+  group, s, q_plus, and q_minus. If it also has plus_num/plus_den and
+  minus_num/minus_den, you may use q_summary="pooled".
+
+observables
+  Observable CSV from MPS or hardware. Must contain s plus one value column:
+  mps_value, O_mps, observable, value, mean, obs, or y. Optional error columns
+  are sigma, se, stderr, or std_error.
+
+s_grid
+  The s values available in the Q CSV.
+
+s_fit_q
+  The Q points used to fit the log-mode ansatz for Q_ave(s) and Q_diff(s).
+  Usually use all converged Q points, for example 1,2,4,8.
+
+s_fit_o
+  The observable points used for the final ZNE fit. These must exist in the
+  observable CSV.
+
+shots
+  If use_observed=False, simulate finite-shot observable data from exact/MPS
+  O(s) values with this many shots per noisy point.
+
+use_observed
+  False means treat observables as exact references and simulate shot noise.
+  True means fit the observable values exactly as loaded from the CSV.
+
+noisy_s
+  Which observable s points get shot-sampled when use_observed=False. Use
+  "all" for all s_fit_o points, "none" for no shot sampling, or a list like
+  "1,2" for hybrid hardware/classical fits.
+
+exact_sigma
+  Error bar assigned to exact/classical points that are not shot-sampled.
+
+q_summary
+  pointwise_mom uses the median Q value across groups at each s. mean uses the
+  group mean. pooled uses ratio-of-sums and requires numerator/denominator
+  columns in the Q CSV.
+
+q_total_samples
+  Selects one requested_total_samples block from a grouped Q CSV. The default
+  0 uses the largest block present.
+
+alpha_gate, alpha_layer
+  Ridge penalty on the v coefficient for the gate_qmom and layer_qmom fits.
+  The u coefficient is not regularized; u is the extrapolated O(0).
+
+n_trials, seed
+  Number of noisy observable resamples and the RNG seed used when simulating
+  shot noise.
+
+dual_exp_rate_min, dual_exp_rate_max, dual_exp_grid_size, dual_exp_amp_bound
+  Grid-search settings for the dual-exponential baseline.
+
+out_prefix
+  Prefix for all generated CSV and PNG outputs.
+```
+
 This compares:
 
 ```text
