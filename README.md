@@ -143,6 +143,177 @@ fit_outputs = run_zne_fit_compare(
 fit_outputs["summary_csv"]
 ```
 
+## Workflow And Fitting Procedure
+
+The fitting workflow has three data streams:
+
+```text
+Q data      Monte Carlo estimates of Q+(s) and Q-(s)
+O data      noisy, MPS, or hardware observable values O(s)
+baseline    ordinary dual-exponential ZNE fit to O(s)
+```
+
+The samplers estimate the signed-sector damping curves:
+
+```math
+Q^\pm(s)
+=
+\frac{\sum_{\gamma \in \pm} |A_\gamma| D_\gamma^s}
+{\sum_{\gamma \in \pm} |A_\gamma|}.
+```
+
+For grouped Monte Carlo data, each group gives:
+
+```math
+Q^\pm_g(s)
+=
+\frac{N^\pm_g(s)}{D^\pm_g}.
+```
+
+The default notebook workflow uses pointwise median-of-means summaries:
+
+```math
+\widehat{Q}^\pm(s)
+=
+\mathrm{median}_g Q^\pm_g(s).
+```
+
+This is intentionally robust against rare denominator-heavy prefix batches. For
+large enough groups, the pointwise median, group mean, and pooled ratio should
+move toward the same value. If they do not, treat the gap as a finite-sample
+systematic diagnostic.
+
+The Q-assisted fit does not fit `Q+` and `Q-` independently. It first converts
+them into an average log mode and a sign-imbalance log mode:
+
+```math
+\ell(s)
+=
+\frac{1}{2}
+\left[
+\log Q^+(s)
++
+\log Q^-(s)
+\right],
+```
+
+```math
+\delta(s)
+=
+\frac{1}{2}
+\left[
+\log Q^+(s)
+-
+\log Q^-(s)
+\right].
+```
+
+Those are fit with the ansatz:
+
+```math
+\ell(s)
+=
+-a_1 s + a_2 s^2 - a_3 s^3,
+```
+
+```math
+\delta(s)
+=
+d_1 s + d_2 s^2.
+```
+
+The fitted modes define:
+
+```math
+Q_{\mathrm{ave}}(s)
+=
+e^{\ell(s)} \cosh(\delta(s)),
+```
+
+```math
+Q_{\mathrm{diff}}(s)
+=
+e^{\ell(s)} \sinh(\delta(s)).
+```
+
+The observable is then fit as a linear model:
+
+```math
+O_{\mathrm{fit}}(s)
+=
+u Q_{\mathrm{ave}}(s)
++
+v Q_{\mathrm{diff}}(s).
+```
+
+Because `Q_ave(0)=1` and `Q_diff(0)=0`, the zero-noise extrapolated observable
+is:
+
+```math
+O_{\mathrm{fit}}(0) = u.
+```
+
+This is why the output column `u_O0` is the main number to read.
+
+With noisy observable data, the final `u,v` fit uses weighted ridge regression:
+
+```math
+\min_{u,v}
+\sum_s
+\frac{
+\left[
+u Q_{\mathrm{ave}}(s)
++
+v Q_{\mathrm{diff}}(s)
+-
+O_{\mathrm{obs}}(s)
+\right]^2
+}{\sigma_O(s)^2}
++
+\alpha_v v^2.
+```
+
+Only `v` is regularized. The `u` coefficient is left unregularized because it is
+the reported zero-noise estimate.
+
+If `use_observed=False`, the script treats the observable CSV as an exact/MPS
+reference and simulates finite-shot data. For Pauli observables, the default
+shot-noise scale is:
+
+```math
+\sigma_O(s)
+\approx
+\sqrt{\frac{1 - O(s)^2}{N_{\mathrm{shots}}}}.
+```
+
+If `use_observed=True`, the observable values are fit directly. If the CSV
+contains `sigma`, `se`, `stderr`, or `std_error`, those error bars are used.
+
+The dual-exponential baseline ignores the Q data and fits only:
+
+```math
+O_{\mathrm{dual}}(s)
+=
+c_1 e^{-b_1 s}
++
+c_2 e^{-b_2 s}.
+```
+
+It is useful as a comparison, especially for seeing whether Q information
+stabilizes the extrapolated `O(0)` under shot noise or sign-changing observable
+curves.
+
+Interpret the output files as follows:
+
+```text
+*_summary.csv   aggregate statistics over noisy trials
+*_trials.csv    one row per trial and model; u_O0 is the extrapolated O(0)
+*_q_fits.csv    fitted a1,a2,a3,d1,d2 Q-mode parameters
+*_curves.csv    plotted curve values for the first trial
+*_curves.png    fit curves over the observed O(s) data
+*_hist.png      distribution of relative O(0) errors across trials
+```
+
 Parameter guide:
 
 ```text
