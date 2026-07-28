@@ -514,10 +514,53 @@ python sweep_mps_zizj_chi_vs_s.py \
 
 Q-assisted ZNE versus dual-exponential ZNE:
 
+The fitting driver combines:
+
+```text
+Q data:   final_dp_mom_convergence_*_groups.csv
+O data:   MPS or hardware observable CSV with s and mps_value/O_mps/observable/value
+models:   dual_exp, gate_qmom, layer_qmom
+```
+
+Generate grouped Q data first:
+
+```bash
+MPLCONFIGDIR=.mplconfig python final_dp_mom_convergence_sweep.py \
+  --n-qubits 20 \
+  --n-steps 10 \
+  --q1 6 \
+  --q2 10 \
+  --phi 0.2 \
+  --s-grid 1,2,4,8 \
+  --total-samples 1e6,1e7 \
+  --n-groups 16 \
+  --methods gate,layer \
+  --out-prefix final_dp_mom_convergence_N20_L10_Z6Z10_phi02
+```
+
+Generate the matching MPS observable curve:
+
+```bash
+python sweep_mps_zizj_chi_vs_s.py \
+  --n-qubits 20 \
+  --n-steps 10 \
+  --q1 6 \
+  --q2 10 \
+  --phi 0.2 \
+  --s-values 0,1,2,4,8 \
+  --chi-values 350 \
+  --noise-model independent \
+  --noise-placement layer \
+  --out-csv mps_N20_L10_Z6Z10_phi02_chi350.csv \
+  --resume
+```
+
+Then compare Q-assisted fits against dual-exponential ZNE:
+
 ```bash
 MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
   --q-groups final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv \
-  --observables mps_N20_L10_Z6Z10_phi02_chi_sweep.csv \
+  --observables mps_N20_L10_Z6Z10_phi02_chi350.csv \
   --default-case case0 \
   --s-grid 1,2,4,8 \
   --s-fit-q 1,2,4,8 \
@@ -526,6 +569,39 @@ MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
   --n-trials 500 \
   --q-summary pointwise_mom \
   --out-prefix zne_fit_N20_L10_Z6Z10_phi02_100k
+```
+
+`--shots` simulates noisy hardware-style observable points from exact/MPS
+values. For real measured observable data, put the measured values in the
+observable CSV and use:
+
+```bash
+MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
+  --q-groups final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv \
+  --observables hardware_observables_N20_L10_Z6Z10_phi02.csv \
+  --s-grid 1,2,4,8 \
+  --s-fit-q 1,2,4,8 \
+  --s-fit-o 1,2,4,8 \
+  --use-observed \
+  --q-summary pointwise_mom \
+  --out-prefix zne_fit_hardware_N20_L10_Z6Z10_phi02
+```
+
+For hybrid data, where lower noise points are hardware/noisy and larger `s`
+points are exact classical values, use `--noisy-s`:
+
+```bash
+MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
+  --q-groups final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv \
+  --observables mps_N20_L10_Z6Z10_phi02_chi350.csv \
+  --s-grid 1,2,4,8 \
+  --s-fit-q 1,2,4,8 \
+  --s-fit-o 1,2,4,8 \
+  --noisy-s 1,2 \
+  --shots 100000 \
+  --exact-sigma 1e-6 \
+  --q-summary pointwise_mom \
+  --out-prefix zne_fit_hybrid_s12_100k_N20_L10_Z6Z10_phi02
 ```
 
 This writes:
@@ -540,8 +616,8 @@ This writes:
 ```
 
 The compared models are `dual_exp`, `gate_qmom`, and `layer_qmom`. Use
-`--use-observed` when the observable CSV already contains measured noisy values
-instead of exact/MPS values to be shot-sampled.
+`--q-total-samples` to choose a particular sample-count block from a grouped Q
+CSV; by default the fitter uses the largest `requested_total_samples` present.
 
 For current sampling comparisons, use:
 
