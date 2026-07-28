@@ -1,51 +1,119 @@
 # Pauli-Path ZNE
 
-Research code for Pauli-path sampling and zero-noise extrapolation experiments
-on 1D Heisenberg brickwall circuits.
+Research code for Pauli-path sampling and zero-noise extrapolation (ZNE) on
+1D Heisenberg brickwall circuits.
 
-The current workflow estimates the sector damping functions:
+The practical goal of this repo is to estimate a zero-noise target observable,
+such as `Z_6 Z_10`, by combining:
+
+```text
+Q data       classical Pauli-path sampling of Q+(s) and Q-(s)
+O data       noisy hardware, simulated shot-noisy, or MPS observable data O(s)
+baseline     ordinary dual-exponential ZNE fit for comparison
+```
+
+The recommended entry point is the notebook:
+
+```text
+notebooks/Final_Layer_DP_Usage.ipynb
+```
+
+The main final fitting function is:
+
+```python
+from fit_zne_compare import run_zne_fit_compare
+```
+
+## Motivation
+
+Standard ZNE fits the measured observable curve `O(s)` directly as a function of
+noise scale `s`. For the sign-changing and rare-event regimes we are studying,
+direct fits such as a dual exponential can be unstable because the same few
+noisy points determine both the decay rates and the zero-noise intercept.
+
+The Q-assisted strategy separates the problem into two pieces.
+
+First, use Pauli-path sampling to learn the sector damping curves:
 
 ```math
 Q^\pm(s)
 =
-\frac{\sum_{\gamma \in \pm} |A_\gamma| D_\gamma^s}
+\frac{\sum_{\gamma \in \pm} |A_\gamma|D_\gamma^s}
 {\sum_{\gamma \in \pm} |A_\gamma|}.
 ```
 
-Here `+` and `-` denote the signed Pauli-path sectors, `A_gamma` is the
-noiseless path amplitude, and `D_gamma^s` is the noise damping factor at noise
-scale `s`.
+Second, use the measured or simulated observable data only to fit two linear
+coefficients. This makes the final noisy-data fit much better conditioned.
 
-Deterministic MPS simulations are included for comparison against the noisy
-observable curve:
+## High-Level Workflow
 
-```math
-O(s).
-```
-
-## What Is New
-
-The newest code adds final-layer dynamic programming (DP) to both sampling
-paths.
-
-The gate-wise prefix sampler samples gates one by one, with trigger-based
-restricted sampling once the support can still reach the target.
-
-The layer-wise DP prefix sampler samples full Trotter layers using blocked
-light-cone/full-layer transition tables.
-
-The final-layer DP marginal enumerates all nonzero valid final-layer
-continuations conditioned on the sampled prefix. This removes final-layer branch
-noise. Remaining rare-event behavior comes from the sampled prefix distribution,
-not from the final-layer enumeration.
-
-## Repository Guide
-
-Core final-layer DP files:
+1. Choose a target problem.
 
 ```text
-Pauli_path_Heis_full_layer_sampling_restricted.py
+N          number of qubits
+L          number of Heisenberg layers
+target     for example Z_6 Z_10
+phi        Heisenberg circuit angle
+lambda     base noise strength
+s_grid     noise scale points, often 1,2,4,8
+```
+
+2. Generate or load an observable curve `O(s)`.
+
+For benchmarks, use the MPS solver with the same independent/product noise
+model used by the sampler. For real experiments, load hardware estimates of
+`O(s)` and their error bars if available.
+
+3. Estimate `Q+(s)` and `Q-(s)`.
+
+Use final-layer DP sampling with both samplers:
+
+```text
+gate_qmom     gate-wise triggered prefix sampler plus final-layer DP
+layer_qmom    layer-wise DP prefix sampler plus final-layer DP
+```
+
+The final-layer DP exactly sums all nonzero final-layer continuations
+conditioned on the sampled prefix. This removes final-layer branch noise. The
+remaining hard part is prefix rare-event variance.
+
+4. Check Q convergence.
+
+Compare pooled, group mean, and median-of-means (MoM). If they disagree, the Q
+data is still prefix-tail dominated.
+
+5. Fit Q modes.
+
+The fitter converts `Q+` and `Q-` into average and difference modes, then fits a
+smooth log ansatz.
+
+6. Fit `O(s)`.
+
+The final Q-assisted ZNE model is linear in two coefficients:
+
+```math
+O_{\mathrm{fit}}(s)
+=
+u Q_{\mathrm{ave}}(s)
++
+v Q_{\mathrm{diff}}(s).
+```
+
+The zero-noise estimate is:
+
+```math
+O_{\mathrm{fit}}(0) = u.
+```
+
+In output files, read this as `u_O0`.
+
+## Repository Map
+
+Core samplers:
+
+```text
 Pauli_path_Heis_mixture_trigger.py
+Pauli_path_Heis_full_layer_sampling_restricted.py
 benchmark_q_curve_convergence.py
 final_dp_mom_convergence_sweep.py
 qpm_numba_utils.py
@@ -55,12 +123,18 @@ MPS comparison:
 
 ```text
 pauli_mps_solver.py
-pauli_mps_solver_user_guide.md
 compute_mps_zizj_vs_s.py
 sweep_mps_zizj_chi_vs_s.py
+pauli_mps_solver_user_guide.md
 ```
 
-Diagnostics and convergence checks:
+Final fitting:
+
+```text
+fit_zne_compare.py
+```
+
+Diagnostics:
 
 ```text
 diagnose_q_batch_heavytails.py
@@ -69,22 +143,13 @@ sweep_final_dp_vs_single_convergence.py
 benchmark_q_batchsize_convergence.py
 ```
 
-Fitting and ZNE comparison:
-
-```text
-fit_zne_compare.py
-```
-
 Notebook tutorial:
 
 ```text
 notebooks/Final_Layer_DP_Usage.ipynb
 ```
 
-## Basic Setup
-
-The scripts are plain Python and expect NumPy, Numba, and Matplotlib. The MPS
-solver uses the scientific Python stack already used elsewhere in this repo.
+## Setup
 
 From the repository root:
 
@@ -94,97 +159,277 @@ python -m py_compile \
   Pauli_path_Heis_mixture_trigger.py \
   benchmark_q_curve_convergence.py \
   final_dp_mom_convergence_sweep.py \
+  fit_zne_compare.py \
   pauli_mps_solver.py
 ```
 
 Generated CSV, PNG, cache, and notebook checkpoint files are ignored by default.
 
-## Final ZNE Fit Quick Start
-
-Use `fit_zne_compare.py` after you have:
-
-```text
-1. grouped Q data from final_dp_mom_convergence_sweep.py
-2. observable data from MPS or hardware
-```
-
-The final comparison command is:
+For plotting in restricted environments, set:
 
 ```bash
-MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
-  --q-groups final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv \
-  --observables mps_N20_L10_Z6Z10_phi02_chi350.csv \
-  --s-grid 1,2,4,8 \
-  --s-fit-q 1,2,4,8 \
-  --s-fit-o 1,2,4,8 \
-  --shots 100000 \
-  --n-trials 500 \
-  --q-summary pointwise_mom \
-  --out-prefix zne_fit_N20_L10_Z6Z10_phi02_100k
+export MPLCONFIGDIR=.mplconfig
 ```
 
-The notebook-friendly equivalent is:
+## Notebook User Manual
+
+Use `notebooks/Final_Layer_DP_Usage.ipynb` as the canonical notebook workflow.
+The README below mirrors the notebook sections and explains what each step is
+for.
+
+### 1. Import The Repo
+
+If the notebook is opened from `notebooks/`, add the repo root to `sys.path`
+before importing local modules.
+
+```python
+from pathlib import Path
+import os
+import sys
+
+REPO_ROOT = Path.cwd()
+if not (REPO_ROOT / "pauli_mps_solver.py").exists():
+    REPO_ROOT = REPO_ROOT.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+os.environ.setdefault("MPLCONFIGDIR", str(REPO_ROOT / ".mplconfig"))
+```
+
+The key notebook imports are:
 
 ```python
 from fit_zne_compare import run_zne_fit_compare
+from final_dp_mom_convergence_sweep import summarize as summarize_q_groups
+from pauli_mps_solver import evolve_observable_backward_mps, pauli_zz
+```
 
+The notebook also imports the gate-wise and layer-wise sampler modules directly.
+
+### 2. Choose The Target Problem
+
+The main target parameters are:
+
+```python
+N_QUBITS = 20
+N_STEPS = 6
+Q1, Q2 = 6, 10
+PHI = 0.2
+LAMBDA_BASE = 1.0e-3
+S_GRID = [1.0, 2.0, 4.0, 8.0]
+```
+
+For production runs, increase `N_STEPS`, `TOTAL_SAMPLES`, and the MPS bond
+dimension `CHI_MAX`. Always keep the MPS noise convention aligned with the
+sampler:
+
+```text
+noise_model      independent
+noise_placement  layer
+```
+
+Avoid `legacy_sum` unless intentionally reproducing older results.
+
+### 3. Compute Or Load O(s)
+
+For benchmarks, compute an MPS reference curve at:
+
+```text
+s = 0,1,2,4,8
+```
+
+The `s=0` value is the true zero-noise benchmark when MPS is converged. The
+positive `s` values are the noisy curve used by the ZNE fit.
+
+For real hardware data, create a CSV with:
+
+```text
+s, observable
+```
+
+or:
+
+```text
+s, observable, sigma
+```
+
+Accepted observable value columns are:
+
+```text
+mps_value
+O_mps
+observable
+value
+mean
+obs
+y
+```
+
+Accepted error columns are:
+
+```text
+sigma
+se
+stderr
+std_error
+```
+
+### 4. Estimate Q+(s) And Q-(s)
+
+The notebook runs grouped Q sampling. Each group produces:
+
+```text
+q_plus(s)
+q_minus(s)
+plus_num(s), plus_den
+minus_num(s), minus_den
+```
+
+The grouped data lets us compare:
+
+```text
+pooled ratio       sum numerator / sum denominator
+group mean         average of group ratios
+pointwise MoM      median of group ratios
+```
+
+The default final fit uses `q_summary="pointwise_mom"` because the finite-sample
+prefix distribution can be heavy-tailed.
+
+### 5. Diagnose Q Convergence
+
+Use the notebook plots and summary columns:
+
+```text
+pooled_ratio
+mean_group_ratio
+mom_median_group_ratio
+den_ess_groups
+top4_den_share
+```
+
+Interpretation:
+
+```text
+pooled ~= mean ~= MoM       Q estimate is behaving well
+pooled far from MoM         rare prefix batches still dominate
+low den_ess_groups          denominator weight is concentrated in few groups
+large top4_den_share        a few groups control the ratio
+```
+
+The final-layer DP itself is exact conditional on the sampled prefix. These
+diagnostics are about prefix sampling variance, not final-layer bias.
+
+### 6. Run The Final ZNE Fit
+
+In notebooks, use the Python API:
+
+```python
 fit_outputs = run_zne_fit_compare(
     q_groups="final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv",
     observables="mps_N20_L10_Z6Z10_phi02_chi350.csv",
-    s_grid="1,2,4,8",
-    s_fit_q="1,2,4,8",
-    s_fit_o="1,2,4,8",
+    s_grid=[1, 2, 4, 8],
+    s_fit_q=[1, 2, 4, 8],
+    s_fit_o=[1, 2, 4, 8],
     shots=100_000,
     n_trials=500,
     q_summary="pointwise_mom",
     out_prefix="zne_fit_N20_L10_Z6Z10_phi02_100k",
 )
-
-fit_outputs["summary_csv"]
 ```
 
-## Workflow And Fitting Procedure
+`fit_outputs` is a dictionary of paths:
 
-The fitting workflow has three data streams:
+```python
+fit_outputs["summary_csv"]
+fit_outputs["trials_csv"]
+fit_outputs["q_fits_csv"]
+fit_outputs["curves_png"]
+fit_outputs["hist_png"]
+```
+
+For real measured data, use:
+
+```python
+fit_outputs = run_zne_fit_compare(
+    q_groups="final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv",
+    observables="hardware_observables_N20_L10_Z6Z10_phi02.csv",
+    s_grid=[1, 2, 4, 8],
+    s_fit_q=[1, 2, 4, 8],
+    s_fit_o=[1, 2, 4, 8],
+    use_observed=True,
+    q_summary="pointwise_mom",
+    out_prefix="zne_fit_hardware_N20_L10_Z6Z10_phi02",
+)
+```
+
+For hybrid fits where only some low-`s` points are noisy and higher-`s` points
+are exact classical/MPS values:
+
+```python
+fit_outputs = run_zne_fit_compare(
+    q_groups="final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv",
+    observables="mps_N20_L10_Z6Z10_phi02_chi350.csv",
+    s_grid=[1, 2, 4, 8],
+    s_fit_q=[1, 2, 4, 8],
+    s_fit_o=[1, 2, 4, 8],
+    noisy_s=[1, 2],
+    shots=100_000,
+    exact_sigma=1.0e-6,
+    q_summary="pointwise_mom",
+    out_prefix="zne_fit_hybrid_s12_100k_N20_L10_Z6Z10_phi02",
+)
+```
+
+### 7. Read The Results
+
+The final zero-noise estimate is `u_O0`.
+
+Look first at:
 
 ```text
-Q data      Monte Carlo estimates of Q+(s) and Q-(s)
-O data      noisy, MPS, or hardware observable values O(s)
-baseline    ordinary dual-exponential ZNE fit to O(s)
+*_summary.csv
 ```
 
-The samplers estimate the signed-sector damping curves:
+Important columns:
 
-```math
-Q^\pm(s)
-=
-\frac{\sum_{\gamma \in \pm} |A_\gamma| D_\gamma^s}
-{\sum_{\gamma \in \pm} |A_\gamma|}.
+```text
+model              dual_exp, gate_qmom, or layer_qmom
+mean_u_O0          mean zero-noise estimate over trials
+std_u_O0           trial-to-trial spread
+mean_rel_error     relative error if true O(0) is known
+rmse_rel           RMS relative error if true O(0) is known
+p05_rel_error      lower 5 percent quantile
+p95_rel_error      upper 95 percent quantile
+mean_chi2          average weighted fit residual
 ```
 
-For grouped Monte Carlo data, each group gives:
+For real hardware data with no known `O(0)`, compare:
 
-```math
-Q^\pm_g(s)
-=
-\frac{N^\pm_g(s)}{D^\pm_g}.
+```text
+gate_qmom vs layer_qmom agreement
+dual_exp vs Q-assisted disagreement
+fit residuals
+stability under q_summary and alpha changes
 ```
 
-The default notebook workflow uses pointwise median-of-means summaries:
+### 8. Interpret The Plots
 
-```math
-\widehat{Q}^\pm(s)
-=
-\mathrm{median}_g Q^\pm_g(s).
+`*_curves.png` overlays:
+
+```text
+observed O(s)
+dual_exp fit
+gate_qmom fit
+layer_qmom fit
 ```
 
-This is intentionally robust against rare denominator-heavy prefix batches. For
-large enough groups, the pointwise median, group mean, and pooled ratio should
-move toward the same value. If they do not, treat the gap as a finite-sample
-systematic diagnostic.
+`*_hist.png` shows the distribution of extrapolated errors over simulated noisy
+trials when a known MPS `O(0)` is available.
 
-The Q-assisted fit does not fit `Q+` and `Q-` independently. It first converts
-them into an average log mode and a sign-imbalance log mode:
+## Fitting Model
+
+The Q-assisted fit does not fit `Q+` and `Q-` independently. It first forms:
 
 ```math
 \ell(s)
@@ -208,35 +453,35 @@ them into an average log mode and a sign-imbalance log mode:
 \right].
 ```
 
-Those are fit with the ansatz:
+Then it fits:
 
 ```math
 \ell(s)
 =
--a_1 s + a_2 s^2 - a_3 s^3,
+-a_1s + a_2s^2 - a_3s^3,
 ```
 
 ```math
 \delta(s)
 =
-d_1 s + d_2 s^2.
+d_1s + d_2s^2.
 ```
 
-The fitted modes define:
+These define:
 
 ```math
 Q_{\mathrm{ave}}(s)
 =
-e^{\ell(s)} \cosh(\delta(s)),
+e^{\ell(s)}\cosh(\delta(s)),
 ```
 
 ```math
 Q_{\mathrm{diff}}(s)
 =
-e^{\ell(s)} \sinh(\delta(s)).
+e^{\ell(s)}\sinh(\delta(s)).
 ```
 
-The observable is then fit as a linear model:
+The observable model is:
 
 ```math
 O_{\mathrm{fit}}(s)
@@ -246,25 +491,21 @@ u Q_{\mathrm{ave}}(s)
 v Q_{\mathrm{diff}}(s).
 ```
 
-Because `Q_ave(0)=1` and `Q_diff(0)=0`, the zero-noise extrapolated observable
-is:
+At `s=0`, `Q_ave(0)=1` and `Q_diff(0)=0`, so:
 
 ```math
 O_{\mathrm{fit}}(0) = u.
 ```
 
-This is why the output column `u_O0` is the main number to read.
-
-With noisy observable data, the final `u,v` fit uses weighted ridge regression:
+With noisy observable data, the final fit minimizes:
 
 ```math
-\min_{u,v}
 \sum_s
 \frac{
 \left[
-u Q_{\mathrm{ave}}(s)
+uQ_{\mathrm{ave}}(s)
 +
-v Q_{\mathrm{diff}}(s)
+vQ_{\mathrm{diff}}(s)
 -
 O_{\mathrm{obs}}(s)
 \right]^2
@@ -273,568 +514,96 @@ O_{\mathrm{obs}}(s)
 \alpha_v v^2.
 ```
 
-Only `v` is regularized. The `u` coefficient is left unregularized because it is
-the reported zero-noise estimate.
+Only `v` is regularized. The reported zero-noise estimate `u` is not
+regularized.
 
-If `use_observed=False`, the script treats the observable CSV as an exact/MPS
-reference and simulates finite-shot data. For Pauli observables, the default
-shot-noise scale is:
+If `use_observed=False`, the script simulates shot noise from exact/MPS
+observable values using:
 
 ```math
 \sigma_O(s)
 \approx
-\sqrt{\frac{1 - O(s)^2}{N_{\mathrm{shots}}}}.
+\sqrt{\frac{1-O(s)^2}{N_{\mathrm{shots}}}}.
 ```
 
-If `use_observed=True`, the observable values are fit directly. If the CSV
-contains `sigma`, `se`, `stderr`, or `std_error`, those error bars are used.
-
-The dual-exponential baseline ignores the Q data and fits only:
+The baseline model ignores Q data and fits:
 
 ```math
 O_{\mathrm{dual}}(s)
 =
-c_1 e^{-b_1 s}
+c_1e^{-b_1s}
 +
-c_2 e^{-b_2 s}.
+c_2e^{-b_2s}.
 ```
 
-It is useful as a comparison, especially for seeing whether Q information
-stabilizes the extrapolated `O(0)` under shot noise or sign-changing observable
-curves.
+Use this as a baseline, not as the preferred estimator in difficult
+sign-changing cases.
 
-Interpret the output files as follows:
+## `run_zne_fit_compare` Parameters
+
+Core inputs:
+
+| parameter | meaning |
+|---|---|
+| `q_groups` | Grouped Q CSV from `final_dp_mom_convergence_sweep.py`. |
+| `observables` | MPS or hardware observable CSV. |
+| `s_grid` | `s` values present in the Q data. |
+| `s_fit_q` | Q points used for the log-mode fit. |
+| `s_fit_o` | Observable points used in the final fit. |
+
+Noise and estimator controls:
+
+| parameter | meaning |
+|---|---|
+| `shots` | Shots per noisy point when simulating noisy observations. |
+| `use_observed` | Fit loaded observable values directly instead of simulating shot noise. |
+| `noisy_s` | Which `s_fit_o` values get shot sampled. Use `"all"`, `"none"`, or a list such as `[1, 2]`. |
+| `exact_sigma` | Error assigned to exact/classical points not shot sampled. |
+| `q_summary` | `"pointwise_mom"`, `"mean"`, or `"pooled"`. |
+| `q_total_samples` | Select a specific `requested_total_samples` block. `0` uses the largest. |
+| `alpha_gate`, `alpha_layer` | Ridge penalty on `v` for gate-wise and layer-wise Q fits. |
+| `n_trials`, `seed` | Number of noisy resamples and RNG seed. |
+
+Dual-exponential baseline controls:
+
+| parameter | meaning |
+|---|---|
+| `dual_exp_rate_min`, `dual_exp_rate_max` | Range of decay rates for the baseline grid. |
+| `dual_exp_grid_size` | Number of rate points in the grid. |
+| `dual_exp_amp_bound` | Maximum absolute fitted amplitude. |
+| `curve_s_max`, `curve_points` | Range and resolution of saved curve plots. |
+| `out_prefix` | Prefix for generated outputs. |
+
+## Output Files
+
+`run_zne_fit_compare` writes:
 
 ```text
-*_summary.csv   aggregate statistics over noisy trials
-*_trials.csv    one row per trial and model; u_O0 is the extrapolated O(0)
-*_q_fits.csv    fitted a1,a2,a3,d1,d2 Q-mode parameters
-*_curves.csv    plotted curve values for the first trial
-*_curves.png    fit curves over the observed O(s) data
-*_hist.png      distribution of relative O(0) errors across trials
+*_summary.csv
+*_trials.csv
+*_q_fits.csv
+*_curves.csv
+*_curves.png
+*_hist.png
 ```
 
-Parameter guide:
-
-```text
-q_groups
-  Grouped Q CSV from final_dp_mom_convergence_sweep.py. Must contain method,
-  group, s, q_plus, and q_minus. If it also has plus_num/plus_den and
-  minus_num/minus_den, you may use q_summary="pooled".
-
-observables
-  Observable CSV from MPS or hardware. Must contain s plus one value column:
-  mps_value, O_mps, observable, value, mean, obs, or y. Optional error columns
-  are sigma, se, stderr, or std_error.
-
-s_grid
-  The s values available in the Q CSV.
-
-s_fit_q
-  The Q points used to fit the log-mode ansatz for Q_ave(s) and Q_diff(s).
-  Usually use all converged Q points, for example 1,2,4,8.
-
-s_fit_o
-  The observable points used for the final ZNE fit. These must exist in the
-  observable CSV.
-
-shots
-  If use_observed=False, simulate finite-shot observable data from exact/MPS
-  O(s) values with this many shots per noisy point.
-
-use_observed
-  False means treat observables as exact references and simulate shot noise.
-  True means fit the observable values exactly as loaded from the CSV.
-
-noisy_s
-  Which observable s points get shot-sampled when use_observed=False. Use
-  "all" for all s_fit_o points, "none" for no shot sampling, or a list like
-  "1,2" for hybrid hardware/classical fits.
-
-exact_sigma
-  Error bar assigned to exact/classical points that are not shot-sampled.
-
-q_summary
-  pointwise_mom uses the median Q value across groups at each s. mean uses the
-  group mean. pooled uses ratio-of-sums and requires numerator/denominator
-  columns in the Q CSV.
-
-q_total_samples
-  Selects one requested_total_samples block from a grouped Q CSV. The default
-  0 uses the largest block present.
-
-alpha_gate, alpha_layer
-  Ridge penalty on the v coefficient for the gate_qmom and layer_qmom fits.
-  The u coefficient is not regularized; u is the extrapolated O(0).
-
-n_trials, seed
-  Number of noisy observable resamples and the RNG seed used when simulating
-  shot noise.
-
-dual_exp_rate_min, dual_exp_rate_max, dual_exp_grid_size, dual_exp_amp_bound
-  Grid-search settings for the dual-exponential baseline.
-
-out_prefix
-  Prefix for all generated CSV and PNG outputs.
-```
-
-This compares:
-
-```text
-dual_exp
-gate_qmom
-layer_qmom
-```
-
-The extrapolated zero-noise estimate is the `u_O0` column in:
-
-```text
-zne_fit_N20_L10_Z6Z10_phi02_100k_summary.csv
-zne_fit_N20_L10_Z6Z10_phi02_100k_trials.csv
-```
-
-For real measured observable data, use `--use-observed` instead of simulating
-shot noise from MPS values:
-
-```bash
-MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
-  --q-groups final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv \
-  --observables hardware_observables_N20_L10_Z6Z10_phi02.csv \
-  --s-grid 1,2,4,8 \
-  --s-fit-q 1,2,4,8 \
-  --s-fit-o 1,2,4,8 \
-  --use-observed \
-  --q-summary pointwise_mom \
-  --out-prefix zne_fit_hardware_N20_L10_Z6Z10_phi02
-```
-
-The longer command-line section below shows how to generate the matching Q and
-MPS input CSVs.
-
-## Notebook Usage
-
-The recommended entry point is the notebook:
-
-```text
-notebooks/Final_Layer_DP_Usage.ipynb
-```
-
-The examples below mirror the notebook style: import the repo modules, set a
-small parameter block, compute an MPS reference curve, then run the gate-wise and
-layer-wise final-DP samplers.
-
-### 1. Imports
-
-If the notebook is opened from `notebooks/`, add the repo root to `sys.path`
-before importing local modules.
-
-```python
-from pathlib import Path
-import os
-import sys
-import time
-
-import numpy as np
-
-REPO_ROOT = Path.cwd()
-if not (REPO_ROOT / "pauli_mps_solver.py").exists():
-    REPO_ROOT = REPO_ROOT.parent
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-os.environ.setdefault("MPLCONFIGDIR", str(REPO_ROOT / ".mplconfig"))
-
-import matplotlib.pyplot as plt
-
-import Pauli_path_Heis_mixture_trigger as gate
-import Pauli_path_Heis_full_layer_sampling_restricted as layer
-
-from benchmark_q_curve_convergence import (
-    dp_q_curve_aggregate,
-    find_s1_index,
-    gate_q_curve_aggregate,
-    product_eta_from_lambda,
-    row_from_aggregate,
-)
-from final_dp_mom_convergence_sweep import summarize as summarize_q_groups
-from pauli_mps_solver import evolve_observable_backward_mps, pauli_zz
-```
-
-### 2. Parameters
-
-This is intentionally small enough for notebook testing. Increase
-`TOTAL_SAMPLES`, `N_STEPS`, and `CHI_MAX` for production runs.
-
-```python
-N_QUBITS = 20
-N_STEPS = 6
-Q1, Q2 = 6, 10
-PHI = 0.2
-LAMBDA_BASE = 1.0e-3
-S_GRID = np.array([1.0, 2.0, 4.0, 8.0], dtype=np.float64)
-
-TOTAL_SAMPLES = [10_000, 100_000, 1_000_000]
-N_GROUPS = 16
-
-CHI_MAX = 128
-CUTOFF = 1.0e-10
-SVD_METHOD = "auto"
-```
-
-### 3. MPS Reference for the Observable
-
-The MPS solver computes the noisy observable curve `O(s)`. It does not compute
-`Q_plus(s)` or `Q_minus(s)` directly.
-
-```python
-def run_mps_curve(
-    n_qubits=N_QUBITS,
-    n_steps=N_STEPS,
-    q1=Q1,
-    q2=Q2,
-    phi=PHI,
-    lambda_base=LAMBDA_BASE,
-    s_values=(0.0, 1.0, 2.0, 4.0, 8.0),
-    chi_max=CHI_MAX,
-):
-    target = pauli_zz(n_qubits, q1, q2)
-    rows = []
-    for s in s_values:
-        lam = np.full((n_qubits, 3), lambda_base * s, dtype=np.float64)
-        t0 = time.perf_counter()
-        value, _, info = evolve_observable_backward_mps(
-            target,
-            n_qubits=n_qubits,
-            phi=phi,
-            lam_xyz=lam,
-            n_steps=n_steps,
-            chi_max=chi_max,
-            cutoff=CUTOFF,
-            svd_method=SVD_METHOD,
-            noise_model="independent",
-            noise_placement="layer",
-            use_lightcone=True,
-            return_mps=True,
-        )
-        rows.append(
-            {
-                "s": float(s),
-                "O_mps": float(value),
-                "runtime_s": time.perf_counter() - t0,
-                "max_bond": int(np.max(info["bond_dims"])),
-                "max_discarded_weight": float(
-                    np.max(info["discarded_by_backward_step"])
-                ),
-            }
-        )
-    return rows
-
-
-mps_rows = run_mps_curve()
-mps_rows
-```
-
-Plot the MPS curve:
-
-```python
-fig, ax = plt.subplots(figsize=(5.5, 3.4))
-ax.plot([r["s"] for r in mps_rows], [r["O_mps"] for r in mps_rows], marker="o")
-ax.axhline(0.0, color="black", linewidth=0.8)
-ax.set_xlabel("s")
-ax.set_ylabel("MPS O(s)")
-ax.grid(True, alpha=0.25)
-```
-
-### 4. Final-Layer DP Sampling for Q Curves
-
-This cell runs both samplers in groups. Each group produces numerator and
-denominator sums for `Q_plus(s)` and `Q_minus(s)` over the full `S_GRID`.
-
-```python
-def group_size_for(total_samples, n_groups):
-    return max(1, int(np.ceil(total_samples / n_groups)))
-
-
-def q_result_rows(
-    method,
-    requested_total,
-    actual_total,
-    n_groups,
-    group_size,
-    group_index,
-    result,
-    s_grid,
-):
-    rows = []
-    for k, s in enumerate(s_grid):
-        rows.append(
-            {
-                "method": method,
-                "requested_total_samples": int(requested_total),
-                "actual_total_samples": int(actual_total),
-                "n_groups": int(n_groups),
-                "samples_per_group": int(group_size),
-                "group": int(group_index),
-                "s": float(s),
-                "q_plus": float(result["q_plus"][k]),
-                "q_minus": float(result["q_minus"][k]),
-                "plus_num": float(result["plus_num"][k]),
-                "plus_den": float(result["plus_den"]),
-                "minus_num": float(result["minus_num"][k]),
-                "minus_den": float(result["minus_den"]),
-                "runtime_s": float(result["runtime"]),
-                "triggered_frac": float(result["triggered_frac"]),
-            }
-        )
-    return rows
-```
-
-```python
-def run_final_dp_q_groups(
-    total_samples_list=TOTAL_SAMPLES,
-    n_groups=N_GROUPS,
-    methods=("gate", "layer"),
-    n_qubits=N_QUBITS,
-    n_steps=N_STEPS,
-    q1=Q1,
-    q2=Q2,
-    phi=PHI,
-    lambda_base=LAMBDA_BASE,
-    s_grid=S_GRID,
-):
-    s1_idx = find_s1_index(s_grid)
-
-    init_pauli = np.zeros(n_qubits, dtype=np.int8)
-    init_pauli[q1] = 3
-    init_pauli[q2] = 3
-
-    lam_xyz = np.full((n_qubits, 3), lambda_base, dtype=np.float64)
-    eta_xyz = product_eta_from_lambda(lam_xyz)
-
-    even_gates, odd_gates = gate.make_even_odd_layers(n_qubits)
-    trans_g, probs_g, is_comm_g, sign_g, amp_factor_g = gate.build_transition_tables(phi)
-    trans_l, signed_l, abs_l, n_branches_l, *_ = layer.build_full_layer_tables(phi)
-
-    group_rows = []
-    for requested_total in total_samples_list:
-        group_size = group_size_for(requested_total, n_groups)
-        actual_total = group_size * n_groups
-        for group_index in range(1, n_groups + 1):
-            if "gate" in methods:
-                t0 = time.perf_counter()
-                agg = gate_q_curve_aggregate(
-                    init_pauli,
-                    even_gates,
-                    odd_gates,
-                    trans_g,
-                    probs_g,
-                    is_comm_g,
-                    sign_g,
-                    amp_factor_g,
-                    trans_l,
-                    signed_l,
-                    abs_l,
-                    n_branches_l,
-                    eta_xyz,
-                    n_steps,
-                    group_size,
-                    s_grid,
-                    s1_idx,
-                )
-                result = row_from_aggregate(agg, group_size, time.perf_counter() - t0)
-                group_rows.extend(
-                    q_result_rows(
-                        "gate",
-                        requested_total,
-                        actual_total,
-                        n_groups,
-                        group_size,
-                        group_index,
-                        result,
-                        s_grid,
-                    )
-                )
-
-            if "layer" in methods:
-                t0 = time.perf_counter()
-                agg = dp_q_curve_aggregate(
-                    init_pauli,
-                    trans_l,
-                    signed_l,
-                    abs_l,
-                    n_branches_l,
-                    eta_xyz,
-                    n_steps,
-                    group_size,
-                    s_grid,
-                    s1_idx,
-                )
-                result = row_from_aggregate(agg, group_size, time.perf_counter() - t0)
-                group_rows.extend(
-                    q_result_rows(
-                        "layer",
-                        requested_total,
-                        actual_total,
-                        n_groups,
-                        group_size,
-                        group_index,
-                        result,
-                        s_grid,
-                    )
-                )
-    return group_rows
-
-
-q_group_rows = run_final_dp_q_groups()
-q_summary = summarize_q_groups(q_group_rows)
-q_summary[:4]
-```
-
-### 5. Plot Pooled vs Median-of-Means
-
-`summarize_q_groups` reports the direct ratio-of-sums estimator, the mean of
-group ratios, and the median of group ratios.
-
-```python
-def plot_q_summary(q_summary, s_to_show=(1.0, 8.0)):
-    methods = sorted({r["method"] for r in q_summary})
-    sectors = ("plus", "minus")
-    fig, axes = plt.subplots(len(methods), len(sectors), figsize=(10, 5.8), sharex=True)
-    if len(methods) == 1:
-        axes = np.array([axes])
-
-    for i, method in enumerate(methods):
-        for j, sector in enumerate(sectors):
-            ax = axes[i, j]
-            for s in s_to_show:
-                rows = [
-                    r
-                    for r in q_summary
-                    if r["method"] == method and r["sector"] == sector and r["s"] == s
-                ]
-                rows.sort(key=lambda r: r["actual_total_samples"])
-                x = np.array([r["actual_total_samples"] for r in rows], dtype=float)
-                ax.plot(
-                    x,
-                    [r["pooled_ratio"] for r in rows],
-                    marker="o",
-                    label=f"pooled, s={s:g}",
-                )
-                ax.plot(
-                    x,
-                    [r["mom_median_group_ratio"] for r in rows],
-                    marker="^",
-                    linestyle="--",
-                    label=f"MoM, s={s:g}",
-                )
-            ax.set_xscale("log")
-            ax.set_title(f"{method} Q{sector[0]}")
-            ax.set_xlabel("total samples")
-            ax.grid(True, alpha=0.25)
-            if j == 0:
-                ax.set_ylabel("Q estimate")
-            ax.legend(fontsize=8)
-
-    fig.tight_layout()
-    return fig
-
-
-plot_q_summary(q_summary)
-```
-
-## Estimator Notes
-
-For group `g`, define:
-
-```math
-Q_g(s) = \frac{N_g(s)}{D_g}.
-```
-
-The pooled estimator is:
-
-```math
-Q_{\mathrm{pooled}}(s)
-=
-\frac{\sum_g N_g(s)}{\sum_g D_g}.
-```
-
-The median-of-means style summary used here is:
-
-```math
-Q_{\mathrm{MoM}}(s)
-=
-\mathrm{median}_g Q_g(s).
-```
-
-`Q_pooled(s)` is the direct ratio-of-sums estimator. `Q_MoM(s)` is a
-finite-sample robustness diagnostic and can be useful for extrapolation fits
-when denominator-heavy rare events make the pooled estimates unstable. If groups
-are too small, MoM can suppress real rare-tail contributions, so group-size
-convergence should always be checked.
-
-Useful diagnostic columns:
-
-```text
-pooled_ratio
-mean_group_ratio
-mom_median_group_ratio
-den_ess_groups
-top4_den_share
-```
-
-If pooled, group mean, and MoM agree, the group size is likely large enough for
-that system. If pooled sits far below mean/MoM, a few high-denominator prefix
-groups may be dominating the ratio.
-
-## Command-Line Runs
-
-The notebook import workflow is best for exploration. For long production
-runs, use the resumable command-line scripts.
-
-Final-layer DP Q convergence:
-
-```bash
-MPLCONFIGDIR=.mplconfig python final_dp_mom_convergence_sweep.py \
-  --n-qubits 20 \
-  --n-steps 10 \
-  --q1 6 \
-  --q2 10 \
-  --phi 0.2 \
-  --s-grid 1,2,4,8 \
-  --total-samples 1e3,3e3,1e4,3e4,1e5,3e5,1e6 \
-  --n-groups 16 \
-  --methods gate,layer \
-  --out-prefix final_dp_mom_convergence_N20_L10_Z6Z10_phi02
-```
-
-MPS observable reference:
-
-```bash
-python sweep_mps_zizj_chi_vs_s.py \
-  --n-qubits 20 \
-  --n-steps 10 \
-  --q1 6 \
-  --q2 10 \
-  --phi 0.2 \
-  --s-values 0,1,2,4,8 \
-  --chi-values 128,256,350 \
-  --noise-model independent \
-  --noise-placement layer \
-  --out-csv mps_N20_L10_Z6Z10_phi02_chi_sweep.csv \
-  --resume
-```
-
-Q-assisted ZNE versus dual-exponential ZNE:
-
-The fitting driver combines:
-
-```text
-Q data:   final_dp_mom_convergence_*_groups.csv
-O data:   MPS or hardware observable CSV with s and mps_value/O_mps/observable/value
-models:   dual_exp, gate_qmom, layer_qmom
-```
-
-Generate grouped Q data first:
+Meaning:
+
+| file | purpose |
+|---|---|
+| `*_summary.csv` | Aggregate statistics over noisy trials. |
+| `*_trials.csv` | One row per model and trial. `u_O0` is the extrapolated `O(0)`. |
+| `*_q_fits.csv` | Fitted Q-mode coefficients `a1,a2,a3,d1,d2`. |
+| `*_curves.csv` | Curve values used to make the first-trial plot. |
+| `*_curves.png` | Fit curves plotted against the observed `O(s)` points. |
+| `*_hist.png` | Distribution of `O(0)` errors over simulated noisy trials. |
+
+## Command-Line Appendix
+
+The notebook API is the recommended interface for exploration. The scripts can
+also be run directly for long resumable jobs.
+
+Grouped Q data:
 
 ```bash
 MPLCONFIGDIR=.mplconfig python final_dp_mom_convergence_sweep.py \
@@ -850,7 +619,7 @@ MPLCONFIGDIR=.mplconfig python final_dp_mom_convergence_sweep.py \
   --out-prefix final_dp_mom_convergence_N20_L10_Z6Z10_phi02
 ```
 
-Generate the matching MPS observable curve:
+MPS observable data:
 
 ```bash
 python sweep_mps_zizj_chi_vs_s.py \
@@ -867,13 +636,12 @@ python sweep_mps_zizj_chi_vs_s.py \
   --resume
 ```
 
-Then compare Q-assisted fits against dual-exponential ZNE:
+Final ZNE comparison:
 
 ```bash
 MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
   --q-groups final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv \
   --observables mps_N20_L10_Z6Z10_phi02_chi350.csv \
-  --default-case case0 \
   --s-grid 1,2,4,8 \
   --s-fit-q 1,2,4,8 \
   --s-fit-o 1,2,4,8 \
@@ -883,72 +651,19 @@ MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
   --out-prefix zne_fit_N20_L10_Z6Z10_phi02_100k
 ```
 
-`--shots` simulates noisy hardware-style observable points from exact/MPS
-values. For real measured observable data, put the measured values in the
-observable CSV and use:
+Heavy-tail diagnostic:
 
 ```bash
-MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
-  --q-groups final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv \
-  --observables hardware_observables_N20_L10_Z6Z10_phi02.csv \
-  --s-grid 1,2,4,8 \
-  --s-fit-q 1,2,4,8 \
-  --s-fit-o 1,2,4,8 \
-  --use-observed \
-  --q-summary pointwise_mom \
-  --out-prefix zne_fit_hardware_N20_L10_Z6Z10_phi02
+MPLCONFIGDIR=.mplconfig python diagnose_q_batch_heavytails.py \
+  --batches final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv \
+  --samples-per-batch 625000 \
+  --out-prefix taildiag_N20_L10_Z6Z10_phi02
 ```
-
-For hybrid data, where lower noise points are hardware/noisy and larger `s`
-points are exact classical values, use `--noisy-s`:
-
-```bash
-MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
-  --q-groups final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv \
-  --observables mps_N20_L10_Z6Z10_phi02_chi350.csv \
-  --s-grid 1,2,4,8 \
-  --s-fit-q 1,2,4,8 \
-  --s-fit-o 1,2,4,8 \
-  --noisy-s 1,2 \
-  --shots 100000 \
-  --exact-sigma 1e-6 \
-  --q-summary pointwise_mom \
-  --out-prefix zne_fit_hybrid_s12_100k_N20_L10_Z6Z10_phi02
-```
-
-This writes:
-
-```text
-*_q_fits.csv
-*_trials.csv
-*_summary.csv
-*_curves.csv
-*_hist.png
-*_curves.png
-```
-
-The compared models are `dual_exp`, `gate_qmom`, and `layer_qmom`. Use
-`--q-total-samples` to choose a particular sample-count block from a grouped Q
-CSV; by default the fitter uses the largest `requested_total_samples` present.
-
-For current sampling comparisons, use:
-
-```text
-noise_model     independent
-noise_placement layer
-```
-
-Avoid `legacy_sum` unless intentionally reproducing old results.
 
 ## Development Notes
 
 Keep generated data and plots out of commits unless a benchmark artifact is
 intentionally being published.
-
-Use `MPLCONFIGDIR=.mplconfig` when running plotting scripts in restricted
-environments.
-
-Prefer the resumable command-line scripts for long runs.
 
 Check MPS bond dimensions and discarded weights before treating MPS data as an
 exact reference.
