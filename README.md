@@ -99,6 +99,63 @@ python -m py_compile \
 
 Generated CSV, PNG, cache, and notebook checkpoint files are ignored by default.
 
+## Final ZNE Fit Quick Start
+
+Use `fit_zne_compare.py` after you have:
+
+```text
+1. grouped Q data from final_dp_mom_convergence_sweep.py
+2. observable data from MPS or hardware
+```
+
+The final comparison command is:
+
+```bash
+MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
+  --q-groups final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv \
+  --observables mps_N20_L10_Z6Z10_phi02_chi350.csv \
+  --s-grid 1,2,4,8 \
+  --s-fit-q 1,2,4,8 \
+  --s-fit-o 1,2,4,8 \
+  --shots 100000 \
+  --n-trials 500 \
+  --q-summary pointwise_mom \
+  --out-prefix zne_fit_N20_L10_Z6Z10_phi02_100k
+```
+
+This compares:
+
+```text
+dual_exp
+gate_qmom
+layer_qmom
+```
+
+The extrapolated zero-noise estimate is the `u_O0` column in:
+
+```text
+zne_fit_N20_L10_Z6Z10_phi02_100k_summary.csv
+zne_fit_N20_L10_Z6Z10_phi02_100k_trials.csv
+```
+
+For real measured observable data, use `--use-observed` instead of simulating
+shot noise from MPS values:
+
+```bash
+MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
+  --q-groups final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv \
+  --observables hardware_observables_N20_L10_Z6Z10_phi02.csv \
+  --s-grid 1,2,4,8 \
+  --s-fit-q 1,2,4,8 \
+  --s-fit-o 1,2,4,8 \
+  --use-observed \
+  --q-summary pointwise_mom \
+  --out-prefix zne_fit_hardware_N20_L10_Z6Z10_phi02
+```
+
+The longer command-line section below shows how to generate the matching Q and
+MPS input CSVs.
+
 ## Notebook Usage
 
 The recommended entry point is the notebook:
