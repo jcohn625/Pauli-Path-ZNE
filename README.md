@@ -69,6 +69,12 @@ sweep_final_dp_vs_single_convergence.py
 benchmark_q_batchsize_convergence.py
 ```
 
+Fitting and ZNE comparison:
+
+```text
+fit_zne_compare.py
+```
+
 Notebook tutorial:
 
 ```text
@@ -505,6 +511,37 @@ python sweep_mps_zizj_chi_vs_s.py \
   --out-csv mps_N20_L10_Z6Z10_phi02_chi_sweep.csv \
   --resume
 ```
+
+Q-assisted ZNE versus dual-exponential ZNE:
+
+```bash
+MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
+  --q-groups final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv \
+  --observables mps_N20_L10_Z6Z10_phi02_chi_sweep.csv \
+  --default-case case0 \
+  --s-grid 1,2,4,8 \
+  --s-fit-q 1,2,4,8 \
+  --s-fit-o 1,2,4,8 \
+  --shots 100000 \
+  --n-trials 500 \
+  --q-summary pointwise_mom \
+  --out-prefix zne_fit_N20_L10_Z6Z10_phi02_100k
+```
+
+This writes:
+
+```text
+*_q_fits.csv
+*_trials.csv
+*_summary.csv
+*_curves.csv
+*_hist.png
+*_curves.png
+```
+
+The compared models are `dual_exp`, `gate_qmom`, and `layer_qmom`. Use
+`--use-observed` when the observable CSV already contains measured noisy values
+instead of exact/MPS values to be shot-sampled.
 
 For current sampling comparisons, use:
 
