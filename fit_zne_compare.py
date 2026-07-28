@@ -1,6 +1,7 @@
 import argparse
 import csv
 import os
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -364,6 +365,124 @@ def plot_curves(curve_rows, out_path):
 def model_curve_from_dual_exp(fit, s_values):
     s_values = np.asarray(s_values, dtype=np.float64)
     return fit["a1"] * np.exp(-fit["b1"] * s_values) + fit["a2"] * np.exp(-fit["b2"] * s_values)
+
+
+def output_paths(out_prefix):
+    out_prefix = Path(out_prefix)
+    return {
+        "q_fits_csv": out_prefix.with_name(f"{out_prefix.name}_q_fits.csv"),
+        "trials_csv": out_prefix.with_name(f"{out_prefix.name}_trials.csv"),
+        "summary_csv": out_prefix.with_name(f"{out_prefix.name}_summary.csv"),
+        "curves_csv": out_prefix.with_name(f"{out_prefix.name}_curves.csv"),
+        "hist_png": out_prefix.with_name(f"{out_prefix.name}_hist.png"),
+        "curves_png": out_prefix.with_name(f"{out_prefix.name}_curves.png"),
+    }
+
+
+def comma_arg(value):
+    if isinstance(value, np.ndarray):
+        return ",".join(f"{float(x):g}" for x in value.tolist())
+    if isinstance(value, (list, tuple)):
+        return ",".join(f"{float(x):g}" for x in value)
+    return str(value)
+
+
+def run_zne_fit_compare(
+    *,
+    q_groups,
+    observables,
+    out_prefix="zne_fit_compare",
+    cases="",
+    default_case=DEFAULT_CASE,
+    methods="gate,layer",
+    q_total_samples=0,
+    q_summary="pointwise_mom",
+    s_grid="1,2,4,8",
+    s_fit_q="1,2,4,8",
+    s_fit_o="1,2,4,8",
+    noisy_s="all",
+    shots=100_000,
+    use_observed=False,
+    exact_sigma=1.0e-6,
+    n_trials=500,
+    seed=20260728,
+    alpha_gate=3.0e-8,
+    alpha_layer=1.0e-8,
+    dual_exp_rate_min=1.0e-3,
+    dual_exp_rate_max=5.0,
+    dual_exp_grid_size=100,
+    dual_exp_amp_bound=10.0,
+    curve_s_max=8.0,
+    curve_points=300,
+):
+    """Notebook-friendly wrapper around the command-line ZNE comparison.
+
+    Returns a dictionary of generated output paths. The implementation calls the
+    same ``main`` path as the CLI so notebook and command-line results stay in
+    lockstep.
+    """
+
+    argv = [
+        "fit_zne_compare.py",
+        "--q-groups",
+        str(q_groups),
+        "--observables",
+        str(observables),
+        "--cases",
+        str(cases),
+        "--default-case",
+        str(default_case),
+        "--methods",
+        str(methods),
+        "--q-total-samples",
+        str(q_total_samples),
+        "--q-summary",
+        str(q_summary),
+        "--s-grid",
+        comma_arg(s_grid),
+        "--s-fit-q",
+        comma_arg(s_fit_q),
+        "--s-fit-o",
+        comma_arg(s_fit_o),
+        "--noisy-s",
+        comma_arg(noisy_s),
+        "--shots",
+        str(shots),
+        "--exact-sigma",
+        str(exact_sigma),
+        "--n-trials",
+        str(n_trials),
+        "--seed",
+        str(seed),
+        "--alpha-gate",
+        str(alpha_gate),
+        "--alpha-layer",
+        str(alpha_layer),
+        "--dual-exp-rate-min",
+        str(dual_exp_rate_min),
+        "--dual-exp-rate-max",
+        str(dual_exp_rate_max),
+        "--dual-exp-grid-size",
+        str(dual_exp_grid_size),
+        "--dual-exp-amp-bound",
+        str(dual_exp_amp_bound),
+        "--curve-s-max",
+        str(curve_s_max),
+        "--curve-points",
+        str(curve_points),
+        "--out-prefix",
+        str(out_prefix),
+    ]
+    if use_observed:
+        argv.append("--use-observed")
+
+    old_argv = sys.argv
+    try:
+        sys.argv = argv
+        main()
+    finally:
+        sys.argv = old_argv
+    return output_paths(out_prefix)
 
 
 def main():

@@ -123,6 +123,26 @@ MPLCONFIGDIR=.mplconfig python fit_zne_compare.py \
   --out-prefix zne_fit_N20_L10_Z6Z10_phi02_100k
 ```
 
+The notebook-friendly equivalent is:
+
+```python
+from fit_zne_compare import run_zne_fit_compare
+
+fit_outputs = run_zne_fit_compare(
+    q_groups="final_dp_mom_convergence_N20_L10_Z6Z10_phi02_groups.csv",
+    observables="mps_N20_L10_Z6Z10_phi02_chi350.csv",
+    s_grid="1,2,4,8",
+    s_fit_q="1,2,4,8",
+    s_fit_o="1,2,4,8",
+    shots=100_000,
+    n_trials=500,
+    q_summary="pointwise_mom",
+    out_prefix="zne_fit_N20_L10_Z6Z10_phi02_100k",
+)
+
+fit_outputs["summary_csv"]
+```
+
 This compares:
 
 ```text
