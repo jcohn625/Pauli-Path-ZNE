@@ -1,0 +1,3 @@
+include README.md PROVENANCE.md VALIDATION.md ZNE_workflow.ipynb
+recursive-include examples *.json
+recursive-include tests *.py

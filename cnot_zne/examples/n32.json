@@ -1,0 +1,50 @@
+{
+  "circuit": {
+    "N": 32,
+    "L": 12,
+    "phi": 0.19634954084936207,
+    "O": "IIIIIIIIIIIIIIIZIZIIIIIIIIIIIIII"
+  },
+  "noise": {
+    "placement": "before_cnot",
+    "single": [
+      0.001,
+      0.001,
+      0.0001
+    ],
+    "pair": 0,
+    "channels": {}
+  },
+  "s_grid": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "mps": {
+    "bond_dims": [
+      32,
+      64,
+      128,
+      256
+    ]
+  },
+  "reference": {
+    "bond_dims": [
+      128,
+      256,
+      512
+    ],
+    "atol": 1e-08,
+    "rtol": 0.0001,
+    "consecutive": 2
+  },
+  "fit": {
+    "trials": 1000,
+    "shot_scenarios": {
+      "100k_each": 100000,
+      "1m_each": 1000000,
+      "10m_each": 10000000
+    }
+  }
+}

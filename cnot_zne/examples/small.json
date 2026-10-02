@@ -1,0 +1,24 @@
+{
+  "circuit": {"N": 6, "L": 2, "phi": 0.19634954084936207, "O": "IIZIZI"},
+  "noise": {
+    "placement": "before_cnot",
+    "single": [0.001, 0.001, 0.0001],
+    "pair": 0.0,
+    "channels": {
+      "even_lr": {"single": [0.001, 0.0015, 0.0001]},
+      "even_rl": {"single": [0.0012, 0.001, 0.0002]},
+      "odd_lr": {"single": [0.0008, 0.001, 0.0001]},
+      "odd_rl": {"single": [0.001, 0.001, 0.0003]}
+    }
+  },
+  "s_grid": [1, 2, 4, 8],
+  "mps": {"bond_dims": [16, 32, 64]},
+  "fit": {
+    "trials": 100,
+    "shot_scenarios": {
+      "100k_each": 100000,
+      "1m_each": 1000000,
+      "mixed_exact_tail": {"1": 100000, "2": 1000000, "4": null, "8": null}
+    }
+  }
+}
