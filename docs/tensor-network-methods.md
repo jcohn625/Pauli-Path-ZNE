@@ -5,6 +5,11 @@ curves alongside the existing Pauli-path sampling notebooks and
 `fit_zne_compare.py`. Both engines use a local Pauli basis and Z2 × Z2 symmetry.
 Run commands from the repository root. Site indices are zero based.
 
+For noise after each CNOT layer, including cross-pair and longer-range Pauli
+generators with parity-resolved signed/Q evolution, see the
+[CNOT parity extension](cnot-parity-methods.md). The defaults described below
+remain the original full-Heisenberg-noise modes.
+
 ## Installation
 
 Use **Python 3.11 or 3.12** for the pinned CPU environment (validation uses 3.12).

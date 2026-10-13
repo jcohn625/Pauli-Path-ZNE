@@ -18,7 +18,13 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
                   unsigned=False,bond_cap=2,boundary_cap=16,cutoff=1e-12,
                   noise_model='independent',noise_placement='gate',noise_timing='after',
                   symmetry='none',gate_backend='quimb',capture_layer=None,
-                  capture_boundary=None,boundary_backend='einsum',jacobi_sweeps=16):
+                  capture_boundary=None,boundary_backend='einsum',jacobi_sweeps=16,cnot_noise=None):
+    if cnot_noise is not None and (symmetry!='z2z2' or capture_layer is not None):
+        raise ValueError('CNOT-layer noise requires z2z2 symmetry and does not support layer capture')
+    if cnot_noise is not None:
+        from cnot_parity import normalize_noise
+        normalize_noise(lattice,n_steps,cnot_noise.get('singles',(.001,.002,.003)),
+                        cnot_noise.get('pair_rates',0.),cnot_noise.get('edges'))
     if boundary_backend not in ('einsum','blas','metal-jacobi'):
         raise ValueError('unknown boundary backend')
     if boundary_backend=='metal-jacobi' and (symmetry!='z2z2' or jacobi_sweeps<1):
@@ -79,6 +85,14 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
     if gate_backend!='quimb':
         from peps_metal_layer import LayerEngine
         engine=LayerEngine('metal' if gate_backend=='metal' else 'cpu')
+    cnot_stats=None
+    log_scale=0.0
+    if cnot_noise is not None:
+        from cnot_parity_peps import evolve
+        log_scale,cnot_stats=evolve(peps,gauges,lattice,nx=nx,steps=n_steps,phi=phi,scale=scale,
+            unsigned=unsigned,noise=cnot_noise,cap=bond_cap,cutoff=cutoff,engine=engine)
+        operations=[]
+        active=set(range(lattice.n_sites))
     if engine is not None or capture_layer is not None:
         if not symmetric:raise ValueError('layer capture requires z2z2 symmetry')
         grouped=[];pending=[]
@@ -90,8 +104,7 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
         if pending:grouped.append(('gate_batch',pending,None))
         operations=grouped
     last_batch=max((i for i,op in enumerate(operations) if op[0]=='gate_batch'),default=-1)
-    included=0
-    log_scale=0.0
+    included=0 if cnot_stats is None else cnot_stats["cnot_gates"]//3
     for op_index,(kind,endpoints,data) in enumerate(operations):
         if kind=='noise':
             for q in active:
@@ -154,6 +167,7 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
     peps.fuse_multibonds_()
     closure_seconds=time.perf_counter()-start-evolve_seconds
     if capture_boundary is not None:
+        peps._cnot_evolution_stats=cnot_stats
         capture_boundary(peps,log_scale)
     boundary_start=time.perf_counter()
     from peps_boundary import boundary_backend as boundary_context
@@ -191,7 +205,7 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
                 symmetry=symmetry, symmetry_stats=symmetry_stats, boundary_symmetry_stats=boundary_stats,
                 gate_backend=gate_backend,layer_stats=engine.stats if engine else None,
                 observable_charge=charge if symmetric else None,symmetry_exact_zero=False,
-                accuracy_certified=False,cutoff=cutoff,
+                cnot_stats=cnot_stats,accuracy_certified=False,cutoff=cutoff,
                 approximation='spatial simple update and boundary-MPS contraction')
 
 

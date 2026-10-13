@@ -33,12 +33,17 @@ from fit_zne_compare import run_zne_fit_compare
 6. [Repository Map](docs/repository-map.md)
 7. [MPS/PEPS Installation, Residual Corrections, and Ratio/Q Usage](docs/tensor-network-methods.md)
 
+8. [Per-CNOT-Layer Noise with Parity Symmetry](docs/cnot-parity-methods.md)
+
 ## Tensor-network workflows
 
 For the latest Z2 × Z2 MPS and PEPS methods, residual correction, CPU/Metal
 options, and ratio or Q-assisted fitting, start with the
 [installation and usage guide](docs/tensor-network-methods.md). The existing
 sampling notebooks and fitting interface remain available.
+For full graph-wide Pauli-Lindblad noise after every CNOT layer, including
+correlated and longer-range terms, use `--noise-placement after_cnot`; see the
+[CNOT parity guide](docs/cnot-parity-methods.md).
 
 ```bash
 python3.12 -m venv .venv

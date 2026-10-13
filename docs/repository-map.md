@@ -65,3 +65,8 @@ fit models        dual_exp, gate_qmom, layer_qmom
 - `requirements-*.txt`, `tests/`: install profiles and regression tests.
 
 See [installation and usage](tensor-network-methods.md).
+
+- `cnot_parity.py`: graph-wide CNOT-layer noise compiler and transported charge maps.
+- `cnot_parity_mps.py`: canonical site-wise parity MPS and checkpointed residuals.
+- `cnot_parity_peps.py`: symmetry-resolved elementary PEPS updates and graph routing.
+- [CNOT noise usage](cnot-parity-methods.md): schedules, longer-range edges, and Q compatibility.
