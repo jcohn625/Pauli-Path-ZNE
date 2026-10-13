@@ -1,0 +1,4 @@
+# CPU stack with NumPy OpenBLAS wheels; use Python 3.11 or 3.12.
+numpy==1.26.4
+scipy==1.17.1
+numba==0.60.0

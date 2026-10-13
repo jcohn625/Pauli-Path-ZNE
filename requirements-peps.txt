@@ -1,0 +1,6 @@
+-r requirements-mps.txt
+quimb==1.14.0
+symmray==0.4.0
+cotengra==0.8.1
+autoray==0.8.11
+opt_einsum==3.4.0

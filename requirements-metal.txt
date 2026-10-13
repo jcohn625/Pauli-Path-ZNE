@@ -1,0 +1,2 @@
+# Optional: Apple Silicon macOS only. Install CPU requirements first.
+mlx==0.31.2

@@ -1,7 +1,8 @@
 # Pauli-Path ZNE
 
 Research code for Pauli-path sampling and zero-noise extrapolation (ZNE) on
-1D Heisenberg brickwall circuits.
+1D Heisenberg brickwall circuits, with symmetry-resolved MPS and rectangular
+PEPS extensions.
 
 The practical target is to estimate a zero-noise observable, such as `Z_6 Z_10`,
 by combining:
@@ -30,6 +31,23 @@ from fit_zne_compare import run_zne_fit_compare
 4. [API Reference](docs/api-reference.md)
 5. [Command-Line Appendix](docs/command-line.md)
 6. [Repository Map](docs/repository-map.md)
+7. [MPS/PEPS Installation, Residual Corrections, and Ratio/Q Usage](docs/tensor-network-methods.md)
+
+## Tensor-network workflows
+
+For the latest Z2 × Z2 MPS and PEPS methods, residual correction, CPU/Metal
+options, and ratio or Q-assisted fitting, start with the
+[installation and usage guide](docs/tensor-network-methods.md). The existing
+sampling notebooks and fitting interface remain available.
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-peps.txt
+python tensor_zne.py mps --n 6 --steps 3 --sites 2 4 \
+  --cap 4 --guide-cap 64 --terminal 1 --scales 0 1 2 4 8 \
+  --mode both --out results/mps
+```
 
 ## Why This Exists
 

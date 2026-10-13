@@ -51,3 +51,17 @@ q_summary         pointwise_mom
 s_grid            1,2,4,8
 fit models        dual_exp, gate_qmom, layer_qmom
 ```
+
+## Symmetry-resolved tensor methods
+
+- `tensor_zne.py`: shared MPS/PEPS ratio and Q CLI/API, residual correction and CSV exports.
+- `parity_pauli_mps.py`, `u1_pauli_mps.py`: Z2 × Z2 implementation and shared charge-block operations.
+- `mps_residual.py`: discarded-evolution residual telescope and backward guides.
+- `optimized_pauli_svd.py`, `contiguous_pauli_kernel.py`: CPU/Metal SVD products and Numba transfer.
+- `pauli_peps.py`, `pauli_peps_symmetry.py`: Pauli-basis quimb PEPS and symmray blocks.
+- `peps_boundary.py`, `peps_boundary_residual.py`: CPU boundary contractions and streamed residuals.
+- `peps_metal_layer.py`, `peps_gpu_boundary.py`, `peps_gpu_decomp.py`: optional MLX/Metal operations.
+- `lattice_circuit.py`, `causal_pauli_network.py`: circuit definitions and independent exact-network reference.
+- `requirements-*.txt`, `tests/`: install profiles and regression tests.
+
+See [installation and usage](tensor-network-methods.md).

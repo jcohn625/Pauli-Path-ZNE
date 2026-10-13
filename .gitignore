@@ -24,3 +24,11 @@ __pycache__/
 
 # Large local archives
 *.zip
+
+# Local tensor-network environments and outputs
+.venv/
+.numba_cache*/
+.symmetry_deps/
+results/
+
+.venv*/
