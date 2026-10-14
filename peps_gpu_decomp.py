@@ -6,10 +6,13 @@ Householder QR supports rectangular and rank-deficient blocks. No CPU
 factorizations, normal-equation SVDs, or intermediate tensor readbacks are used.
 """
 class GPUDecompositions:
-    def __init__(self, sweeps=16, optimized=True, parallel_qr=True):
+    def __init__(self, sweeps=16, optimized=True, parallel_qr=True, qr_panel_width=32):
         import mlx.core as mx
         if sweeps<1:raise ValueError('sweeps must be positive')
         self.mx=mx;self.sweeps=int(sweeps);self.cache={};self.optimized=optimized
+        if qr_panel_width not in (16,32,64,128):
+            raise ValueError("QR panel width must be 16, 32, 64, or 128")
+        self.qr_panel_width=qr_panel_width
         self.parallel_qr=parallel_qr and optimized
         self._qr_flush_bytes=64*2**20
         self.stats=dict(qr_batches=0,svd_batches=0,qr_blocks=0,svd_blocks=0,max_core=0)
@@ -75,8 +78,8 @@ class GPUDecompositions:
         # buffers. Materialize bounded panel groups without copying to host.
         flush_large=self.optimized and batch*m*n*4>=self._qr_flush_bytes
         work=a;panels=[];r_rows=[]
-        for j in range(0,k,32):
-            width=min(32,k-j)
+        for j in range(0,k,self.qr_panel_width):
+            width=min(self.qr_panel_width,k-j)
             active=work if self.optimized else work[:,j:,j:]
             _,r,v,tau=self._qr_kernel(active[...,:width],reflectors=True)
             gram=mx.swapaxes(v,-1,-2)@v
@@ -121,7 +124,7 @@ class GPUDecompositions:
                 lower=mx.concatenate((mx.zeros((batch,q.shape[-2],width)),q),axis=-1)
                 q=mx.concatenate((upper,lower),axis=-2)
                 q=q-v@(t@(mx.swapaxes(v,-1,-2)@q))
-                if flush_large and (j%128==0):
+                if flush_large and (j%(4*self.qr_panel_width)==0):
                     mx.eval(q)
                     self.stats['large_qr_flushes']=self.stats.get('large_qr_flushes',0)+1
             return q,mx.concatenate(r_rows,axis=-2)
@@ -145,27 +148,43 @@ class GPUDecompositions:
             uint batch=threadgroup_position_in_grid.x;
             uint rb=batch*M*N, qb=batch*M*K, vb=batch*M*K;
             threadgroup float sums[T];
-            threadgroup float alpha, tau, vfirst;
+            threadgroup float alpha, tau, vfirst, column_scale;
             for(uint i=tid;i<M*N;i+=T) work[rb+i]=x[rb+i];
             for(uint i=tid;i<M*K;i+=T) {{if(MAKE_Q)q[qb+i]=(i/K==i%K)?1.0f:0.0f;v[vb+i]=0.0f;}}
             if(!MAKE_Q && tid==0 && batch==0)q[0]=0;
             threadgroup_barrier(mem_flags::mem_device|mem_flags::mem_threadgroup);
             for(uint j=0;j<K;++j) {{
+                // Scaling prevents squared-norm underflow in weak columns.
+                // Form tau and v in scaled coordinates as well: using a tiny
+                // unscaled denominator can corrupt an otherwise valid Q.
+                float maximum=0;
+                for(uint row=j+tid;row<M;row+=T)
+                    maximum=metal::max(maximum,metal::fabs(work[rb+row*N+j]));
+                sums[tid]=maximum;
+                threadgroup_barrier(mem_flags::mem_threadgroup);
+                if(tid==0) {{
+                    column_scale=0;
+                    for(uint t=0;t<T;++t)column_scale=metal::max(column_scale,sums[t]);
+                }}
+                threadgroup_barrier(mem_flags::mem_threadgroup);
                 float norm=0;
-                for(uint row=j+tid;row<M;row+=T) {{float z=work[rb+row*N+j];norm+=z*z;}}
+                if(column_scale>0)for(uint row=j+tid;row<M;row+=T) {{
+                    float z=work[rb+row*N+j]/column_scale;norm+=z*z;
+                }}
                 sums[tid]=norm;
                 threadgroup_barrier(mem_flags::mem_threadgroup);
                 if(tid==0) {{
                     float total=0;for(uint t=0;t<T;++t) total+=sums[t];
-                    float xj=work[rb+j*N+j];
-                    alpha=-metal::copysign(metal::sqrt(total),xj);
-                    vfirst=xj-alpha;
-                    tau=(total>0)?(alpha-xj)/alpha:0.0f;
+                    float xj=(column_scale>0)?work[rb+j*N+j]/column_scale:0.0f;
+                    float scaled_alpha=-metal::copysign(metal::sqrt(total),xj);
+                    alpha=scaled_alpha*column_scale;
+                    vfirst=xj-scaled_alpha;
+                    tau=(total>0)?(scaled_alpha-xj)/scaled_alpha:0.0f;
                     taus[batch*K+j]=tau;
                 }}
                 threadgroup_barrier(mem_flags::mem_threadgroup);
                 for(uint row=j+tid;row<M;row+=T)
-                    v[vb+row*K+j]=(row==j)?1.0f:((vfirst!=0)?work[rb+row*N+j]/vfirst:0.0f);
+                    v[vb+row*K+j]=(row==j)?1.0f:((column_scale>0 && vfirst!=0)?(work[rb+row*N+j]/column_scale)/vfirst:0.0f);
                 threadgroup_barrier(mem_flags::mem_device|mem_flags::mem_threadgroup);
                 // Each thread updates a whole column; columns are independent.
                 for(uint col=j+1+tid;col<N;col+=T) {{
@@ -215,7 +234,7 @@ class GPUDecompositions:
                 start=source.index('                for(uint col=tid;col<K;col+=T)')
                 end=source.index('                threadgroup_barrier(mem_flags::mem_device|mem_flags::mem_threadgroup);',start)
                 source=source[:start]+parallel_update('q','qb','K','0','K','tj')+source[end:]
-            self.cache[key]=mx.fast.metal_kernel(name=f'peps_householder_{m}_{n}_q{int(make_q)}_p{int(self.parallel_qr)}',
+            self.cache[key]=mx.fast.metal_kernel(name=f'peps_householder_scaled_{m}_{n}_q{int(make_q)}_p{int(self.parallel_qr)}',
                 input_names=['x'],output_names=['q','r','work','v','taus'],source=source)
         q,r,work,v,tau=self.cache[key](inputs=[a],grid=(batch*threads,1,1),threadgroup=(threads,1,1),
             output_shapes=[(batch,m,k) if make_q else (1,),(batch,k,n),(batch,m,n),(batch,m,k),(batch,k)],

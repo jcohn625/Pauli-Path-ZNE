@@ -25,9 +25,9 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
         from cnot_parity import normalize_noise
         normalize_noise(lattice,n_steps,cnot_noise.get('singles',(.001,.002,.003)),
                         cnot_noise.get('pair_rates',0.),cnot_noise.get('edges'))
-    if boundary_backend not in ('einsum','blas','metal-jacobi'):
+    if boundary_backend not in ('einsum','blas','metal-jacobi','metal-hybrid'):
         raise ValueError('unknown boundary backend')
-    if boundary_backend=='metal-jacobi' and (symmetry!='z2z2' or jacobi_sweeps<1):
+    if boundary_backend in ('metal-jacobi','metal-hybrid') and (symmetry!='z2z2' or jacobi_sweeps<1):
         raise ValueError('Metal Jacobi requires z2z2 symmetry and positive sweeps')
     if gate_backend not in ('quimb','batched-cpu','metal'):
         raise ValueError('unknown gate backend')
@@ -65,7 +65,7 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
                         seconds=time.perf_counter()-start,evolve_seconds=0.,closure_seconds=0.,
                         boundary_seconds=0.,final_contract_seconds=0.,boundary_backend=boundary_backend,
                         boundary_gpu_stats=None,
-                        jacobi_sweeps=jacobi_sweeps if boundary_backend=='metal-jacobi' else None,
+                        jacobi_sweeps=jacobi_sweeps if boundary_backend in ('metal-jacobi','metal-hybrid') else None,
                         bond_cap=bond_cap,boundary_cap=boundary_cap,included_gates=0,
                         active_site_count=sum(c != 0 for c in codes),n_sites=lattice.n_sites,
                         n_steps=n_steps,unsigned=unsigned,method='peps-simple-update',
@@ -173,9 +173,10 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
     from peps_boundary import boundary_backend as boundary_context
     boundary_engine=None
     with ExitStack() as stack:
-        if boundary_backend=='metal-jacobi':
+        if boundary_backend in ('metal-jacobi','metal-hybrid'):
             from peps_gpu_boundary import gpu_boundary,to_gpu
-            boundary_engine=stack.enter_context(gpu_boundary(jacobi_sweeps))
+            boundary_engine=stack.enter_context(gpu_boundary(jacobi_sweeps,decomposition_backend=
+                "hybrid" if boundary_backend=="metal-hybrid" else "metal"))
             peps=to_gpu(peps,boundary_engine.mx)
         else:
             stack.enter_context(boundary_context(boundary_backend))
@@ -198,7 +199,7 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
                 closure_seconds=closure_seconds,boundary_seconds=boundary_seconds,
                 boundary_backend=boundary_backend,
                 boundary_gpu_stats=boundary_engine.stats if boundary_engine is not None else None,
-                jacobi_sweeps=jacobi_sweeps if boundary_backend=='metal-jacobi' else None,
+                jacobi_sweeps=jacobi_sweeps if boundary_backend in ('metal-jacobi','metal-hybrid') else None,
                 final_contract_seconds=final_contract_seconds,bond_cap=bond_cap,boundary_cap=boundary_cap,
                 included_gates=included,active_site_count=len(active),n_sites=lattice.n_sites,
                 n_steps=n_steps,unsigned=unsigned,method='peps-simple-update',

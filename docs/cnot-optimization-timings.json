@@ -1,0 +1,339 @@
+{
+  "baseline_commit": "6664cc5",
+  "before": [
+    {
+      "engine": "MPS",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 16,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0,
+        "residual": true
+      },
+      "median_s": 0.48811891698278487,
+      "seconds": [
+        0.4912146660499275,
+        0.4823047090321779,
+        0.48560545803047717,
+        0.48811891698278487,
+        0.49248991697095335
+      ],
+      "approximate": -0.0006321810197330235,
+      "corrected": -0.0020277582096632054
+    },
+    {
+      "engine": "MPS",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 16,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "median_s": 0.7688382919877768,
+      "seconds": [
+        0.7688382919877768,
+        0.7541787920054048,
+        0.763163291849196,
+        0.7915619157720357,
+        0.7843935829587281
+      ],
+      "approximate": -0.0006317256376601629,
+      "corrected": -0.0018985777878275083
+    },
+    {
+      "engine": "PEPS",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0,
+        "residual": true
+      },
+      "median_s": 0.14345587510615587,
+      "seconds": [
+        0.141666459152475,
+        0.14318541693501174,
+        0.14345587510615587,
+        0.14624654198996723,
+        0.14553495799191296
+      ],
+      "approximate": 0.0010907103588435716,
+      "corrected": 0.0010907103588435716
+    },
+    {
+      "engine": "PEPS",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "median_s": 0.48457475006580353,
+      "seconds": [
+        0.481884750071913,
+        0.48457475006580353,
+        0.48933029104955494,
+        0.487479749834165,
+        0.48380108387209475
+      ],
+      "approximate": 0.0009592645399039536,
+      "corrected": 0.0009592645399039533
+    },
+    {
+      "engine": "PEPS-batched",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0,
+        "residual": true
+      },
+      "median_s": 0.15117129194550216,
+      "seconds": [
+        0.15117129194550216,
+        0.15159058291465044,
+        0.15353470807895064,
+        0.1474879588931799,
+        0.14617562503553927
+      ],
+      "approximate": 0.0010907103588435722,
+      "corrected": 0.0010907103588435718
+    },
+    {
+      "engine": "PEPS-batched",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "median_s": 0.4612685830798,
+      "seconds": [
+        0.4544453751295805,
+        0.4612685830798,
+        0.46043058414943516,
+        0.46583624999038875,
+        0.46308545814827085
+      ],
+      "approximate": 0.0009592645399039684,
+      "corrected": 0.0009592645399039685
+    }
+  ],
+  "after": [
+    {
+      "engine": "MPS",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 16,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0,
+        "residual": true
+      },
+      "median_s": 0.06578500010073185,
+      "seconds": [
+        0.06669391691684723,
+        0.0654144580475986,
+        0.06570450006984174,
+        0.06578500010073185,
+        0.06725745904259384
+      ],
+      "approximate": -0.00023666541436896863,
+      "corrected": -0.0020271449745793203
+    },
+    {
+      "engine": "MPS",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 16,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "median_s": 0.4936353750526905,
+      "seconds": [
+        0.4936353750526905,
+        0.49336462491191924,
+        0.6081028340850025,
+        0.5739261670969427,
+        0.48547824984416366
+      ],
+      "approximate": -0.0006085392632785289,
+      "corrected": -0.0018985823892713229
+    },
+    {
+      "engine": "PEPS",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0,
+        "residual": true
+      },
+      "median_s": 0.07043224992230535,
+      "seconds": [
+        0.07118179206736386,
+        0.06847616611048579,
+        0.06997249997220933,
+        0.08841095911338925,
+        0.07043224992230535
+      ],
+      "approximate": 0.0020543903291020023,
+      "corrected": 0.0020543903291020036
+    },
+    {
+      "engine": "PEPS",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "median_s": 0.45988741610199213,
+      "seconds": [
+        0.45067533291876316,
+        0.45988741610199213,
+        0.46239925012923777,
+        0.4625877079088241,
+        0.45587358297780156
+      ],
+      "approximate": 0.0009592645383292171,
+      "corrected": 0.0009592645383292173
+    },
+    {
+      "engine": "PEPS-batched",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0,
+        "residual": true
+      },
+      "median_s": 0.07444833288900554,
+      "seconds": [
+        0.07444833288900554,
+        0.0757719581015408,
+        0.07486608298495412,
+        0.07437899988144636,
+        0.07399833295494318
+      ],
+      "approximate": 0.0020543903291020092,
+      "corrected": 0.0020543903291020097
+    },
+    {
+      "engine": "PEPS-batched",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "median_s": 0.4384632920846343,
+      "seconds": [
+        0.4355417920742184,
+        0.4410611249040812,
+        0.4384632920846343,
+        0.43514187494292855,
+        0.44187929201871157
+      ],
+      "approximate": 0.000959264538329256,
+      "corrected": 0.0009592645383292564
+    }
+  ]
+}

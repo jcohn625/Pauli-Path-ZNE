@@ -32,27 +32,141 @@ from fit_zne_compare import run_zne_fit_compare
 5. [Command-Line Appendix](docs/command-line.md)
 6. [Repository Map](docs/repository-map.md)
 7. [MPS/PEPS Installation, Residual Corrections, and Ratio/Q Usage](docs/tensor-network-methods.md)
-
 8. [Per-CNOT-Layer Noise with Parity Symmetry](docs/cnot-parity-methods.md)
 
-## Tensor-network workflows
+## Tensor-network workflows: CPU/Numba and Apple Metal
 
-For the latest Z2 × Z2 MPS and PEPS methods, residual correction, CPU/Metal
-options, and ratio or Q-assisted fitting, start with the
-[installation and usage guide](docs/tensor-network-methods.md). The existing
-sampling notebooks and fitting interface remain available.
-For full graph-wide Pauli-Lindblad noise after every CNOT layer, including
-correlated and longer-range terms, use `--noise-placement after_cnot`; see the
-[CNOT parity guide](docs/cnot-parity-methods.md).
+The `tensor_zne.py` CLI generates symmetry-resolved MPS or PEPS observable,
+ratio, and Q curves, with residual correction enabled by default. Run commands
+from the repository root; site indices are zero based. The sampling notebooks
+and fitting interface above remain available.
+
+### Installation
+
+Use Python **3.11 or 3.12** (validated with 3.12). The pinned NumPy/Numba stack
+is not compatible with Python 3.13.
 
 ```bash
+git clone https://github.com/jcohn625/Pauli-Path-ZNE.git
+cd Pauli-Path-ZNE
 python3.12 -m venv .venv
 source .venv/bin/activate
+python -m pip install --upgrade pip
 python -m pip install -r requirements-peps.txt
-python tensor_zne.py mps --n 6 --steps 3 --sites 2 4 \
-  --cap 4 --guide-cap 64 --terminal 1 --scales 0 1 2 4 8 \
-  --mode both --out results/mps
 ```
+
+`requirements-peps.txt` installs both methods, including Numba, quimb and
+symmray. For MPS only, use `requirements-mps.txt` instead. On Windows, activate
+with `.venv\Scripts\activate`. CPU use does not require MLX or a GPU.
+
+For reproducible single-thread CPU comparisons:
+
+```bash
+export OPENBLAS_NUM_THREADS=1
+export VECLIB_MAXIMUM_THREADS=1
+export OMP_NUM_THREADS=1
+export NUMBA_NUM_THREADS=1
+export NUMBA_CACHE_DIR="$PWD/.numba_cache"
+```
+
+### CPU runs with Numba
+
+The measured Numba CPU policy is **enabled automatically**. For after-CNOT MPS,
+it accelerates charge-sector gathering, global singular-value selection and
+factor reconstruction. The CPU PEPS layer engine uses fused gauge scaling and
+packing for small FP64 blocks; larger or unsupported blocks retain NumPy.
+QR, SVD and large matrix products continue to use NumPy/SciPy BLAS/LAPACK.
+The first call can include compilation or cache-loading overhead.
+
+```bash
+# MPS: correlated Pauli noise after each CNOT layer; residual ratio and Q curves.
+python tensor_zne.py mps --noise-placement after_cnot \
+  --n 6 --steps 2 --sites 1 4 --cap 4 --guide-cap 32 \
+  --lam .001 .002 .003 --pair-rate .001 --mps-backend cpu \
+  --scales 0 1 2 4 --mode both --out results/mps_cpu
+
+# PEPS: CPU gate updates and CPU boundary contraction.
+python tensor_zne.py peps --noise-placement after_cnot \
+  --nx 4 --ny 4 --steps 2 --sites 5 10 --cap 8 \
+  --boundary-cap 16 --environment-cap 16 --pair-rate .001 \
+  --gate-backend batched-cpu --boundary-backend blas \
+  --scales 0 1 2 4 --mode both --out results/peps_cpu
+```
+
+`--noise-placement after_cnot` inserts a graph-wide Pauli-Lindblad channel after
+each nonempty CNOT layer. `--pair-rate .001` is the rate of **each of the nine**
+Pauli-pair generators per noise edge. The standard Z2 × Z2 labels are restored
+after each full Heisenberg matching using transported intermediate frames.
+See the [CNOT noise guide](docs/cnot-parity-methods.md) for scheduled rates,
+long-range correlations and the noise-file format. Omitting the flag retains
+the historical full-Heisenberg-noise workflows.
+
+To compare against the reference CPU helper routines, set
+`export PAULI_CPU_NUMBA=0` before starting Python, then rerun the same command.
+Use `unset PAULI_CPU_NUMBA` to restore the optimized policy. This switch controls
+the new tensor-network helpers, not every use of Numba elsewhere in the project.
+
+### Apple Silicon Metal and hybrid runs
+
+Install the optional MLX dependency on a supported Apple Silicon macOS system:
+
+```bash
+python -m pip install -r requirements-metal.txt
+```
+
+Select gate evolution and boundary contraction independently:
+
+| Option | Execution |
+|---|---|
+| `--mps-backend cpu` (default) | CPU evolution, Numba helpers and CPU decompositions |
+| `--mps-backend metal` | Randomized-SVD matrix products on Metal; QR/reduced SVD and other MPS work on CPU |
+| `--gate-backend quimb` (PEPS default) | quimb/symmray CPU gate updates, with specialized CPU noise updates |
+| `--gate-backend batched-cpu` | Custom CPU gate engine, including eligible Numba scaling/packing |
+| `--gate-backend metal` | Metal packing/products with CPU gate decompositions |
+| `--boundary-backend blas` (default) | CPU FP64 boundary contractions and decompositions |
+| `--boundary-backend metal-hybrid` | Metal FP32 boundary contractions; selected QR/SVD batches on CPU |
+| `--boundary-backend metal-jacobi` | Metal FP32 boundary contractions and custom QR/Jacobi SVD |
+
+A hybrid PEPS run keeps gate evolution on CPU and moves boundary contractions
+to Metal, using CPU LAPACK where the tested routing policy favors it:
+
+```bash
+python tensor_zne.py peps --noise-placement after_cnot \
+  --nx 6 --ny 6 --steps 2 --sites 7 14 --cap 16 \
+  --boundary-cap 32 --environment-cap 32 --pair-rate .001 \
+  --gate-backend batched-cpu --boundary-backend metal-hybrid \
+  --scales 0 1 --mode both --out results/peps_hybrid
+```
+
+For Metal gate products, change `--gate-backend batched-cpu` to `metal`.
+For custom GPU decompositions, change the boundary backend to `metal-jacobi`;
+`--jacobi-sweeps` defaults to 32. To try MPS hybrid execution, change
+`--mps-backend cpu` to `metal` in the MPS example. Small sector matrices can still
+use full CPU SVD, so selecting Metal may perform little or no GPU work.
+
+CPU is the default and often wins for small problems. Metal arithmetic is FP32;
+compare results and bond convergence against CPU FP64. There is no universal
+bond-dimension threshold for GPU speedup. On our M4 Pro, the new CPU kernels
+reduced tested full-solve times by about 5–10% for MPS and 4–8% for PEPS. An
+earlier 6×6 hybrid test reduced full-solve time by 9%; these are separate
+experiments and the gains should not be added together. See the
+[CPU benchmarks](docs/cpu-numba-results.md) and
+[Metal/hybrid benchmarks](docs/apple-hybrid-refinement-results.md).
+
+### Residuals, outputs and further usage
+
+Use `--mode ratio`, `--mode q`, or `--mode both`. Residual correction is on by
+default; `--no-residual` disables it. PEPS defaults to row-level residual
+contractions; `--residual-granularity bond` retains detailed bond-level
+diagnostics. MPS guide-memory options are in the [CNOT guide](docs/cnot-parity-methods.md).
+
+Each output prefix produces `.json`, `_curves.csv`, `_observables.csv`, and,
+when Q normalization is valid, `_q_groups.csv`. The zero-noise normalization
+point is added automatically. PEPS residuals correct contraction of the evolved
+PEPS, not its spatial gate-truncation error; converge spatial and boundary caps
+separately. See the [installation, Python API and ratio/Q fitting guide](docs/tensor-network-methods.md)
+for definitions and examples. Experimental research modules and rejected
+optimizations are documented in the reports and are not enabled automatically.
 
 ## Why This Exists
 

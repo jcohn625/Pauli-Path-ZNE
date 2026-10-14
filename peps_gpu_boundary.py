@@ -1,7 +1,9 @@
 """Opt-in GPU-resident block arrays with batched QR/Jacobi splits.
 
 Python/symmray retain topology and charge bookkeeping. Scalar norms and retained
-sector sizes are read by that bookkeeping; tensor blocks stay on the GPU.
+sector sizes are read by that bookkeeping. The default keeps factors on the
+GPU; decomposition_backend="hybrid" selectively synchronizes QR/SVD batches
+with CPU LAPACK and returns their FP32 factors to Metal.
 Scoped symmray patching is process-global, so do not run concurrent threads.
 """
 from collections import defaultdict
@@ -11,14 +13,24 @@ from peps_gpu_decomp import GPUDecompositions
 
 
 @contextmanager
-def gpu_boundary(sweeps=16,profile_decompositions=False,optimized=True,parallel_qr=True):
+def gpu_boundary(sweeps=16,profile_decompositions=False,optimized=True,parallel_qr=True,
+                 decomposition_backend="metal",cpu_qr_min=64,cpu_svd_min=16,qr_panel_width=32):
     import pauli_peps_symmetry as sym
     sym.symmray()
     from symmray.sparse.sparse_array_common import SparseArrayCommon
     import symmray.sparse.sparse_array_common as sparse_module
     from symmray.linalg_common import Absorb
     from autoray import infer_backend
-    engine=GPUDecompositions(sweeps=sweeps,optimized=optimized,parallel_qr=parallel_qr);mx=engine.mx
+    if decomposition_backend == "metal":
+        engine=GPUDecompositions(sweeps=sweeps,optimized=optimized,parallel_qr=parallel_qr,
+                                 qr_panel_width=qr_panel_width)
+    elif decomposition_backend == "hybrid":
+        from peps_hybrid_decomp import HybridDecompositions
+        engine=HybridDecompositions(sweeps=sweeps,optimized=optimized,parallel_qr=parallel_qr,
+                                    cpu_qr_min=cpu_qr_min,cpu_svd_min=cpu_svd_min,qr_panel_width=qr_panel_width)
+    else:
+        raise ValueError("decomposition_backend must be metal or hybrid")
+    mx=engine.mx
     original=SparseArrayCommon._split_abelian
     original_truncate=sparse_module.truncate_svd_result_blocksparse
 

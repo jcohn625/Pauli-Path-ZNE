@@ -25,7 +25,9 @@ def peps_contractions():
 def evaluate_mps(*, n=6, steps=3, sites=(2, 4), scale=1., lam=(.001, .002, .003),
                  phi=np.pi/16, cap=16, guide_cap=32, terminal=2, residual=True,
                  unsigned=False, backend='cpu', noise_placement='heisenberg',
-                 single_rates=None, pair_rates=0., noise_edges=None):
+                 single_rates=None, pair_rates=0., noise_edges=None,
+                 guide_cache_mb=None,store_contributions=True,contribution_callback=None,
+                 noise_strategy='local',noise_mpo_max_bond=64):
     """1D chain: historical Heisenberg noise or full after-CX-layer noise.
 
     after_cnot uses a single-site parity MPS and corrects every routed truncation;
@@ -38,7 +40,11 @@ def evaluate_mps(*, n=6, steps=3, sites=(2, 4), scale=1., lam=(.001, .002, .003)
         return evaluate(n=n,steps=steps,sites=sites,phi=phi,scale=scale,
             singles=lam if single_rates is None else single_rates,pair_rates=pair_rates,
             edges=noise_edges,cap=cap,guide_cap=guide_cap,residual=residual,
-            unsigned=unsigned,backend=backend)
+            unsigned=unsigned,backend=backend,guide_cache_mb=guide_cache_mb,
+            store_contributions=store_contributions,contribution_callback=contribution_callback,
+            noise_strategy=noise_strategy,noise_mpo_max_bond=noise_mpo_max_bond)
+    if guide_cache_mb is not None or not store_contributions or contribution_callback is not None or noise_strategy!='local':
+        raise ValueError('guide memory/diagnostic options require after_cnot')
     if single_rates is not None or noise_edges is not None or np.any(pair_rates):
         raise ValueError('correlated/scheduled rates require noise_placement="after_cnot"')
     import pauli_mps_solver as solver
@@ -61,10 +67,16 @@ def evaluate_mps(*, n=6, steps=3, sites=(2, 4), scale=1., lam=(.001, .002, .003)
 
 def evaluate_peps(*, nx=2, ny=3, steps=2, sites=(0, 1), scale=1.,
                   lam=(.001, .002, .003), phi=np.pi/16, cap=8, boundary_cap=8,
-                  environment_cap=16, residual=True, unsigned=False,
+                  environment_cap=16, residual=True, unsigned=False, residual_granularity='row',
                   gate_backend='quimb', boundary_backend='blas', jacobi_sweeps=32,
                   noise_placement='gate', single_rates=None, pair_rates=0., noise_edges=None):
-    """Open rectangle; residuals correct boundary truncation of the evolved PEPS."""
+    """Open rectangle; residuals correct boundary truncation of the evolved PEPS.
+
+    metal-hybrid is opt-in: Metal FP32 contractions with selective CPU LAPACK
+    QR/SVD. The default blas path retains CPU FP64.
+    """
+    if residual_granularity not in ('row','bond'):
+        raise ValueError('residual_granularity must be row or bond')
     from lattice_circuit import square
     from pauli_peps import evaluate_peps as evolve
     if nx < 2 or ny < 2 or nx * ny % 2:
@@ -110,16 +122,19 @@ def evaluate_peps(*, nx=2, ny=3, steps=2, sites=(0, 1), scale=1.,
         raise RuntimeError('PEPS boundary was not captured')
     tn, log_scale = saved[0]
     with peps_contractions():
-        if boundary_backend == 'metal-jacobi':
+        if boundary_backend in ('metal-jacobi','metal-hybrid'):
             from peps_gpu_boundary import gpu_boundary, to_gpu
-            with gpu_boundary(jacobi_sweeps) as engine:
+            with gpu_boundary(jacobi_sweeps, decomposition_backend=
+                              "hybrid" if boundary_backend=="metal-hybrid" else "metal") as engine:
                 gpu = to_gpu(tn, engine.mx)
                 def materialize(net):
                     engine.mx.eval([b for t in net for b in t.data.blocks.values()])
                 result = streaming_residuals(gpu, nx, ny, boundary_cap, environment_cap,
-                                             materialize=materialize)
+                                             materialize=materialize, granularity=residual_granularity)
+                result["boundary_gpu_stats"]=engine.stats
         else:
-            result = streaming_residuals(tn, nx, ny, boundary_cap, environment_cap)
+            result = streaming_residuals(tn, nx, ny, boundary_cap, environment_cap,
+                                         granularity=residual_granularity)
     result["cnot_evolution_stats"]=evolution_stats[0]
     factor = np.exp(log_scale)
     for key in ('approximate', 'corrected', 'correction', 'absolute_correction_sum'):
@@ -217,13 +232,19 @@ def main():
     p.add_argument('--n', type=int, default=6)
     p.add_argument('--terminal', type=int, default=2)
     p.add_argument('--guide-cap', type=int, default=32)
+    p.add_argument('--noise-strategy',choices=['local','mpo'],default='local',help='experimental MPS diagonal-noise MPO strategy')
+    p.add_argument('--noise-mpo-max-bond',type=int,default=64)
+    p.add_argument('--guide-cache-mb',type=float,help='after_cnot MPS retained guide snapshot budget; 0 recomputes without caching')
+    p.add_argument('--summary-only',action='store_true',help='omit per-operation MPS residual diagnostics')
     p.add_argument('--mps-backend', choices=['cpu', 'metal'], default='cpu')
     p.add_argument('--nx', type=int, default=2)
     p.add_argument('--ny', type=int, default=3)
     p.add_argument('--boundary-cap', type=int, default=8)
     p.add_argument('--environment-cap', type=int, default=16)
+    p.add_argument('--residual-granularity', choices=['row','bond'], default='row',
+                   help='PEPS residual diagnostics; row avoids intermediate overlap contractions')
     p.add_argument('--gate-backend', choices=['quimb', 'batched-cpu', 'metal'], default='quimb')
-    p.add_argument('--boundary-backend', choices=['blas', 'metal-jacobi'], default='blas')
+    p.add_argument('--boundary-backend', choices=['blas', 'metal-jacobi', 'metal-hybrid'], default='blas')
     p.add_argument('--jacobi-sweeps', type=int, default=32)
     p.add_argument('--peps-noise-placement', choices=['gate', 'layer'], default='gate')
     p.add_argument('--noise-placement', choices=['heisenberg','after_cnot'], default='heisenberg',
@@ -233,6 +254,8 @@ def main():
     p.add_argument('--out', required=True, help='output prefix')
     a = p.parse_args()
     extra={}
+    if (a.guide_cache_mb is not None or a.summary_only or a.noise_strategy!='local') and (a.engine!='mps' or a.noise_placement!='after_cnot'):
+        p.error('--guide-cache-mb/--summary-only/--noise-strategy mpo require MPS --noise-placement after_cnot')
     if a.noise_file or a.pair_rate:
         if a.noise_placement!='after_cnot':p.error('--noise-file/--pair-rate require --noise-placement after_cnot')
     if a.noise_placement=='after_cnot':
@@ -247,12 +270,13 @@ def main():
     kw = dict(steps=a.steps, sites=a.sites, phi=a.phi, lam=a.lam, cap=a.cap, residual=not a.no_residual)
     if a.engine == 'mps':
         fn = evaluate_mps
-        kw.update(n=a.n, terminal=a.terminal, guide_cap=a.guide_cap, backend=a.mps_backend,noise_placement=a.noise_placement,**extra)
+        kw.update(n=a.n, terminal=a.terminal, guide_cap=a.guide_cap, backend=a.mps_backend,noise_placement=a.noise_placement,guide_cache_mb=a.guide_cache_mb,store_contributions=not a.summary_only,noise_strategy=a.noise_strategy,noise_mpo_max_bond=a.noise_mpo_max_bond,**extra)
         method = 'cnot' if a.noise_placement=='after_cnot' else 'layer'
     else:
         fn = evaluate_peps
         kw.update(nx=a.nx, ny=a.ny, boundary_cap=a.boundary_cap, environment_cap=a.environment_cap,
                   gate_backend=a.gate_backend, boundary_backend=a.boundary_backend,
+                  residual_granularity=a.residual_granularity,
                   jacobi_sweeps=a.jacobi_sweeps, noise_placement=
                   "after_cnot" if a.noise_placement=="after_cnot" else a.peps_noise_placement,**extra)
         method = "cnot" if a.noise_placement=="after_cnot" else a.peps_noise_placement

@@ -219,3 +219,64 @@ def test_cnot_mps_metal_residual_smoke():
             noise_placement='after_cnot',pair_rates=.0001)
     cpu=evaluate_mps(**kw);gpu=evaluate_mps(**kw,backend='metal')
     assert gpu['corrected']==pytest.approx(cpu['corrected'],rel=1e-5,abs=1e-8)
+
+
+@pytest.mark.parametrize('unsigned',[False,True])
+def test_optimized_schedule_full_vector_and_shared_routing(unsigned):
+    from cnot_parity import fuse_operations,sweep_operations
+    n=6;edges=[(0,3),(0,4),(0,5)]
+    original=compile_operations(chain(n),1,.23,pair_rates=.001,edges=edges,unsigned=unsigned)
+    path=lambda i,j:range(i,j+(1 if i<j else -1),1 if i<j else -1)
+    routed=route_operations(original,n,path)
+    independent=sum(2*(abs(op.sites[1]-op.sites[0])-1) for op in original if len(op.sites)==2)
+    assert sum(op.kind=='routing_swap' for op in routed)<independent
+    optimized=sweep_operations(fuse_operations(routed))
+    start=np.random.default_rng(412).normal(size=(4,)*n)
+    def apply(ops):
+        value=start.copy();frames=[Q]*n
+        for op in ops:
+            assert tuple(frames[q] for q in op.sites)==op.before
+            order=list(op.sites)+[i for i in range(n) if i not in op.sites]
+            value=(op.matrix@value.transpose(order).reshape(4**len(op.sites),-1)).reshape((4,)*n).transpose(np.argsort(order))
+            for q,f in zip(op.sites,op.after):frames[q]=f
+        assert frames==[Q]*n
+        return value
+    np.testing.assert_allclose(apply(optimized),apply(original),atol=2e-13,rtol=2e-12)
+
+
+def test_template_cache_does_not_reuse_noise_coefficients():
+    from cnot_parity import _operation_template,_compile_operations_uncached
+    _operation_template.cache_clear()
+    for scale,rates in [(0.,.001),(1.,.003),(2.,.007)]:
+        kw=dict(scale=scale,singles=rates,pair_rates=rates/10)
+        actual=compile_operations(chain(4),2,.21,**kw)
+        expected=_compile_operations_uncached(chain(4),2,.21,**kw)
+        assert len(actual)==len(expected)
+        for a,b in zip(actual,expected):
+            assert (a.sites,a.before,a.after,a.kind,a.location)==(b.sites,b.before,b.after,b.kind,b.location)
+            np.testing.assert_array_equal(a.matrix,b.matrix)
+    assert _operation_template.cache_info().hits==2
+
+
+@pytest.mark.parametrize('unsigned',[False,True])
+def test_fusion_collapses_single_noise_matching(unsigned):
+    from cnot_parity import fuse_operations
+    from lattice_circuit import Lattice,BondLayer
+    lat=Lattice(6,(BondLayer('even',((0,1),(2,3),(4,5))),),tuple(range(6)))
+    ops=fuse_operations(compile_operations(lat,1,.23,unsigned=unsigned))
+    assert len(ops)==3
+    assert all(len(op.sites)==2 and op.before==op.after==(Q,Q) for op in ops)
+
+
+def test_peps_fused_batched_cpu(monkeypatch):
+    from peps_metal_layer import LayerEngine
+    sizes=[];original=LayerEngine.apply
+    def record(self,peps,gauges,gates,*args):
+        sizes.append(len(gates));return original(self,peps,gauges,gates,*args)
+    monkeypatch.setattr(LayerEngine,'apply',record)
+    kw=dict(nx=2,ny=2,steps=1,sites=(0,1),phi=.19,cap=32,boundary_cap=128,
+            noise_placement='after_cnot',pair_rates=.0002)
+    cpu=evaluate_peps(**kw,gate_backend='batched-cpu')
+    reference=dense_reference(square(2,2),1,.19,(0,1),(.001,.002,.003),.0002,None)
+    assert cpu['corrected']==pytest.approx(reference,rel=1e-8,abs=1e-10)
+    assert max(sizes)>1

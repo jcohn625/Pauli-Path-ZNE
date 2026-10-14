@@ -1,7 +1,8 @@
 """Residual corrections for a symmetry-preserving boundary sweep.
 
-Every forward bond truncation stores before/after boundary networks. Their
-difference is contracted with one shared backward environment. Exact suffix
+The reference path stores before/after boundary networks for every forward
+bond truncation. Streaming paths instead retain scalar corrections per bond
+or per row, evaluated against one shared backward environment. Exact suffix
 networks give an exact telescoping identity for the fixed input PEPS.
 
 The retained-snapshot functions provide a CPU reference. streaming_residuals
@@ -70,23 +71,40 @@ def correct_residuals(tn,nx,ny,forward,environment_cap,cutoff=0.):
                 absolute_correction_sum=math.fsum(abs(r['correction']) for r in contributions))
 
 
-def streaming_residuals(tn,nx,ny,cap,environment_cap,cutoff=0.,materialize=None,progress=None):
-    """Correct each truncation immediately; retain only scalar residual records.
+def streaming_residuals(tn,nx,ny,cap,environment_cap,cutoff=0.,materialize=None,progress=None,
+                        granularity="bond",backward_guides=None):
+    """Correct truncations; retain only scalar residual records.
 
     Backward boundaries are cached once per row. Successive after/before
     overlaps are identical within a row, so reuse that scalar between splits.
     No discarded tensor or forward boundary snapshot survives a split.
+    ``granularity="row"`` evaluates only the first and last overlap per row,
+    preserving the truncation trajectory and telescoping correction. In that
+    mode ``absolute_correction_sum`` sums absolute ROW corrections, not bond
+    corrections. Use "bond" for the original detailed diagnostics.
+    ``backward_guides`` optionally supplies fixed suffix messages indexed by
+    forward row (1 through ny-2). The mapping is copied, never consumed. Their
+    indices must match the original row cut and their exponents must be zero.
     ``materialize`` can evaluate lazy device arrays without a host transfer.
     """
     if cap<1 or nx<2 or ny<2:raise ValueError('positive cap and rectangle at least 2x2 required')
     if tn.exponent!=0:raise ValueError('pass tensor scaling separately; expected zero TN exponent')
+    if granularity not in ("bond", "row"):
+        raise ValueError('granularity must be "bond" or "row"')
     start=time.perf_counter()
-    environments=backward_environments(tn,nx,ny,environment_cap,cutoff)
+    if backward_guides is None:
+        environments=backward_environments(tn,nx,ny,environment_cap,cutoff)
+    else:
+        if set(backward_guides) != set(range(1,ny-1)):
+            raise ValueError("backward_guides must supply every residual row exactly once")
+        if any(env.exponent != 0 for env in backward_guides.values()):
+            raise ValueError("backward guide exponents must be zero")
+        environments=dict(backward_guides)
     if materialize:
         for env in environments.values():materialize(env)
     environment_seconds=time.perf_counter()-start
     if progress:progress(dict(stage='environments',seconds=environment_seconds))
-    work=tn.copy();contributions=[];overlap_seconds=0.
+    work=tn.copy();contributions=[];overlap_seconds=0.;overlap_count=0
     for y in range(1,ny-1):
         row_start=time.perf_counter()
         for x in range(nx):
@@ -97,14 +115,20 @@ def streaming_residuals(tn,nx,ny,cap,environment_cap,cutoff=0.,materialize=None,
         tick=time.perf_counter()
         before=scalar(work.select(work.x_tag(y)) & environment)
         overlap_seconds+=time.perf_counter()-tick
+        overlap_count+=1
         for x in range(nx-1):
             work.compress_between(work.site_tag(y,x),work.site_tag(y,x+1),
                                   max_bond=cap,cutoff=cutoff,absorb='right',equalize_norms=False)
             if materialize:materialize(work.select(work.x_tag(y)))
+            if granularity == 'row' and x != nx-2:
+                continue
             tick=time.perf_counter()
             after=scalar(work.select(work.x_tag(y)) & environment)
             overlap_seconds+=time.perf_counter()-tick
-            contributions.append(dict(row=y,bond=x,before=before,after=after,correction=before-after))
+            overlap_count+=1
+            record=dict(row=y,before=before,after=after,correction=before-after)
+            if granularity == 'bond':record['bond']=x
+            contributions.append(record)
             before=after
         if progress:progress(dict(stage='forward_row',row=y,seconds=time.perf_counter()-row_start))
     # The final row's environment is the untouched bottom row, hence its last
@@ -113,6 +137,8 @@ def streaming_residuals(tn,nx,ny,cap,environment_cap,cutoff=0.,materialize=None,
     correction=math.fsum(r['correction'] for r in contributions)
     return dict(approximate=approximate,correction=correction,corrected=approximate+correction,
                 environment_cap=environment_cap,contributions=contributions,
+                granularity=granularity,overlap_count=overlap_count,
+                guide_source="ordinary" if backward_guides is None else "provided",
                 environment_seconds=environment_seconds,overlap_seconds=overlap_seconds,
                 seconds=time.perf_counter()-start,forward_snapshots_retained=0,
                 absolute_correction_sum=math.fsum(abs(r['correction']) for r in contributions))

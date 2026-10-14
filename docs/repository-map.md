@@ -70,3 +70,16 @@ See [installation and usage](tensor-network-methods.md).
 - `cnot_parity_mps.py`: canonical site-wise parity MPS and checkpointed residuals.
 - `cnot_parity_peps.py`: symmetry-resolved elementary PEPS updates and graph routing.
 - [CNOT noise usage](cnot-parity-methods.md): schedules, longer-range edges, and Q compatibility.
+
+## CPU and Apple Silicon optimizations
+
+- `cpu_numba_kernels.py`: strict CPU sector gathering, selection, factor reconstruction,
+  and small-block PEPS scaling/packing; `PAULI_CPU_NUMBA=0` disables the new policy.
+- `mps_contractions.py`, `mps_qr.py`: CPU matrix-product routing and cached QR workspaces.
+- `peps_hybrid_decomp.py`: selective CPU LAPACK factors within a Metal boundary contraction.
+- `benchmarks/`, `docs/apple-silicon/`: benchmark drivers and intentionally published measurements.
+- `apple_*experiment.py`, `peps_*experiment.py`, `peps_message_refinement.py`,
+  `peps_split_layout.py`, and `apple_metal_ragged.py`: research prototypes; not automatic defaults.
+
+See the [CPU Numba report](cpu-numba-results.md) and
+[hybrid results](apple-hybrid-refinement-results.md) for enabled policies and limitations.
