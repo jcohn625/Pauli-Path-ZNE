@@ -1,0 +1,1439 @@
+{
+  "baseline": "/tmp/pauli-apple-batch2-baseline",
+  "baseline_hashes": {
+    "cnot_parity_mps.py": "4ed9659ba0d2476e6ddf9e60724accab0be1c0e046f4aa92e75b6b7db6b8348e",
+    "peps_metal_layer.py": "c4874c8c446413ebcfd528836b09b6d515bd3efb536b59d12d951e55c77daa63",
+    "mps_contractions.py": "34df70e4c6d422de22ce45fe04b1d238ca82fa99f062af2f52fcfb431f5e7f1c",
+    "mps_residual.py": "54c70eda5c9fd6fb921052073f6a1b6952c70decf163d21603dfb745e8ed287d"
+  },
+  "current_hashes": {
+    "cnot_parity_mps.py": "fb46593f21924506dfa4215a9f7edc6c0e51b35517436d84a33314d45fc09f59",
+    "mps_qr.py": "e4881534fef96e9d4adb605bfee4f3f9c3eb35d8bba0609b36f4715667f3a327",
+    "peps_metal_layer.py": "799f522cd327fd34fbd9386da114ac99de6005185a7c740a8c051df069bc7fb0",
+    "mps_contractions.py": "34df70e4c6d422de22ce45fe04b1d238ca82fa99f062af2f52fcfb431f5e7f1c",
+    "mps_residual.py": "54c70eda5c9fd6fb921052073f6a1b6952c70decf163d21603dfb745e8ed287d"
+  },
+  "paired": [
+    {
+      "name": "MPS16",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 16,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "before_s": 0.2683737501502037,
+      "after_s": 0.2366928339470178,
+      "speedup": 1.1338482271511334,
+      "reduction_percent": 11.804774567354182,
+      "corrected_difference": 0.0,
+      "before_samples": [
+        0.27508349996060133,
+        0.27244025003165007,
+        0.2683737501502037,
+        0.26789749995805323,
+        0.2682403330691159
+      ],
+      "after_samples": [
+        0.23321516602300107,
+        0.23717141710221767,
+        0.2366928339470178,
+        0.2363328339997679,
+        0.24030674993991852
+      ]
+    },
+    {
+      "name": "MPS64",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 64,
+        "guide_cap": 64,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "before_s": 0.6329281670041382,
+      "after_s": 0.5876059168949723,
+      "speedup": 1.077130350131016,
+      "reduction_percent": 7.160725730329142,
+      "corrected_difference": 0.0,
+      "before_samples": [
+        0.635415708180517,
+        0.6313889159355313,
+        0.6329281670041382,
+        0.633418417070061,
+        0.6307799590285867
+      ],
+      "after_samples": [
+        0.6029022498987615,
+        0.5843189158476889,
+        0.5858828749042004,
+        0.5942180829588324,
+        0.5876059168949723
+      ]
+    },
+    {
+      "name": "PEPS8",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 2,
+        "sites": [
+          5,
+          6
+        ],
+        "cap": 8,
+        "boundary_cap": 8,
+        "environment_cap": 16,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "before_s": 1.3891638340428472,
+      "after_s": 1.2481692919973284,
+      "speedup": 1.1129610726281356,
+      "reduction_percent": 10.14959780771042,
+      "corrected_difference": 0.0,
+      "before_samples": [
+        1.3779132079798728,
+        1.3984054171014577,
+        1.3891638340428472,
+        1.3918071670923382,
+        1.3731082919985056
+      ],
+      "after_samples": [
+        1.2035707090981305,
+        1.2625757919158787,
+        1.2481692919973284,
+        1.227943167090416,
+        1.2722200001589954
+      ]
+    },
+    {
+      "name": "PEPS16",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 2,
+        "sites": [
+          5,
+          6
+        ],
+        "cap": 16,
+        "boundary_cap": 8,
+        "environment_cap": 16,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "before_s": 2.2374270001892,
+      "after_s": 2.1123564578592777,
+      "speedup": 1.059209013641889,
+      "reduction_percent": 5.589927283408402,
+      "corrected_difference": 0.0,
+      "before_samples": [
+        2.2176924999803305,
+        2.2374270001892,
+        2.2099696670193225,
+        2.3413522499613464,
+        2.2856764171738178
+      ],
+      "after_samples": [
+        2.091701375087723,
+        2.102949084015563,
+        2.1123564578592777,
+        2.3633031249046326,
+        2.1985601249616593
+      ]
+    }
+  ],
+  "confirmation": [
+    {
+      "name": "MPS16",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 16,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "before_s": 0.2653165420051664,
+      "after_s": 0.23071937495842576,
+      "speedup": 1.1499534534235578,
+      "reduction_percent": 13.03995852850628,
+      "corrected_difference": 0.0,
+      "before_samples": [
+        0.26907074986957014,
+        0.268812624970451,
+        0.2642114160116762,
+        0.26426633284427226,
+        0.2653165420051664
+      ],
+      "after_samples": [
+        0.2305057500489056,
+        0.23324016691185534,
+        0.23232129192911088,
+        0.23071937495842576,
+        0.2303878329694271
+      ]
+    },
+    {
+      "name": "MPS64",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 64,
+        "guide_cap": 64,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "before_s": 0.6219599589239806,
+      "after_s": 0.5865559161175042,
+      "speedup": 1.0603591948075823,
+      "reduction_percent": 5.692334739317784,
+      "corrected_difference": 0.0,
+      "before_samples": [
+        0.6277258330956101,
+        0.6219599589239806,
+        0.6228883338626474,
+        0.6192709170281887,
+        0.616407958092168
+      ],
+      "after_samples": [
+        0.5852949169930071,
+        0.5817292919382453,
+        0.5865559161175042,
+        0.5887742079794407,
+        0.587748333113268
+      ]
+    },
+    {
+      "name": "PEPS8",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 2,
+        "sites": [
+          5,
+          6
+        ],
+        "cap": 8,
+        "boundary_cap": 8,
+        "environment_cap": 16,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "before_s": 1.3772195409983397,
+      "after_s": 1.2240404160693288,
+      "speedup": 1.1251422117424061,
+      "reduction_percent": 11.122346174232478,
+      "corrected_difference": 0.0,
+      "before_samples": [
+        1.366938792169094,
+        1.4057867920491844,
+        1.2738510409835726,
+        1.3991277089808136,
+        1.3772195409983397
+      ],
+      "after_samples": [
+        1.1958316250238568,
+        1.2902798331342638,
+        1.1994371248874813,
+        1.2240404160693288,
+        1.256853791186586
+      ]
+    },
+    {
+      "name": "PEPS16",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 2,
+        "sites": [
+          5,
+          6
+        ],
+        "cap": 16,
+        "boundary_cap": 8,
+        "environment_cap": 16,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "before_s": 2.0642516249790788,
+      "after_s": 1.9415448331274092,
+      "speedup": 1.0632005966372744,
+      "reduction_percent": 5.944371818184379,
+      "corrected_difference": 0.0,
+      "before_samples": [
+        2.29642254114151,
+        2.1863801248837262,
+        2.0642516249790788,
+        2.0045223750639707,
+        2.059853375190869
+      ],
+      "after_samples": [
+        2.1449842918664217,
+        1.9546915830578655,
+        1.9415448331274092,
+        1.8828528330195695,
+        1.894698916003108
+      ]
+    }
+  ],
+  "profiles": {
+    "source": "/Users/jcohn/Documents/ChatGPT/Pauli Path ZNE/publish/latest-methods",
+    "hashes": {
+      "cnot_parity_mps.py": "fb46593f21924506dfa4215a9f7edc6c0e51b35517436d84a33314d45fc09f59",
+      "mps_residual.py": "54c70eda5c9fd6fb921052073f6a1b6952c70decf163d21603dfb745e8ed287d",
+      "mps_contractions.py": "34df70e4c6d422de22ce45fe04b1d238ca82fa99f062af2f52fcfb431f5e7f1c",
+      "mps_qr.py": "e4881534fef96e9d4adb605bfee4f3f9c3eb35d8bba0609b36f4715667f3a327",
+      "peps_metal_layer.py": "799f522cd327fd34fbd9386da114ac99de6005185a7c740a8c051df069bc7fb0"
+    },
+    "rows": [
+      {
+        "name": "MPS16-single",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 16,
+          "guide_cap": 16
+        },
+        "seconds": [
+          0.03456316678784788
+        ],
+        "median_s": 0.03456316678784788,
+        "approximate": -0.00023666541436899975,
+        "corrected": -0.0020271449745792795,
+        "process_high_water_bytes": 93437952
+      },
+      {
+        "name": "MPS16-pair",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 16,
+          "guide_cap": 16
+        },
+        "seconds": [
+          0.2204608751926571
+        ],
+        "median_s": 0.2204608751926571,
+        "approximate": -0.0006085392632785073,
+        "corrected": -0.0018985823892712205,
+        "process_high_water_bytes": 97812480,
+        "profile": [
+          {
+            "file": "tensor_zne.py",
+            "line": 25,
+            "function": "evaluate_mps",
+            "calls": 1,
+            "self_s": 5.4292e-05,
+            "cumulative_s": 0.341431792
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 226,
+            "function": "evaluate",
+            "calls": 1,
+            "self_s": 0.001289807,
+            "cumulative_s": 0.3413775
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 101,
+            "function": "apply",
+            "calls": 990,
+            "self_s": 0.036907674,
+            "cumulative_s": 0.30326247100000003
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 89,
+            "function": "move_center",
+            "calls": 990,
+            "self_s": 0.00218678,
+            "cumulative_s": 0.150010378
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 56,
+            "function": "_right_qr",
+            "calls": 1482,
+            "self_s": 0.028532084000000003,
+            "cumulative_s": 0.102928875
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 170,
+            "function": "chunk",
+            "calls": 19,
+            "self_s": 0.0007930950000000001,
+            "cumulative_s": 0.100620794
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 164,
+            "function": "__init__",
+            "calls": 1,
+            "self_s": 0.0007237490000000001,
+            "cumulative_s": 0.099321458
+          },
+          {
+            "file": "_util.py",
+            "line": 1149,
+            "function": "wrapper",
+            "calls": 2850,
+            "self_s": 0.005374816,
+            "cumulative_s": 0.06274805900000001
+          },
+          {
+            "file": "mps_qr.py",
+            "line": 22,
+            "function": "economic_qr",
+            "calls": 6979,
+            "self_s": 0.022495104000000002,
+            "cumulative_s": 0.061908955
+          },
+          {
+            "file": "_decomp_svd.py",
+            "line": 16,
+            "function": "svd",
+            "calls": 2850,
+            "self_s": 0.031986452,
+            "cumulative_s": 0.052529689000000004
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 73,
+            "function": "_left_qr",
+            "calls": 622,
+            "self_s": 0.011901253,
+            "cumulative_s": 0.044894515
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 15,
+            "function": "sector_layout",
+            "calls": 957,
+            "self_s": 0.007624293000000001,
+            "cumulative_s": 0.031661038
+          },
+          {
+            "file": "twodim_base.py",
+            "line": 485,
+            "function": "triu",
+            "calls": 6979,
+            "self_s": 0.008654758,
+            "cumulative_s": 0.030750536000000002
+          },
+          {
+            "file": "twodim_base.py",
+            "line": 366,
+            "function": "tri",
+            "calls": 6979,
+            "self_s": 0.004950484000000001,
+            "cumulative_s": 0.02027247
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 71,
+            "function": "_wrapreduction",
+            "calls": 13993,
+            "self_s": 0.006653198000000001,
+            "cumulative_s": 0.018652598000000003
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'reduce' of 'numpy.ufunc' objects>",
+            "calls": 23824,
+            "self_s": 0.01747927,
+            "cumulative_s": 0.01747927
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 2322,
+            "function": "any",
+            "calls": 10373,
+            "self_s": 0.0029340060000000003,
+            "cumulative_s": 0.016716958
+          },
+          {
+            "file": "cnot_parity.py",
+            "line": 301,
+            "function": "fuse_operations",
+            "calls": 1,
+            "self_s": 0.0035156750000000002,
+            "cumulative_s": 0.016072916
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 258,
+            "function": "record",
+            "calls": 151,
+            "self_s": 0.000271137,
+            "cumulative_s": 0.012652703000000001
+          },
+          {
+            "file": "numeric.py",
+            "line": 615,
+            "function": "flatnonzero",
+            "calls": 6798,
+            "self_s": 0.003508353,
+            "cumulative_s": 0.012290319000000001
+          },
+          {
+            "file": "mps_residual.py",
+            "line": 30,
+            "function": "residual_value",
+            "calls": 151,
+            "self_s": 0.0038161600000000003,
+            "cumulative_s": 0.012223218000000001
+          },
+          {
+            "file": "_util.py",
+            "line": 423,
+            "function": "_asarray_validated",
+            "calls": 2850,
+            "self_s": 0.002100799,
+            "cumulative_s": 0.009997467000000001
+          },
+          {
+            "file": "cnot_parity.py",
+            "line": 258,
+            "function": "route_operations",
+            "calls": 1,
+            "self_s": 0.001078879,
+            "cumulative_s": 0.009979125
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'all' of 'numpy.ndarray' objects>",
+            "calls": 9831,
+            "self_s": 0.001984558,
+            "cumulative_s": 0.009937646000000001
+          },
+          {
+            "file": "arraysetops.py",
+            "line": 373,
+            "function": "intersect1d",
+            "calls": 957,
+            "self_s": 0.002551439,
+            "cumulative_s": 0.009706669000000001
+          },
+          {
+            "file": "cnot_parity.py",
+            "line": 73,
+            "function": "check_operation",
+            "calls": 945,
+            "self_s": 0.002054892,
+            "cumulative_s": 0.008736979
+          },
+          {
+            "file": "_methods.py",
+            "line": 61,
+            "function": "_all",
+            "calls": 9831,
+            "self_s": 0.0013798340000000001,
+            "cumulative_s": 0.007953088
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'extend' of 'list' objects>",
+            "calls": 10227,
+            "self_s": 0.00278514,
+            "cumulative_s": 0.0070189810000000005
+          },
+          {
+            "file": "arraysetops.py",
+            "line": 138,
+            "function": "unique",
+            "calls": 1914,
+            "self_s": 0.0009074630000000001,
+            "cumulative_s": 0.006675496
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'outer' of 'numpy.ufunc' objects>",
+            "calls": 6979,
+            "self_s": 0.006517053,
+            "cumulative_s": 0.006517053
+          },
+          {
+            "file": "cnot_parity.py",
+            "line": 308,
+            "function": "embed",
+            "calls": 615,
+            "self_s": 0.000332604,
+            "cumulative_s": 0.006454689
+          },
+          {
+            "file": "lapack.py",
+            "line": 1028,
+            "function": "_compute_lwork",
+            "calls": 2850,
+            "self_s": 0.004506254,
+            "cumulative_s": 0.006416069000000001
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 2692,
+            "function": "max",
+            "calls": 3469,
+            "self_s": 0.001088564,
+            "cumulative_s": 0.005743665
+          },
+          {
+            "file": "function_base.py",
+            "line": 564,
+            "function": "asarray_chkfinite",
+            "calls": 2850,
+            "self_s": 0.002104243,
+            "cumulative_s": 0.005547389000000001
+          },
+          {
+            "file": "arraysetops.py",
+            "line": 323,
+            "function": "_unique1d",
+            "calls": 1914,
+            "self_s": 0.003642947,
+            "cumulative_s": 0.005300816000000001
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 96,
+            "function": "rescale",
+            "calls": 990,
+            "self_s": 0.002635638,
+            "cumulative_s": 0.005179396
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<built-in method numpy.arange>",
+            "calls": 21849,
+            "self_s": 0.0050948370000000005,
+            "cumulative_s": 0.0050948370000000005
+          },
+          {
+            "file": "shape_base.py",
+            "line": 1067,
+            "function": "kron",
+            "calls": 333,
+            "self_s": 0.0017985730000000001,
+            "cumulative_s": 0.004902533000000001
+          },
+          {
+            "file": "twodim_base.py",
+            "line": 33,
+            "function": "_min_int",
+            "calls": 13958,
+            "self_s": 0.002951879,
+            "cumulative_s": 0.004844187000000001
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<built-in method numpy.array>",
+            "calls": 11847,
+            "self_s": 0.003852293,
+            "cumulative_s": 0.004544945
+          }
+        ]
+      },
+      {
+        "name": "MPS64-pair",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 64,
+          "guide_cap": 64
+        },
+        "seconds": [
+          0.554835292045027
+        ],
+        "median_s": 0.554835292045027,
+        "approximate": -0.0018948909163285848,
+        "corrected": -0.0018984028682786315,
+        "process_high_water_bytes": 146948096
+      },
+      {
+        "name": "MPS16-unsigned",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 16,
+          "guide_cap": 16,
+          "unsigned": true
+        },
+        "seconds": [
+          0.21889387490227818
+        ],
+        "median_s": 0.21889387490227818,
+        "approximate": 0.039484524257570826,
+        "corrected": 0.031337860762880226,
+        "process_high_water_bytes": 147030016
+      },
+      {
+        "name": "PEPS4",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "nx": 4,
+          "ny": 4,
+          "steps": 1,
+          "sites": [
+            5,
+            10
+          ],
+          "cap": 4,
+          "boundary_cap": 4,
+          "environment_cap": 8
+        },
+        "seconds": [
+          0.34896345902234316
+        ],
+        "median_s": 0.34896345902234316,
+        "approximate": 0.0009592645383292485,
+        "corrected": 0.0009592645383292487,
+        "process_high_water_bytes": 227590144
+      },
+      {
+        "name": "PEPS8",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "nx": 4,
+          "ny": 4,
+          "steps": 2,
+          "sites": [
+            5,
+            6
+          ],
+          "cap": 8,
+          "boundary_cap": 8,
+          "environment_cap": 16,
+          "gate_backend": "batched-cpu"
+        },
+        "seconds": [
+          1.2434860419016331
+        ],
+        "median_s": 1.2434860419016331,
+        "approximate": -0.04454737927877385,
+        "corrected": -0.04454713030989461,
+        "process_high_water_bytes": 290226176,
+        "profile": [
+          {
+            "file": "tensor_zne.py",
+            "line": 68,
+            "function": "evaluate_peps",
+            "calls": 1,
+            "self_s": 8.7333e-05,
+            "cumulative_s": 2.3272236250000002
+          },
+          {
+            "file": "pauli_peps.py",
+            "line": 243,
+            "function": "evaluate_peps",
+            "calls": 1,
+            "self_s": 2.3460000000000002e-05,
+            "cumulative_s": 2.256962417
+          },
+          {
+            "file": "pauli_peps.py",
+            "line": 17,
+            "function": "_evaluate_peps_impl",
+            "calls": 1,
+            "self_s": 0.000457539,
+            "cumulative_s": 2.2569274160000004
+          },
+          {
+            "file": "cnot_parity_peps.py",
+            "line": 18,
+            "function": "evolve",
+            "calls": 1,
+            "self_s": 0.0040967600000000005,
+            "cumulative_s": 2.2168393340000003
+          },
+          {
+            "file": "cnot_parity_peps.py",
+            "line": 35,
+            "function": "flush",
+            "calls": 315,
+            "self_s": 0.02713184,
+            "cumulative_s": 2.0851504590000003
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 260,
+            "function": "apply",
+            "calls": 293,
+            "self_s": 0.021825590000000002,
+            "cumulative_s": 2.0578676270000003
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 2621,
+            "function": "split",
+            "calls": 2152,
+            "self_s": 0.004099737,
+            "cumulative_s": 0.945807177
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 391,
+            "function": "tensor_split",
+            "calls": 2152,
+            "self_s": 0.022904209000000002,
+            "cumulative_s": 0.9417074400000001
+          },
+          {
+            "file": "autoray.py",
+            "line": 32,
+            "function": "do",
+            "calls": 30882,
+            "self_s": 0.014931089000000002,
+            "cumulative_s": 0.7419521410000001
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 112,
+            "function": "scale_many",
+            "calls": 586,
+            "self_s": 0.33780189200000005,
+            "cumulative_s": 0.481674875
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 203,
+            "function": "contract_many",
+            "calls": 879,
+            "self_s": 0.0008635660000000001,
+            "cumulative_s": 0.381940078
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 182,
+            "function": "contract_direct",
+            "calls": 879,
+            "self_s": 0.051614395,
+            "cumulative_s": 0.38107651200000003
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1438,
+            "function": "_fuse_core_abelian",
+            "calls": 2360,
+            "self_s": 0.009058456000000001,
+            "cumulative_s": 0.33869446000000003
+          },
+          {
+            "file": "interface.py",
+            "line": 403,
+            "function": "fuse",
+            "calls": 2178,
+            "self_s": 0.001149695,
+            "cumulative_s": 0.323726591
+          },
+          {
+            "file": "array_common.py",
+            "line": 486,
+            "function": "fuse",
+            "calls": 2178,
+            "self_s": 0.00316553,
+            "cumulative_s": 0.322576896
+          },
+          {
+            "file": "bosonic_common.py",
+            "line": 140,
+            "function": "_fuse_core",
+            "calls": 2178,
+            "self_s": 0.001330384,
+            "cumulative_s": 0.31904201000000004
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 401,
+            "function": "_fuse_blocks_via_insert",
+            "calls": 2360,
+            "self_s": 0.124979644,
+            "cumulative_s": 0.266199148
+          },
+          {
+            "file": "interface.py",
+            "line": 167,
+            "function": "reshape",
+            "calls": 4044,
+            "self_s": 0.001679389,
+            "cumulative_s": 0.26274500300000003
+          },
+          {
+            "file": "array_common.py",
+            "line": 575,
+            "function": "reshape",
+            "calls": 4044,
+            "self_s": 0.007919845,
+            "cumulative_s": 0.261065614
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1520,
+            "function": "_unfuse_abelian",
+            "calls": 4182,
+            "self_s": 0.096977508,
+            "cumulative_s": 0.24195648500000003
+          },
+          {
+            "file": "bosonic_common.py",
+            "line": 155,
+            "function": "unfuse",
+            "calls": 4044,
+            "self_s": 0.004092377,
+            "cumulative_s": 0.233093821
+          },
+          {
+            "file": "autoray.py",
+            "line": 1282,
+            "function": "__call__",
+            "calls": 33939,
+            "self_s": 0.017545513000000002,
+            "cumulative_s": 0.230329112
+          },
+          {
+            "file": "decomp.py",
+            "line": 34,
+            "function": "array_split",
+            "calls": 8567,
+            "self_s": 0.007054112,
+            "cumulative_s": 0.18616701300000002
+          },
+          {
+            "file": "bosonic_common.py",
+            "line": 35,
+            "function": "_split",
+            "calls": 2152,
+            "self_s": 0.001972915,
+            "cumulative_s": 0.174654739
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1933,
+            "function": "_split_abelian",
+            "calls": 2865,
+            "self_s": 0.021389313,
+            "cumulative_s": 0.172681824
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 64,
+            "function": "contract_block_products",
+            "calls": 2306,
+            "self_s": 0.096406895,
+            "cumulative_s": 0.16359710800000002
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 44,
+            "function": "contraction_layout",
+            "calls": 1366,
+            "self_s": 0.078197045,
+            "cumulative_s": 0.123130998
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 1593,
+            "function": "__init__",
+            "calls": 15146,
+            "self_s": 0.02089817,
+            "cumulative_s": 0.122358639
+          },
+          {
+            "file": "linalg.py",
+            "line": 123,
+            "function": "svd_truncated",
+            "calls": 713,
+            "self_s": 0.000505415,
+            "cumulative_s": 0.11042512900000001
+          },
+          {
+            "file": "array_common.py",
+            "line": 772,
+            "function": "svd_truncated",
+            "calls": 713,
+            "self_s": 0.001222798,
+            "cumulative_s": 0.109919714
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 53,
+            "function": "_wrapfunc",
+            "calls": 243598,
+            "self_s": 0.044809683,
+            "cumulative_s": 0.10926637
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1856,
+            "function": "_split_abelian_dynamic",
+            "calls": 713,
+            "self_s": 0.002237654,
+            "cumulative_s": 0.10564922
+          },
+          {
+            "file": "linalg_common.py",
+            "line": 19,
+            "function": "array_split",
+            "calls": 6415,
+            "self_s": 0.002830738,
+            "cumulative_s": 0.09947331200000001
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 200,
+            "function": "reshape",
+            "calls": 138291,
+            "self_s": 0.023211854,
+            "cumulative_s": 0.092879561
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'reshape' of 'numpy.ndarray' objects>",
+            "calls": 453589,
+            "self_s": 0.090765579,
+            "cumulative_s": 0.090765579
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 30,
+            "function": "diagonal_center",
+            "calls": 534,
+            "self_s": 0.025217788,
+            "cumulative_s": 0.083672466
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 1621,
+            "function": "_set_data",
+            "calls": 17561,
+            "self_s": 0.013990486000000002,
+            "cumulative_s": 0.072307807
+          },
+          {
+            "file": "peps_boundary_residual.py",
+            "line": 73,
+            "function": "streaming_residuals",
+            "calls": 1,
+            "self_s": 0.000154955,
+            "cumulative_s": 0.070086042
+          },
+          {
+            "file": "linalg.py",
+            "line": 84,
+            "function": "qr_stabilized",
+            "calls": 1439,
+            "self_s": 0.00108328,
+            "cumulative_s": 0.069554554
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 1767,
+            "function": "modify",
+            "calls": 4380,
+            "self_s": 0.008403293000000001,
+            "cumulative_s": 0.06923818100000001
+          }
+        ]
+      },
+      {
+        "name": "PEPS16",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "nx": 4,
+          "ny": 4,
+          "steps": 2,
+          "sites": [
+            5,
+            6
+          ],
+          "cap": 16,
+          "boundary_cap": 8,
+          "environment_cap": 16,
+          "gate_backend": "batched-cpu"
+        },
+        "seconds": [
+          2.0485372501425445
+        ],
+        "median_s": 2.0485372501425445,
+        "approximate": -0.06327885132322235,
+        "corrected": -0.0633096589546494,
+        "process_high_water_bytes": 573227008
+      }
+    ]
+  },
+  "curves": [
+    {
+      "method": "mps",
+      "settings": {
+        "n": 6,
+        "steps": 2,
+        "sites": [
+          1,
+          3
+        ],
+        "cap": 4,
+        "guide_cap": 8,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.001,
+        "residual": true
+      },
+      "max_abs_difference": 0.0,
+      "max_residual_difference": 0.0,
+      "before": [
+        {
+          "s": 0.0,
+          "observable_base": -0.032667783999938964,
+          "ratio_base": 1.0,
+          "unsigned_base": 0.33336760484315187,
+          "plus_num_base": 0.15034991042160645,
+          "plus_den_base": 0.15034991042160645,
+          "q_plus_base": 1.0,
+          "minus_num_base": 0.18301769442154542,
+          "minus_den_base": 0.18301769442154542,
+          "q_minus_base": 1.0,
+          "observable_corrected": 0.00763964334198159,
+          "ratio_corrected": 1.0,
+          "unsigned_corrected": 0.30311909462518916,
+          "plus_num_corrected": 0.15537936898358537,
+          "plus_den_corrected": 0.15537936898358537,
+          "q_plus_corrected": 1.0,
+          "minus_num_corrected": 0.1477397256416038,
+          "minus_den_corrected": 0.1477397256416038,
+          "q_minus_corrected": 1.0
+        },
+        {
+          "s": 1.0,
+          "observable_base": -0.02922165748926879,
+          "ratio_base": 0.8945099394964589,
+          "unsigned_base": 0.11597281994073977,
+          "plus_num_base": 0.04337558122573549,
+          "plus_den_base": 0.15034991042160645,
+          "q_plus_base": 0.2884975528359349,
+          "minus_num_base": 0.07259723871500429,
+          "minus_den_base": 0.18301769442154542,
+          "q_minus_base": 0.3966678683416848,
+          "observable_corrected": -0.004400406265465964,
+          "ratio_corrected": -0.5759962957020158,
+          "unsigned_corrected": 0.14637522683993612,
+          "plus_num_corrected": 0.07098741028723507,
+          "plus_den_corrected": 0.15537936898358537,
+          "q_plus_corrected": 0.4568650957434017,
+          "minus_num_corrected": 0.07538781655270105,
+          "minus_den_corrected": 0.1477397256416038,
+          "q_minus_corrected": 0.5102745130012053
+        },
+        {
+          "s": 3.0,
+          "observable_base": -0.010468144841649317,
+          "ratio_base": 0.32044245308065206,
+          "unsigned_base": 0.029982700773397295,
+          "plus_num_base": 0.00975727796587399,
+          "plus_den_base": 0.15034991042160645,
+          "q_plus_base": 0.06489713188729505,
+          "minus_num_base": 0.020225422807523305,
+          "minus_den_base": 0.18301769442154542,
+          "q_minus_base": 0.11051075073068074,
+          "observable_corrected": -0.004373367200802375,
+          "ratio_corrected": -0.5724569858869878,
+          "unsigned_corrected": 0.03519830463936668,
+          "plus_num_corrected": 0.015412468719282152,
+          "plus_den_corrected": 0.15537936898358537,
+          "q_plus_corrected": 0.09919250425653589,
+          "minus_num_corrected": 0.019785835920084528,
+          "minus_den_corrected": 0.1477397256416038,
+          "q_minus_corrected": 0.13392359999423742
+        }
+      ],
+      "after": [
+        {
+          "s": 0.0,
+          "observable_base": -0.032667783999938964,
+          "ratio_base": 1.0,
+          "unsigned_base": 0.33336760484315187,
+          "plus_num_base": 0.15034991042160645,
+          "plus_den_base": 0.15034991042160645,
+          "q_plus_base": 1.0,
+          "minus_num_base": 0.18301769442154542,
+          "minus_den_base": 0.18301769442154542,
+          "q_minus_base": 1.0,
+          "observable_corrected": 0.00763964334198159,
+          "ratio_corrected": 1.0,
+          "unsigned_corrected": 0.30311909462518916,
+          "plus_num_corrected": 0.15537936898358537,
+          "plus_den_corrected": 0.15537936898358537,
+          "q_plus_corrected": 1.0,
+          "minus_num_corrected": 0.1477397256416038,
+          "minus_den_corrected": 0.1477397256416038,
+          "q_minus_corrected": 1.0
+        },
+        {
+          "s": 1.0,
+          "observable_base": -0.02922165748926879,
+          "ratio_base": 0.8945099394964589,
+          "unsigned_base": 0.11597281994073977,
+          "plus_num_base": 0.04337558122573549,
+          "plus_den_base": 0.15034991042160645,
+          "q_plus_base": 0.2884975528359349,
+          "minus_num_base": 0.07259723871500429,
+          "minus_den_base": 0.18301769442154542,
+          "q_minus_base": 0.3966678683416848,
+          "observable_corrected": -0.004400406265465964,
+          "ratio_corrected": -0.5759962957020158,
+          "unsigned_corrected": 0.14637522683993612,
+          "plus_num_corrected": 0.07098741028723507,
+          "plus_den_corrected": 0.15537936898358537,
+          "q_plus_corrected": 0.4568650957434017,
+          "minus_num_corrected": 0.07538781655270105,
+          "minus_den_corrected": 0.1477397256416038,
+          "q_minus_corrected": 0.5102745130012053
+        },
+        {
+          "s": 3.0,
+          "observable_base": -0.010468144841649317,
+          "ratio_base": 0.32044245308065206,
+          "unsigned_base": 0.029982700773397295,
+          "plus_num_base": 0.00975727796587399,
+          "plus_den_base": 0.15034991042160645,
+          "q_plus_base": 0.06489713188729505,
+          "minus_num_base": 0.020225422807523305,
+          "minus_den_base": 0.18301769442154542,
+          "q_minus_base": 0.11051075073068074,
+          "observable_corrected": -0.004373367200802375,
+          "ratio_corrected": -0.5724569858869878,
+          "unsigned_corrected": 0.03519830463936668,
+          "plus_num_corrected": 0.015412468719282152,
+          "plus_den_corrected": 0.15537936898358537,
+          "q_plus_corrected": 0.09919250425653589,
+          "minus_num_corrected": 0.019785835920084528,
+          "minus_den_corrected": 0.1477397256416038,
+          "q_minus_corrected": 0.13392359999423742
+        }
+      ]
+    },
+    {
+      "method": "peps",
+      "settings": {
+        "nx": 2,
+        "ny": 3,
+        "steps": 2,
+        "sites": [
+          1,
+          3
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.001,
+        "residual": true
+      },
+      "max_abs_difference": 0.0,
+      "max_residual_difference": 0.0,
+      "before": [
+        {
+          "s": 0.0,
+          "observable_base": -0.1864787617670237,
+          "ratio_base": 1.0,
+          "unsigned_base": 0.2919418328157635,
+          "plus_num_base": 0.05273153552436992,
+          "plus_den_base": 0.05273153552436992,
+          "q_plus_base": 1.0,
+          "minus_num_base": 0.2392102972913936,
+          "minus_den_base": 0.2392102972913936,
+          "q_minus_base": 1.0,
+          "observable_corrected": -0.1864787617670237,
+          "ratio_corrected": 1.0,
+          "unsigned_corrected": 0.2919418328157635,
+          "plus_num_corrected": 0.05273153552436992,
+          "plus_den_corrected": 0.05273153552436992,
+          "q_plus_corrected": 1.0,
+          "minus_num_corrected": 0.2392102972913936,
+          "minus_den_corrected": 0.2392102972913936,
+          "q_minus_corrected": 1.0
+        },
+        {
+          "s": 1.0,
+          "observable_base": -0.024239109331550872,
+          "ratio_base": 0.1299832168653816,
+          "unsigned_base": 0.05695800075630782,
+          "plus_num_base": 0.016359445712378472,
+          "plus_den_base": 0.05273153552436992,
+          "q_plus_base": 0.3102402679857093,
+          "minus_num_base": 0.04059855504392934,
+          "minus_den_base": 0.2392102972913936,
+          "q_minus_base": 0.16971909446889022,
+          "observable_corrected": -0.024239109331550872,
+          "ratio_corrected": 0.1299832168653816,
+          "unsigned_corrected": 0.05695800075630783,
+          "plus_num_corrected": 0.01635944571237848,
+          "plus_den_corrected": 0.05273153552436992,
+          "q_plus_corrected": 0.3102402679857094,
+          "minus_num_corrected": 0.040598555043929355,
+          "minus_den_corrected": 0.2392102972913936,
+          "q_minus_corrected": 0.16971909446889027
+        },
+        {
+          "s": 3.0,
+          "observable_base": -0.001963918684058444,
+          "ratio_base": 0.01053159440490095,
+          "unsigned_base": 0.002387230868869504,
+          "plus_num_base": 0.00021165609240553,
+          "plus_den_base": 0.05273153552436992,
+          "q_plus_base": 0.004013842766018316,
+          "minus_num_base": 0.002175574776463974,
+          "minus_den_base": 0.2392102972913936,
+          "q_minus_base": 0.009094820754366613,
+          "observable_corrected": -0.001963918684058444,
+          "ratio_corrected": 0.01053159440490095,
+          "unsigned_corrected": 0.0023872308688695034,
+          "plus_num_corrected": 0.0002116560924055298,
+          "plus_den_corrected": 0.05273153552436992,
+          "q_plus_corrected": 0.004013842766018311,
+          "minus_num_corrected": 0.0021755747764639734,
+          "minus_den_corrected": 0.2392102972913936,
+          "q_minus_corrected": 0.00909482075436661
+        }
+      ],
+      "after": [
+        {
+          "s": 0.0,
+          "observable_base": -0.1864787617670237,
+          "ratio_base": 1.0,
+          "unsigned_base": 0.2919418328157635,
+          "plus_num_base": 0.05273153552436992,
+          "plus_den_base": 0.05273153552436992,
+          "q_plus_base": 1.0,
+          "minus_num_base": 0.2392102972913936,
+          "minus_den_base": 0.2392102972913936,
+          "q_minus_base": 1.0,
+          "observable_corrected": -0.1864787617670237,
+          "ratio_corrected": 1.0,
+          "unsigned_corrected": 0.2919418328157635,
+          "plus_num_corrected": 0.05273153552436992,
+          "plus_den_corrected": 0.05273153552436992,
+          "q_plus_corrected": 1.0,
+          "minus_num_corrected": 0.2392102972913936,
+          "minus_den_corrected": 0.2392102972913936,
+          "q_minus_corrected": 1.0
+        },
+        {
+          "s": 1.0,
+          "observable_base": -0.024239109331550872,
+          "ratio_base": 0.1299832168653816,
+          "unsigned_base": 0.05695800075630782,
+          "plus_num_base": 0.016359445712378472,
+          "plus_den_base": 0.05273153552436992,
+          "q_plus_base": 0.3102402679857093,
+          "minus_num_base": 0.04059855504392934,
+          "minus_den_base": 0.2392102972913936,
+          "q_minus_base": 0.16971909446889022,
+          "observable_corrected": -0.024239109331550872,
+          "ratio_corrected": 0.1299832168653816,
+          "unsigned_corrected": 0.05695800075630783,
+          "plus_num_corrected": 0.01635944571237848,
+          "plus_den_corrected": 0.05273153552436992,
+          "q_plus_corrected": 0.3102402679857094,
+          "minus_num_corrected": 0.040598555043929355,
+          "minus_den_corrected": 0.2392102972913936,
+          "q_minus_corrected": 0.16971909446889027
+        },
+        {
+          "s": 3.0,
+          "observable_base": -0.001963918684058444,
+          "ratio_base": 0.01053159440490095,
+          "unsigned_base": 0.002387230868869504,
+          "plus_num_base": 0.00021165609240553,
+          "plus_den_base": 0.05273153552436992,
+          "q_plus_base": 0.004013842766018316,
+          "minus_num_base": 0.002175574776463974,
+          "minus_den_base": 0.2392102972913936,
+          "q_minus_base": 0.009094820754366613,
+          "observable_corrected": -0.001963918684058444,
+          "ratio_corrected": 0.01053159440490095,
+          "unsigned_corrected": 0.0023872308688695034,
+          "plus_num_corrected": 0.0002116560924055298,
+          "plus_den_corrected": 0.05273153552436992,
+          "q_plus_corrected": 0.004013842766018311,
+          "minus_num_corrected": 0.0021755747764639734,
+          "minus_den_corrected": 0.2392102972913936,
+          "q_minus_corrected": 0.00909482075436661
+        }
+      ]
+    }
+  ]
+}

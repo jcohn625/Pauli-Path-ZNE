@@ -12,6 +12,7 @@ from parity_pauli_mps import ParityMPS,gates
 from optimized_pauli_svd import RandomizedSVD
 import scipy.linalg as la
 from contiguous_pauli_kernel import odd_transfer
+from mps_contractions import absorb_left, absorb_right, join_sites, environment_left, environment_right
 
 
 
@@ -19,7 +20,7 @@ from contiguous_pauli_kernel import odd_transfer
 def overlap(a,b):
     env=np.ones((1,1));logs=a.log_scale+b.log_scale
     for x,y in zip(a.tensors,b.tensors):
-        env=np.einsum('ab,apr,bps->rs',env,x,y,optimize=True)
+        env=environment_left(env,x,y)
         scale=np.max(abs(env))
         if not scale:return 0.
         env/=scale;logs+=np.log(scale)
@@ -30,17 +31,17 @@ def residual_value(state,guide,i,m,left_factor,right_factor):
     left=np.ones((1,1));right=np.ones((1,1))
     logs=state.log_scale+guide.log_scale
     for a,b in zip(state.tensors[:i],guide.tensors[:i]):
-        left=np.einsum('ab,apr,bps->rs',left,a,b,optimize=True)
+        left=environment_left(left,a,b)
         scale=np.max(abs(left))
         if not scale:return 0.
         left/=scale;logs+=np.log(scale)
     for j in range(len(state.tensors)-1,i+1,-1):
-        right=np.einsum('apr,bps,rs->ab',state.tensors[j],guide.tensors[j],right,optimize=True)
+        right=environment_right(right,state.tensors[j],guide.tensors[j])
         scale=np.max(abs(right))
         if not scale:return 0.
         right/=scale;logs+=np.log(scale)
-    a=np.einsum('lg,gam->lam',left,guide.tensors[i],optimize=True)
-    b=np.einsum('mbr,hr->mbh',guide.tensors[i+1],right,optimize=True)
+    a=absorb_left(left,guide.tensors[i])
+    b=absorb_right(guide.tensors[i+1],right.T)
     a=a.reshape(-1,a.shape[-1]);b=b.reshape(b.shape[0],-1)
     # Contract the low-rank gradient with the actual residual. Avoid forming a
     # second full-size center or gradient; the guide bond controls this cost.
@@ -141,9 +142,9 @@ def single_gate(solver,state,site,tables,cap,rsvd):
     for j in range(site):
         a=state.tensors[j];q,r=la.qr(a.reshape(-1,a.shape[-1]),mode='economic')
         state.tensors[j]=q.reshape(a.shape[0],16,q.shape[1])
-        state.tensors[j+1]=np.einsum('ab,bpr->apr',r,state.tensors[j+1],optimize=True)
+        state.tensors[j+1]=absorb_left(r,state.tensors[j+1])
     a,b=state.tensors[site:site+2]
-    theta=odd_transfer(np.einsum('lam,mbr->labr',a,b,optimize=True),*tables)
+    theta=odd_transfer(join_sites(a,b),*tables)
     m=theta.reshape(a.shape[0]*16,16*b.shape[-1])
     target=min(cap+24,*m.shape)
     if target>=min(m.shape):u,s,v=la.svd(m,full_matrices=False)

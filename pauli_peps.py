@@ -18,10 +18,16 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
                   unsigned=False,bond_cap=2,boundary_cap=16,cutoff=1e-12,
                   noise_model='independent',noise_placement='gate',noise_timing='after',
                   symmetry='none',gate_backend='quimb',capture_layer=None,
-                  capture_boundary=None,boundary_backend='einsum',jacobi_sweeps=16):
-    if boundary_backend not in ('einsum','blas','metal-jacobi'):
+                  capture_boundary=None,boundary_backend='einsum',jacobi_sweeps=16,cnot_noise=None):
+    if cnot_noise is not None and (symmetry!='z2z2' or capture_layer is not None):
+        raise ValueError('CNOT-layer noise requires z2z2 symmetry and does not support layer capture')
+    if cnot_noise is not None:
+        from cnot_parity import normalize_noise
+        normalize_noise(lattice,n_steps,cnot_noise.get('singles',(.001,.002,.003)),
+                        cnot_noise.get('pair_rates',0.),cnot_noise.get('edges'))
+    if boundary_backend not in ('einsum','blas','metal-jacobi','metal-hybrid'):
         raise ValueError('unknown boundary backend')
-    if boundary_backend=='metal-jacobi' and (symmetry!='z2z2' or jacobi_sweeps<1):
+    if boundary_backend in ('metal-jacobi','metal-hybrid') and (symmetry!='z2z2' or jacobi_sweeps<1):
         raise ValueError('Metal Jacobi requires z2z2 symmetry and positive sweeps')
     if gate_backend not in ('quimb','batched-cpu','metal'):
         raise ValueError('unknown gate backend')
@@ -59,7 +65,7 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
                         seconds=time.perf_counter()-start,evolve_seconds=0.,closure_seconds=0.,
                         boundary_seconds=0.,final_contract_seconds=0.,boundary_backend=boundary_backend,
                         boundary_gpu_stats=None,
-                        jacobi_sweeps=jacobi_sweeps if boundary_backend=='metal-jacobi' else None,
+                        jacobi_sweeps=jacobi_sweeps if boundary_backend in ('metal-jacobi','metal-hybrid') else None,
                         bond_cap=bond_cap,boundary_cap=boundary_cap,included_gates=0,
                         active_site_count=sum(c != 0 for c in codes),n_sites=lattice.n_sites,
                         n_steps=n_steps,unsigned=unsigned,method='peps-simple-update',
@@ -79,6 +85,14 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
     if gate_backend!='quimb':
         from peps_metal_layer import LayerEngine
         engine=LayerEngine('metal' if gate_backend=='metal' else 'cpu')
+    cnot_stats=None
+    log_scale=0.0
+    if cnot_noise is not None:
+        from cnot_parity_peps import evolve
+        log_scale,cnot_stats=evolve(peps,gauges,lattice,nx=nx,steps=n_steps,phi=phi,scale=scale,
+            unsigned=unsigned,noise=cnot_noise,cap=bond_cap,cutoff=cutoff,engine=engine)
+        operations=[]
+        active=set(range(lattice.n_sites))
     if engine is not None or capture_layer is not None:
         if not symmetric:raise ValueError('layer capture requires z2z2 symmetry')
         grouped=[];pending=[]
@@ -90,8 +104,7 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
         if pending:grouped.append(('gate_batch',pending,None))
         operations=grouped
     last_batch=max((i for i,op in enumerate(operations) if op[0]=='gate_batch'),default=-1)
-    included=0
-    log_scale=0.0
+    included=0 if cnot_stats is None else cnot_stats["cnot_gates"]//3
     for op_index,(kind,endpoints,data) in enumerate(operations):
         if kind=='noise':
             for q in active:
@@ -154,14 +167,16 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
     peps.fuse_multibonds_()
     closure_seconds=time.perf_counter()-start-evolve_seconds
     if capture_boundary is not None:
+        peps._cnot_evolution_stats=cnot_stats
         capture_boundary(peps,log_scale)
     boundary_start=time.perf_counter()
     from peps_boundary import boundary_backend as boundary_context
     boundary_engine=None
     with ExitStack() as stack:
-        if boundary_backend=='metal-jacobi':
+        if boundary_backend in ('metal-jacobi','metal-hybrid'):
             from peps_gpu_boundary import gpu_boundary,to_gpu
-            boundary_engine=stack.enter_context(gpu_boundary(jacobi_sweeps))
+            boundary_engine=stack.enter_context(gpu_boundary(jacobi_sweeps,decomposition_backend=
+                "hybrid" if boundary_backend=="metal-hybrid" else "metal"))
             peps=to_gpu(peps,boundary_engine.mx)
         else:
             stack.enter_context(boundary_context(boundary_backend))
@@ -184,14 +199,14 @@ def _evaluate_peps_impl(pauli,lattice,*,nx,ny,pairs,n_steps,phi,lam_xyz=(0.,0.,0
                 closure_seconds=closure_seconds,boundary_seconds=boundary_seconds,
                 boundary_backend=boundary_backend,
                 boundary_gpu_stats=boundary_engine.stats if boundary_engine is not None else None,
-                jacobi_sweeps=jacobi_sweeps if boundary_backend=='metal-jacobi' else None,
+                jacobi_sweeps=jacobi_sweeps if boundary_backend in ('metal-jacobi','metal-hybrid') else None,
                 final_contract_seconds=final_contract_seconds,bond_cap=bond_cap,boundary_cap=boundary_cap,
                 included_gates=included,active_site_count=len(active),n_sites=lattice.n_sites,
                 n_steps=n_steps,unsigned=unsigned,method='peps-simple-update',
                 symmetry=symmetry, symmetry_stats=symmetry_stats, boundary_symmetry_stats=boundary_stats,
                 gate_backend=gate_backend,layer_stats=engine.stats if engine else None,
                 observable_charge=charge if symmetric else None,symmetry_exact_zero=False,
-                accuracy_certified=False,cutoff=cutoff,
+                cnot_stats=cnot_stats,accuracy_certified=False,cutoff=cutoff,
                 approximation='spatial simple update and boundary-MPS contraction')
 
 

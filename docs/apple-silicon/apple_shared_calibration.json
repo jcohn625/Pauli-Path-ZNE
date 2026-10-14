@@ -1,0 +1,224 @@
+{
+  "machine": {
+    "chip": "Apple M4 Pro",
+    "memory_bytes": 25769803776,
+    "mlx": "0.31.2"
+  },
+  "probes": {
+    "gpu_qr": "[linalg::qr] This op is not yet supported on the GPU. Explicitly pass a CPU stream to run it.",
+    "gpu_svd": "[linalg::svd] This op is not yet supported on the GPU. Explicitly pass a CPU stream to run it.",
+    "gpu_float64": "float64 is not supported on the GPU"
+  },
+  "rows": [
+    {
+      "batch": 1,
+      "m": 16,
+      "k": 16,
+      "n": 16,
+      "seconds": {
+        "cpu64": 4.791887477040291e-06,
+        "metal_copied": 0.00018445821478962898,
+        "metal_shared": 0.00016008294187486172
+      },
+      "buffer_bytes": 3072,
+      "relative_frobenius_error": 7.550936782151135e-08,
+      "max_absolute_error": 9.546870325394252e-07
+    },
+    {
+      "batch": 32,
+      "m": 16,
+      "k": 16,
+      "n": 16,
+      "seconds": {
+        "cpu64": 3.179209306836128e-05,
+        "metal_copied": 0.0001768751535564661,
+        "metal_shared": 0.0001756658311933279
+      },
+      "buffer_bytes": 98304,
+      "relative_frobenius_error": 8.101684140195686e-08,
+      "max_absolute_error": 2.4536964300381214e-06
+    },
+    {
+      "batch": 1,
+      "m": 32,
+      "k": 32,
+      "n": 32,
+      "seconds": {
+        "cpu64": 4.00003045797348e-06,
+        "metal_copied": 0.00015854090452194214,
+        "metal_shared": 0.00014329212717711926
+      },
+      "buffer_bytes": 12288,
+      "relative_frobenius_error": 1.1123160632401894e-07,
+      "max_absolute_error": 3.915439144464017e-06
+    },
+    {
+      "batch": 32,
+      "m": 32,
+      "k": 32,
+      "n": 32,
+      "seconds": {
+        "cpu64": 7.666717283427715e-05,
+        "metal_copied": 0.0001877499744296074,
+        "metal_shared": 0.0001663330476731062
+      },
+      "buffer_bytes": 393216,
+      "relative_frobenius_error": 1.0833558064069328e-07,
+      "max_absolute_error": 6.919725670684329e-06
+    },
+    {
+      "batch": 1,
+      "m": 64,
+      "k": 64,
+      "n": 64,
+      "seconds": {
+        "cpu64": 2.3583881556987762e-05,
+        "metal_copied": 0.0001497089397162199,
+        "metal_shared": 0.00014279200695455074
+      },
+      "buffer_bytes": 49152,
+      "relative_frobenius_error": 1.5329321049050213e-07,
+      "max_absolute_error": 1.0807159419812251e-05
+    },
+    {
+      "batch": 8,
+      "m": 64,
+      "k": 64,
+      "n": 64,
+      "seconds": {
+        "cpu64": 0.00017445813864469528,
+        "metal_copied": 0.0001757920254021883,
+        "metal_shared": 0.00016000005416572094
+      },
+      "buffer_bytes": 393216,
+      "relative_frobenius_error": 1.478331526501617e-07,
+      "max_absolute_error": 8.343519095177498e-06
+    },
+    {
+      "batch": 32,
+      "m": 64,
+      "k": 64,
+      "n": 64,
+      "seconds": {
+        "cpu64": 0.0007086668629199266,
+        "metal_copied": 0.00028070807456970215,
+        "metal_shared": 0.0002277088351547718
+      },
+      "buffer_bytes": 1572864,
+      "relative_frobenius_error": 1.477722136635379e-07,
+      "max_absolute_error": 1.1945033882909684e-05
+    },
+    {
+      "batch": 1,
+      "m": 128,
+      "k": 128,
+      "n": 128,
+      "seconds": {
+        "cpu64": 9.699980728328228e-05,
+        "metal_copied": 0.0001680001150816679,
+        "metal_shared": 0.00015337509103119373
+      },
+      "buffer_bytes": 196608,
+      "relative_frobenius_error": 1.4781463786803583e-07,
+      "max_absolute_error": 9.71522714721118e-06
+    },
+    {
+      "batch": 8,
+      "m": 128,
+      "k": 128,
+      "n": 128,
+      "seconds": {
+        "cpu64": 0.0007897501345723867,
+        "metal_copied": 0.00026412494480609894,
+        "metal_shared": 0.00022637494839727879
+      },
+      "buffer_bytes": 1572864,
+      "relative_frobenius_error": 2.067398900935001e-07,
+      "max_absolute_error": 3.109274064527767e-05
+    },
+    {
+      "batch": 32,
+      "m": 128,
+      "k": 128,
+      "n": 128,
+      "seconds": {
+        "cpu64": 0.0034391661174595356,
+        "metal_copied": 0.0009707498829811811,
+        "metal_shared": 0.0007459998596459627
+      },
+      "buffer_bytes": 6291456,
+      "relative_frobenius_error": 2.0659881386007526e-07,
+      "max_absolute_error": 2.731003278455546e-05
+    },
+    {
+      "batch": 1,
+      "m": 256,
+      "k": 256,
+      "n": 256,
+      "seconds": {
+        "cpu64": 0.0007281249854713678,
+        "metal_copied": 0.00023195799440145493,
+        "metal_shared": 0.00020662485621869564
+      },
+      "buffer_bytes": 786432,
+      "relative_frobenius_error": 2.063593739125963e-07,
+      "max_absolute_error": 2.6054664740371436e-05
+    },
+    {
+      "batch": 8,
+      "m": 256,
+      "k": 256,
+      "n": 256,
+      "seconds": {
+        "cpu64": 0.0055915419943630695,
+        "metal_copied": 0.0010295829270035028,
+        "metal_shared": 0.0006339589599519968
+      },
+      "buffer_bytes": 6291456,
+      "relative_frobenius_error": 2.8985904403086726e-07,
+      "max_absolute_error": 6.709663257709053e-05
+    },
+    {
+      "batch": 32,
+      "m": 256,
+      "k": 256,
+      "n": 256,
+      "seconds": {
+        "cpu64": 0.023145207902416587,
+        "metal_copied": 0.002857208950445056,
+        "metal_shared": 0.0021683331578969955
+      },
+      "buffer_bytes": 25165824,
+      "relative_frobenius_error": 2.891702939456451e-07,
+      "max_absolute_error": 5.125702872277316e-05
+    },
+    {
+      "batch": 1,
+      "m": 512,
+      "k": 512,
+      "n": 512,
+      "seconds": {
+        "cpu64": 0.004475167021155357,
+        "metal_copied": 0.0009992499835789204,
+        "metal_shared": 0.0008742501959204674
+      },
+      "buffer_bytes": 3145728,
+      "relative_frobenius_error": 2.9000029742398557e-07,
+      "max_absolute_error": 5.036835080574065e-05
+    },
+    {
+      "batch": 8,
+      "m": 512,
+      "k": 512,
+      "n": 512,
+      "seconds": {
+        "cpu64": 0.03789725014939904,
+        "metal_copied": 0.0034913329873234034,
+        "metal_shared": 0.002852457808330655
+      },
+      "buffer_bytes": 25165824,
+      "relative_frobenius_error": 4.0684969392946097e-07,
+      "max_absolute_error": 0.00011634782207181615
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+[
+  {
+    "settings": {
+      "nx": 4,
+      "ny": 4,
+      "steps": 2,
+      "sites": [
+        5,
+        6
+      ],
+      "cap": 8,
+      "boundary_cap": 8,
+      "environment_cap": 16,
+      "noise_placement": "after_cnot",
+      "pair_rates": 0.0001,
+      "gate_backend": "batched-cpu",
+      "boundary_backend": "blas"
+    },
+    "seconds": [
+      1.8555524591356516,
+      1.8552175418008119,
+      1.865842916071415
+    ],
+    "median_s": 1.8555524591356516,
+    "value": -0.04454713030989516,
+    "absolute_difference_from_cpu": 0.0
+  },
+  {
+    "settings": {
+      "nx": 4,
+      "ny": 4,
+      "steps": 2,
+      "sites": [
+        5,
+        6
+      ],
+      "cap": 8,
+      "boundary_cap": 8,
+      "environment_cap": 16,
+      "noise_placement": "after_cnot",
+      "pair_rates": 0.0001,
+      "gate_backend": "metal",
+      "boundary_backend": "blas"
+    },
+    "seconds": [
+      2.488942583091557,
+      2.5035749999806285,
+      2.619573916075751
+    ],
+    "median_s": 2.5035749999806285,
+    "value": -0.04454678698942715,
+    "absolute_difference_from_cpu": 3.4332046801310856e-07
+  },
+  {
+    "settings": {
+      "nx": 4,
+      "ny": 4,
+      "steps": 2,
+      "sites": [
+        5,
+        6
+      ],
+      "cap": 8,
+      "boundary_cap": 8,
+      "environment_cap": 16,
+      "noise_placement": "after_cnot",
+      "pair_rates": 0.0001,
+      "gate_backend": "metal",
+      "boundary_backend": "metal-jacobi"
+    },
+    "seconds": [
+      2.4235116250347346,
+      2.482684041839093,
+      2.429411333054304
+    ],
+    "median_s": 2.429411333054304,
+    "value": -0.044546780756818595,
+    "absolute_difference_from_cpu": 3.49553076567366e-07
+  },
+  {
+    "settings": {
+      "nx": 6,
+      "ny": 6,
+      "steps": 1,
+      "sites": [
+        7,
+        8
+      ],
+      "cap": 8,
+      "boundary_cap": 8,
+      "environment_cap": 16,
+      "noise_placement": "after_cnot",
+      "pair_rates": 0.0001,
+      "gate_backend": "batched-cpu",
+      "boundary_backend": "blas"
+    },
+    "seconds": [
+      0.777486375067383,
+      0.7944937080610543,
+      0.8049827080685645
+    ],
+    "median_s": 0.7944937080610543,
+    "value": 0.0001345609155353811,
+    "absolute_difference_from_cpu": 0.0
+  },
+  {
+    "settings": {
+      "nx": 6,
+      "ny": 6,
+      "steps": 1,
+      "sites": [
+        7,
+        8
+      ],
+      "cap": 8,
+      "boundary_cap": 8,
+      "environment_cap": 16,
+      "noise_placement": "after_cnot",
+      "pair_rates": 0.0001,
+      "gate_backend": "metal",
+      "boundary_backend": "blas"
+    },
+    "seconds": [
+      1.2397622079588473,
+      1.2206580832134932,
+      1.232018917100504
+    ],
+    "median_s": 1.232018917100504,
+    "value": 0.00013457214979901871,
+    "absolute_difference_from_cpu": 1.1234263637606044e-08
+  },
+  {
+    "settings": {
+      "nx": 6,
+      "ny": 6,
+      "steps": 1,
+      "sites": [
+        7,
+        8
+      ],
+      "cap": 8,
+      "boundary_cap": 8,
+      "environment_cap": 16,
+      "noise_placement": "after_cnot",
+      "pair_rates": 0.0001,
+      "gate_backend": "metal",
+      "boundary_backend": "metal-jacobi"
+    },
+    "seconds": [
+      1.3170942498836666,
+      1.4504154580645263,
+      1.5268417501356453
+    ],
+    "median_s": 1.4504154580645263,
+    "value": 0.00013457803794044313,
+    "absolute_difference_from_cpu": 1.7122405062021525e-08
+  }
+]

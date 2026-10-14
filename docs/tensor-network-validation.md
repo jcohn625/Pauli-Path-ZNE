@@ -56,3 +56,42 @@ PEPS residual correction removes boundary truncation only in the exact-guide
 limit; it does not undo spatial gate/simple-update truncation. GPU arithmetic
 uses float32, and larger blocks require their own precision and Jacobi-sweep
 checks. See the usage guide for circuit conventions and convergence controls.
+
+## Per-CNOT-layer parity extension (2026-10-13)
+
+The transported-frame implementation adds `--noise-placement after_cnot` to
+both engines. It applies the full graph-wide channel after each nonempty CX
+layer and supports scheduled single-qubit and arbitrary-edge weight-2 rates.
+See [the CNOT parity guide](cnot-parity-methods.md).
+
+Final regression command:
+
+```bash
+TEST_PEPS_METAL=1 TEST_PEPS_GPU_BOUNDARY=1 TEST_MPS_METAL=1 \
+PYTHONPATH=cnot_zne NUMBA_CACHE_DIR=/tmp/pauli_cnot_numba \
+OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 NUMBA_NUM_THREADS=1 \
+python -m pytest tests cnot_zne/tests -q -W error::RuntimeWarning
+```
+
+Result: **123 passed, 1 skipped, plus 4 subtests passed**. The skipped pre-existing
+analysis/plot test requires optional pandas. All requested Metal tests ran.
+
+New exact checks cover four- and six-qubit signed/unsigned elementary circuits,
+all 66 possible weight-1/2 generators on four qubits, rate variation at every
+CX occurrence, idle-site damping, routing of longer-range correlations, and
+phi=pi/4 unsigned transfers. The signed MPS also matches the independent forward
+density-matrix solver from `cnot_zne`. With sufficiently large guides, actual
+truncated MPS residuals recover the dense reference, including routing errors.
+PEPS streamed residuals reproduce exact contraction of the same evolved PEPS
+when exact backward environments are used.
+
+Both documented CLI examples generated ratios, Q groups, observables and JSON.
+NPZ loading, its SHA-256 provenance record, and the `cnot` Q-group label are
+covered by a subprocess test. Both engines' Q/observable exports completed
+small end-to-end runs through the existing fitter using `methods="cnot"`.
+
+Additional execution checks completed for a 12-qubit, two-step MPS (forward and
+guide cap 16) and a 4x4, one-step PEPS (spatial/boundary cap 4, environment cap 8)
+with all nearest-neighbor Pauli pair rates .0001. These are bounded execution
+checks, not bond-convergence or accuracy claims. No large-system performance
+comparison with the former full-Heisenberg-noise model is claimed.
