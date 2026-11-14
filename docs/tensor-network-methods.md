@@ -5,6 +5,11 @@ curves alongside the existing Pauli-path sampling notebooks and
 `fit_zne_compare.py`. Both engines use a local Pauli basis and Z2 × Z2 symmetry.
 Run commands from the repository root. Site indices are zero based.
 
+For noise after each CNOT layer, including cross-pair and longer-range Pauli
+generators with parity-resolved signed/Q evolution, see the
+[CNOT parity extension](cnot-parity-methods.md). The defaults described below
+remain the original full-Heisenberg-noise modes.
+
 ## Installation
 
 Use **Python 3.11 or 3.12** for the pinned CPU environment (validation uses 3.12).
@@ -41,6 +46,7 @@ For reproducible, modest CPU resource use:
 
 ```bash
 export OPENBLAS_NUM_THREADS=1
+export VECLIB_MAXIMUM_THREADS=1
 export OMP_NUM_THREADS=1
 export NUMBA_NUM_THREADS=1
 export NUMBA_CACHE_DIR="$PWD/.numba_cache"
@@ -212,6 +218,9 @@ exact contraction **of the fixed, already evolved PEPS**. It does not correct
 the spatial simple-update/gate truncations. Independently converge `--cap`
 (spatial evolution), `--boundary-cap` (forward contraction), and
 `--environment-cap` (correction guide). Exact environments are for small tests.
+The high-level API defaults to row-level residual overlaps; use
+`--residual-granularity bond` for individual bond diagnostics. Both use the same
+forward truncations and backward guides.
 
 Neither finite-bond method supplies a certified error bound or guarantees that
 corrected results are closer to the physical answer. Separate correctness tests
@@ -221,11 +230,27 @@ from large-system bond convergence.
 
 | Option | Work on GPU | Work remaining on CPU |
 |---|---|---|
-| MPS default | None | Numba transfer kernel; NumPy/SciPy QR/SVD |
+| MPS default | None | After-CNOT Numba sector helpers; NumPy/SciPy contractions and QR/SVD |
 | `--mps-backend metal` | Randomized-SVD large matrix products | QR, reduced SVD, tensor evolution/bookkeeping |
-| PEPS default | None | quimb/symmray and NumPy/SciPy |
+| PEPS default | None | quimb/symmray, NumPy/SciPy and eligible Numba CPU scaling |
+| `--gate-backend batched-cpu` | None | Custom CPU gate engine and eligible Numba scaling/packing |
 | `--gate-backend metal` | Packing, gate products, tensor reconstruction | Gate QR/SVD and other evolution work |
+| `--boundary-backend metal-hybrid` | Boundary contractions and small QR/SVD batches | Selected QR/SVD batches via SciPy, plus topology/bookkeeping |
 | `--boundary-backend metal-jacobi` | Boundary tensor blocks, contractions, custom QR/Jacobi SVD, streamed residual contractions | Topology, sector bookkeeping, scalar reads |
+
+The new Numba helper policy is automatic. `PAULI_CPU_NUMBA=0` before Python
+startup disables those helpers for comparison; it does not disable every Numba
+routine in the project. The after-CNOT MPS gathers allowed sectors, merges the
+singular spectra with a global rank cap, and reconstructs retained factors in
+compiled loops. CPU PEPS scaling/packing uses Numba only for eligible FP64 tensors
+with at most five axes and no block larger than 4096 elements. Large contractions
+and decompositions remain library calls. See [CPU measurements](cpu-numba-results.md).
+
+`metal-hybrid` keeps boundary contractions on Metal and routes selected
+charge-sector QR/SVD batches to CPU LAPACK. This is an opt-in FP32 path, with
+thresholds measured on the development M4 Pro, not runtime autotuning. For a
+complete command, see the [README hybrid example](../README.md#apple-silicon-metal-and-hybrid-runs)
+and [hybrid benchmark report](apple-hybrid-refinement-results.md).
 
 Metal products use float32; CPU reference calculations use float64. Small MPS
 blocks may use full CPU SVD even with Metal selected. These options do not imply

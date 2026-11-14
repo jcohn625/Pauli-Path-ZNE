@@ -32,3 +32,9 @@ __pycache__/
 results/
 
 .venv*/
+
+# Exact-reference convergence figure accompanying the report.
+!docs/cnot_convergence.png
+
+# Published research comparison figure.
+!docs/apple-silicon/exploration-20261013.png

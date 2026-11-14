@@ -1,0 +1,789 @@
+{
+  "baseline_module_sha256": {
+    "cnot_parity_peps.py": "b7f99013e44a1484c67df61a668555d5691fa872bb26efaa9e8e0fbc5c98f376",
+    "cnot_parity.py": "b1fbc617608aeff9bb79decb1a08272ffbc7e4021c89cd7fecb397f41c0f427c",
+    "tensor_zne.py": "b8f080e57f07e59b146dcb8004e5090ab10961f7cc4bb558996d815e1d27a1d5",
+    "peps_metal_layer.py": "c0d710ac0cb16d3ef57ad631f7fd697415b7024544f7c55007fbe6deeabb213e",
+    "cnot_parity_mps.py": "5efb2187f325e980ea2066c6022c053008653461edebff9c83aace5c893dbc9e"
+  },
+  "before": [
+    {
+      "engine": "MPS",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 16,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0,
+        "residual": true
+      },
+      "median_s": 0.05565187497995794,
+      "seconds": [
+        0.05615916708484292,
+        0.05519616696983576,
+        0.05565187497995794,
+        0.05766979209147394,
+        0.05554129206575453
+      ],
+      "approximate": -0.00023666541436896863,
+      "corrected": -0.0020271449745793203
+    },
+    {
+      "engine": "MPS",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 16,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "median_s": 0.4027206669561565,
+      "seconds": [
+        0.4057048331014812,
+        0.40223545813933015,
+        0.40301366709172726,
+        0.4007983331102878,
+        0.4027206669561565
+      ],
+      "approximate": -0.0006085392632785289,
+      "corrected": -0.0018985823892713229
+    },
+    {
+      "engine": "PEPS",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0,
+        "residual": true
+      },
+      "median_s": 0.05816516699269414,
+      "seconds": [
+        0.05816516699269414,
+        0.05834958306513727,
+        0.06940054101869464,
+        0.05735529190860689,
+        0.05781004088930786
+      ],
+      "approximate": 0.0020543903291020023,
+      "corrected": 0.0020543903291020036
+    },
+    {
+      "engine": "PEPS",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "median_s": 0.3663244170602411,
+      "seconds": [
+        0.36421454092487693,
+        0.36633129115216434,
+        0.3663244170602411,
+        0.3660147078335285,
+        0.3663624171167612
+      ],
+      "approximate": 0.0009592645383292171,
+      "corrected": 0.0009592645383292173
+    },
+    {
+      "engine": "PEPS-batched",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0,
+        "residual": true
+      },
+      "median_s": 0.06106491689570248,
+      "seconds": [
+        0.06194816599600017,
+        0.06106491689570248,
+        0.06116862501949072,
+        0.06080799992196262,
+        0.06101466598920524
+      ],
+      "approximate": 0.0020543903291020092,
+      "corrected": 0.0020543903291020097
+    },
+    {
+      "engine": "PEPS-batched",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "median_s": 0.35126970801502466,
+      "seconds": [
+        0.3508097499143332,
+        0.3544090420473367,
+        0.35126970801502466,
+        0.35358462505973876,
+        0.3503400410991162
+      ],
+      "approximate": 0.000959264538329256,
+      "corrected": 0.0009592645383292564
+    }
+  ],
+  "after": [
+    {
+      "engine": "MPS",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 16,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0,
+        "residual": true
+      },
+      "median_s": 0.04803837486542761,
+      "seconds": [
+        0.04952654195949435,
+        0.048538791947066784,
+        0.04784337501041591,
+        0.04722708300687373,
+        0.04803837486542761
+      ],
+      "approximate": -0.00023666541436896863,
+      "corrected": -0.002027144974579282
+    },
+    {
+      "engine": "MPS",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 16,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "median_s": 0.3609200830105692,
+      "seconds": [
+        0.3639862919226289,
+        0.3609200830105692,
+        0.3602903748396784,
+        0.3620932078920305,
+        0.36089554196223617
+      ],
+      "approximate": -0.0006085392632785289,
+      "corrected": -0.0018985823892712383
+    },
+    {
+      "engine": "PEPS",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0,
+        "residual": true
+      },
+      "median_s": 0.06051741703413427,
+      "seconds": [
+        0.05990612506866455,
+        0.06051741703413427,
+        0.060736750019714236,
+        0.07149237510748208,
+        0.05965370801277459
+      ],
+      "approximate": 0.0020543903291020023,
+      "corrected": 0.0020543903291020036
+    },
+    {
+      "engine": "PEPS",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "median_s": 0.3232241671066731,
+      "seconds": [
+        0.3232241671066731,
+        0.32355354190804064,
+        0.32161420793272555,
+        0.3237500840332359,
+        0.3219009998720139
+      ],
+      "approximate": 0.0009592645383292377,
+      "corrected": 0.0009592645383292375
+    },
+    {
+      "engine": "PEPS-batched",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0,
+        "residual": true
+      },
+      "median_s": 0.05766970897093415,
+      "seconds": [
+        0.05861554201692343,
+        0.05757579091005027,
+        0.05766970897093415,
+        0.05762733402661979,
+        0.057726332917809486
+      ],
+      "approximate": 0.0020543903291020092,
+      "corrected": 0.0020543903291020097
+    },
+    {
+      "engine": "PEPS-batched",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 1,
+        "sites": [
+          5,
+          10
+        ],
+        "cap": 4,
+        "boundary_cap": 4,
+        "environment_cap": 8,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "median_s": 0.32767300005070865,
+      "seconds": [
+        0.3245080409105867,
+        0.32767300005070865,
+        0.32494783378206193,
+        0.3329811659641564,
+        0.34474216611124575
+      ],
+      "approximate": 0.0009592645383292137,
+      "corrected": 0.0009592645383292137
+    }
+  ],
+  "memory_mpo": [
+    {
+      "label": "guide budget",
+      "settings": {
+        "n": 8,
+        "steps": 1,
+        "sites": [
+          0,
+          1
+        ],
+        "phi": 0.23,
+        "cap": 8,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0005,
+        "store_contributions": false,
+        "guide_cache_mb": null
+      },
+      "seconds": [
+        0.04901225003413856,
+        0.04224570794031024,
+        0.040683041093871
+      ],
+      "median_s": 0.04224570794031024,
+      "approximate": -0.8274777266384963,
+      "corrected": -0.8274777266384964,
+      "exact": null,
+      "error": null,
+      "guide_cache_peak_bytes": 209400,
+      "noise_mpo_max_bond": 0,
+      "noise_mpo_bytes": 0,
+      "routing_swaps": 0,
+      "residual_skipped": 53,
+      "contribution_count": 5
+    },
+    {
+      "label": "guide budget",
+      "settings": {
+        "n": 8,
+        "steps": 1,
+        "sites": [
+          0,
+          1
+        ],
+        "phi": 0.23,
+        "cap": 8,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0005,
+        "store_contributions": false,
+        "guide_cache_mb": 0.0625
+      },
+      "seconds": [
+        0.029554291861131787,
+        0.029299458023160696,
+        0.02932237507775426
+      ],
+      "median_s": 0.02932237507775426,
+      "approximate": -0.8274777266384963,
+      "corrected": -0.8274777266384964,
+      "exact": null,
+      "error": null,
+      "guide_cache_peak_bytes": 47904,
+      "noise_mpo_max_bond": 0,
+      "noise_mpo_bytes": 0,
+      "routing_swaps": 0,
+      "residual_skipped": 53,
+      "contribution_count": 5
+    },
+    {
+      "label": "guide budget",
+      "settings": {
+        "n": 8,
+        "steps": 1,
+        "sites": [
+          0,
+          1
+        ],
+        "phi": 0.23,
+        "cap": 8,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0005,
+        "store_contributions": false,
+        "guide_cache_mb": 0.0
+      },
+      "seconds": [
+        0.023320249980315566,
+        0.023151790956035256,
+        0.023663250030949712
+      ],
+      "median_s": 0.023320249980315566,
+      "approximate": -0.8274777266384963,
+      "corrected": -0.8274777266384964,
+      "exact": null,
+      "error": null,
+      "guide_cache_peak_bytes": 0,
+      "noise_mpo_max_bond": 0,
+      "noise_mpo_bytes": 0,
+      "routing_swaps": 0,
+      "residual_skipped": 53,
+      "contribution_count": 5
+    },
+    {
+      "label": "nearest neighbor",
+      "settings": {
+        "n": 8,
+        "steps": 2,
+        "sites": [
+          0,
+          1
+        ],
+        "phi": 0.23,
+        "cap": 8,
+        "guide_cap": 32,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0005,
+        "store_contributions": false,
+        "noise_edges": null,
+        "unsigned": false,
+        "noise_strategy": "local"
+      },
+      "seconds": [
+        0.11959229200147092,
+        0.12069750018417835,
+        0.12537345802411437
+      ],
+      "median_s": 0.12069750018417835,
+      "approximate": -0.6283718274629858,
+      "corrected": -0.6309431553082626,
+      "exact": -0.6309431553082607,
+      "error": 1.887379141862766e-15,
+      "guide_cache_peak_bytes": 1512200,
+      "noise_mpo_max_bond": 0,
+      "noise_mpo_bytes": 0,
+      "routing_swaps": 0,
+      "residual_skipped": 88,
+      "contribution_count": 28
+    },
+    {
+      "label": "nearest neighbor",
+      "settings": {
+        "n": 8,
+        "steps": 2,
+        "sites": [
+          0,
+          1
+        ],
+        "phi": 0.23,
+        "cap": 8,
+        "guide_cap": 32,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0005,
+        "store_contributions": false,
+        "noise_edges": null,
+        "unsigned": false,
+        "noise_strategy": "mpo"
+      },
+      "seconds": [
+        0.14947633305564523,
+        0.150499708019197,
+        0.1501510408706963
+      ],
+      "median_s": 0.1501510408706963,
+      "approximate": -0.6283701185411554,
+      "corrected": -0.6309431553082606,
+      "exact": -0.6309431553082607,
+      "error": 1.1102230246251565e-16,
+      "guide_cache_peak_bytes": 929632,
+      "noise_mpo_max_bond": 4,
+      "noise_mpo_bytes": 39936,
+      "routing_swaps": 0,
+      "residual_skipped": 85,
+      "contribution_count": 41
+    },
+    {
+      "label": "nearest neighbor",
+      "settings": {
+        "n": 8,
+        "steps": 2,
+        "sites": [
+          0,
+          1
+        ],
+        "phi": 0.23,
+        "cap": 8,
+        "guide_cap": 32,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0005,
+        "store_contributions": false,
+        "noise_edges": null,
+        "unsigned": true,
+        "noise_strategy": "local"
+      },
+      "seconds": [
+        0.11862999992445111,
+        0.13042724994011223,
+        0.12030362500809133
+      ],
+      "median_s": 0.12030362500809133,
+      "approximate": 0.7771156659677279,
+      "corrected": 0.7782153905121908,
+      "exact": 0.7782153905121892,
+      "error": 1.5543122344752192e-15,
+      "guide_cache_peak_bytes": 1512200,
+      "noise_mpo_max_bond": 0,
+      "noise_mpo_bytes": 0,
+      "routing_swaps": 0,
+      "residual_skipped": 88,
+      "contribution_count": 28
+    },
+    {
+      "label": "nearest neighbor",
+      "settings": {
+        "n": 8,
+        "steps": 2,
+        "sites": [
+          0,
+          1
+        ],
+        "phi": 0.23,
+        "cap": 8,
+        "guide_cap": 32,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0005,
+        "store_contributions": false,
+        "noise_edges": null,
+        "unsigned": true,
+        "noise_strategy": "mpo"
+      },
+      "seconds": [
+        0.14872924983501434,
+        0.15132833295501769,
+        0.14891962497495115
+      ],
+      "median_s": 0.14891962497495115,
+      "approximate": 0.7771109939232139,
+      "corrected": 0.7782153905121894,
+      "exact": 0.7782153905121892,
+      "error": 1.1102230246251565e-16,
+      "guide_cache_peak_bytes": 929632,
+      "noise_mpo_max_bond": 4,
+      "noise_mpo_bytes": 39936,
+      "routing_swaps": 0,
+      "residual_skipped": 85,
+      "contribution_count": 41
+    },
+    {
+      "label": "long range star",
+      "settings": {
+        "n": 8,
+        "steps": 2,
+        "sites": [
+          0,
+          1
+        ],
+        "phi": 0.23,
+        "cap": 8,
+        "guide_cap": 32,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0005,
+        "store_contributions": false,
+        "noise_edges": [
+          [
+            0,
+            5
+          ],
+          [
+            0,
+            6
+          ],
+          [
+            0,
+            7
+          ]
+        ],
+        "unsigned": false,
+        "noise_strategy": "local"
+      },
+      "seconds": [
+        0.2247502920217812,
+        0.22128833294846117,
+        0.22084783390164375
+      ],
+      "median_s": 0.22128833294846117,
+      "approximate": -0.5678022688693523,
+      "corrected": -0.5727440895648337,
+      "exact": -0.5726772830265123,
+      "error": 6.68065383213623e-05,
+      "guide_cache_peak_bytes": 2401080,
+      "noise_mpo_max_bond": 0,
+      "noise_mpo_bytes": 0,
+      "routing_swaps": 168,
+      "residual_skipped": 195,
+      "contribution_count": 51
+    },
+    {
+      "label": "long range star",
+      "settings": {
+        "n": 8,
+        "steps": 2,
+        "sites": [
+          0,
+          1
+        ],
+        "phi": 0.23,
+        "cap": 8,
+        "guide_cap": 32,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0005,
+        "store_contributions": false,
+        "noise_edges": [
+          [
+            0,
+            5
+          ],
+          [
+            0,
+            6
+          ],
+          [
+            0,
+            7
+          ]
+        ],
+        "unsigned": false,
+        "noise_strategy": "mpo"
+      },
+      "seconds": [
+        0.15775812487117946,
+        0.1570032921154052,
+        0.15696474979631603
+      ],
+      "median_s": 0.1570032921154052,
+      "approximate": -0.5700771599867589,
+      "corrected": -0.5726772316909152,
+      "exact": -0.5726772830265123,
+      "error": 5.1335597106572095e-08,
+      "guide_cache_peak_bytes": 1022016,
+      "noise_mpo_max_bond": 4,
+      "noise_mpo_bytes": 39936,
+      "routing_swaps": 0,
+      "residual_skipped": 86,
+      "contribution_count": 40
+    },
+    {
+      "label": "long range star",
+      "settings": {
+        "n": 8,
+        "steps": 2,
+        "sites": [
+          0,
+          1
+        ],
+        "phi": 0.23,
+        "cap": 8,
+        "guide_cap": 32,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0005,
+        "store_contributions": false,
+        "noise_edges": [
+          [
+            0,
+            5
+          ],
+          [
+            0,
+            6
+          ],
+          [
+            0,
+            7
+          ]
+        ],
+        "unsigned": true,
+        "noise_strategy": "local"
+      },
+      "seconds": [
+        0.22388391685672104,
+        0.2224353749770671,
+        0.22216666606254876
+      ],
+      "median_s": 0.2224353749770671,
+      "approximate": 0.6832344257143467,
+      "corrected": 0.7120219794995958,
+      "exact": 0.7119743543178337,
+      "error": 4.762518176204544e-05,
+      "guide_cache_peak_bytes": 2401080,
+      "noise_mpo_max_bond": 0,
+      "noise_mpo_bytes": 0,
+      "routing_swaps": 168,
+      "residual_skipped": 193,
+      "contribution_count": 53
+    },
+    {
+      "label": "long range star",
+      "settings": {
+        "n": 8,
+        "steps": 2,
+        "sites": [
+          0,
+          1
+        ],
+        "phi": 0.23,
+        "cap": 8,
+        "guide_cap": 32,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0005,
+        "store_contributions": false,
+        "noise_edges": [
+          [
+            0,
+            5
+          ],
+          [
+            0,
+            6
+          ],
+          [
+            0,
+            7
+          ]
+        ],
+        "unsigned": true,
+        "noise_strategy": "mpo"
+      },
+      "seconds": [
+        0.1568782920949161,
+        0.15765604190528393,
+        0.15829220786690712
+      ],
+      "median_s": 0.15765604190528393,
+      "approximate": 0.7109183779619144,
+      "corrected": 0.7119743322642622,
+      "exact": 0.7119743543178337,
+      "error": 2.2053571524516258e-08,
+      "guide_cache_peak_bytes": 1022016,
+      "noise_mpo_max_bond": 4,
+      "noise_mpo_bytes": 39936,
+      "routing_swaps": 0,
+      "residual_skipped": 85,
+      "contribution_count": 41
+    }
+  ]
+}

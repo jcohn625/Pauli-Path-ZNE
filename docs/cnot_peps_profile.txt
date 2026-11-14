@@ -1,0 +1,74 @@
+         13090252 function calls (13029529 primitive calls) in 3.539 seconds
+
+   Ordered by: cumulative time
+   List reduced from 634 to 35 due to restriction <35>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        3    0.000    0.000    3.542    1.181 tensor_zne.py:62(evaluate_peps)
+        3    0.000    0.000    3.451    1.150 pauli_peps.py:243(evaluate_peps)
+        3    0.001    0.000    3.451    1.150 pauli_peps.py:17(_evaluate_peps_impl)
+        3    0.016    0.005    3.362    1.121 cnot_parity_peps.py:18(evolve)
+     1065    0.008    0.000    3.093    0.003 core.py:632(tensor_network_ag_gate_simple)
+     1065    0.005    0.000    2.520    0.002 core.py:440(tensor_network_ag_gate)
+     1065    0.003    0.000    2.507    0.002 gating.py:330(tensor_network_gate_inds)
+     1065    0.009    0.000    2.498    0.002 gating.py:23(_tensor_network_gate_inds_basic)
+     1065    0.018    0.000    2.469    0.002 gating.py:102(_tensor_network_gate_inds_eager_split)
+   104997    0.052    0.000    2.232    0.000 autoray.py:32(do)
+     4635    0.002    0.000    1.161    0.000 interface.py:172(tensordot)
+     4635    0.002    0.000    1.159    0.000 bosonic_common.py:210(tensordot)
+     4635    0.002    0.000    1.158    0.000 sparse_array_common.py:1775(_tensordot_abelian)
+     4635    0.009    0.000    1.156    0.000 sparse_array_common.py:2726(tensordot_abelian)
+     4635    0.021    0.000    1.121    0.000 sparse_array_common.py:2616(_tensordot_via_fused)
+     3261    0.007    0.000    1.038    0.000 tensor_core.py:2621(split)
+     3261    0.036    0.000    1.031    0.000 tensor_core.py:391(tensor_split)
+     1137    0.005    0.000    0.731    0.001 tensor_core.py:223(tensor_contract)
+     1137    0.002    0.000    0.694    0.001 contraction.py:272(array_contract)
+     1137    0.005    0.000    0.692    0.001 interface.py:805(array_contract)
+11805/6999    0.038    0.000    0.672    0.000 pauli_peps.py:212(_safe_tensordot)
+     1137    0.005    0.000    0.660    0.001 contract.py:718(__call__)
+    11967    0.036    0.000    0.602    0.000 sparse_array_common.py:1438(_fuse_core_abelian)
+     2184    0.008    0.000    0.568    0.000 tensor_core.py:3352(__matmul__)
+    13851    0.226    0.000    0.552    0.000 sparse_array_common.py:1520(_unfuse_abelian)
+98115/78201    0.009    0.000    0.519    0.000 {built-in method builtins.next}
+     2130    0.002    0.000    0.512    0.000 tensor_core.py:7622(gauge_simple_temp)
+    11967    0.186    0.000    0.373    0.000 sparse_array_common.py:401(_fuse_blocks_via_insert)
+    11112    0.010    0.000    0.361    0.000 tensor_core.py:3269(multiply_index_diagonal)
+    23406    0.042    0.000    0.345    0.000 tensor_core.py:1767(modify)
+     1068    0.013    0.000    0.345    0.000 tensor_core.py:7539(gauge_simple_insert)
+1077/1071    0.001    0.000    0.333    0.000 contextlib.py:132(__enter__)
+85542/76767    0.044    0.000    0.331    0.000 autoray.py:1282(__call__)
+    11112    0.004    0.000    0.251    0.000 interface.py:350(multiply_diagonal)
+    11121    0.141    0.000    0.248    0.000 sparse_array_common.py:1616(multiply_diagonal)
+
+
+         13090252 function calls (13029529 primitive calls) in 3.539 seconds
+
+   Ordered by: internal time
+   List reduced from 634 to 25 due to restriction <25>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    13851    0.226    0.000    0.552    0.000 sparse_array_common.py:1520(_unfuse_abelian)
+    11967    0.186    0.000    0.373    0.000 sparse_array_common.py:401(_fuse_blocks_via_insert)
+    11121    0.141    0.000    0.248    0.000 sparse_array_common.py:1616(multiply_diagonal)
+     4686    0.087    0.000    0.150    0.000 sparse_array_common.py:2539(drop_misaligned_sectors)
+   354435    0.077    0.000    0.175    0.000 fromnumeric.py:53(_wrapfunc)
+    67944    0.055    0.000    0.082    0.000 sparse_array_common.py:97(accum_for_split)
+     4635    0.054    0.000    0.176    0.000 sparse_array_common.py:2453(_tensordot_blockwise)
+   104997    0.052    0.000    2.232    0.000 autoray.py:32(do)
+   213339    0.051    0.000    0.051    0.000 {method 'reshape' of 'numpy.ndarray' objects}
+   227790    0.050    0.000    0.088    0.000 sparse_index.py:198(size_total)
+    21054    0.047    0.000    0.047    0.000 {built-in method _pickle.dumps}
+18030/180    0.046    0.000    0.092    0.001 sparse_array_common.py:1134(_recurse)
+85542/76767    0.044    0.000    0.331    0.000 autoray.py:1282(__call__)
+    23406    0.042    0.000    0.345    0.000 tensor_core.py:1767(modify)
+   207258    0.041    0.000    0.151    0.000 fromnumeric.py:200(reshape)
+   338937    0.039    0.000    0.053    0.000 sparse_array_common.py:1556(<genexpr>)
+11805/6999    0.038    0.000    0.672    0.000 pauli_peps.py:212(_safe_tensordot)
+     3261    0.036    0.000    1.031    0.000 tensor_core.py:391(tensor_split)
+    11967    0.036    0.000    0.602    0.000 sparse_array_common.py:1438(_fuse_core_abelian)
+   505326    0.035    0.000    0.035    0.000 {method 'append' of 'list' objects}
+    61740    0.035    0.000    0.151    0.000 sparse_array_common.py:670(shape)
+   174795    0.034    0.000    0.064    0.000 autoray.py:163(_default_infer_from_sig)
+   276252    0.034    0.000    0.116    0.000 sparse_array_common.py:673(<genexpr>)
+     6312    0.034    0.000    0.147    0.000 sparse_array_common.py:1190(_transpose_abelian)
+   190539    0.032    0.000    0.097    0.000 autoray.py:582(_choose_backend)

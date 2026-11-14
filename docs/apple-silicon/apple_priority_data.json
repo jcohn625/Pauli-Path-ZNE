@@ -1,0 +1,2802 @@
+{
+  "before": {
+    "source": "/private/tmp/pauli-apple-priority-baseline",
+    "hashes": {
+      "cnot_parity_mps.py": "7be727b509b264aae96dfbf1b81ac0be9fd21b83b35b26fb76f504f1b5e9361b",
+      "mps_residual.py": "d6f4ee9f409bea20350128539fb66a72111975ca4073f8549afdde6a49d7b4cb",
+      "peps_metal_layer.py": "3cbd6c87d6a6f965cd958156429aac04ccc334b18263d99496047f9f5974a0b7"
+    },
+    "rows": [
+      {
+        "name": "MPS16-single",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 16,
+          "guide_cap": 16
+        },
+        "seconds": [
+          0.051100583048537374,
+          0.05044770799577236,
+          0.05188650009222329
+        ],
+        "median_s": 0.051100583048537374,
+        "approximate": -0.00023666541436896863,
+        "corrected": -0.002027144974579282,
+        "process_high_water_bytes": 93421568
+      },
+      {
+        "name": "MPS16-pair",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 16,
+          "guide_cap": 16
+        },
+        "seconds": [
+          0.38781870785169303,
+          0.38553708302788436,
+          0.38844733289442956
+        ],
+        "median_s": 0.38781870785169303,
+        "approximate": -0.0006085392632785289,
+        "corrected": -0.0018985823892712383,
+        "process_high_water_bytes": 97763328,
+        "profile": [
+          {
+            "file": "tensor_zne.py",
+            "line": 25,
+            "function": "evaluate_mps",
+            "calls": 1,
+            "self_s": 5.1917000000000005e-05,
+            "cumulative_s": 0.750207834
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 224,
+            "function": "evaluate",
+            "calls": 1,
+            "self_s": 0.00144175,
+            "cumulative_s": 0.7501559170000001
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 99,
+            "function": "apply",
+            "calls": 990,
+            "self_s": 0.040282328,
+            "cumulative_s": 0.711867899
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 87,
+            "function": "move_center",
+            "calls": 990,
+            "self_s": 0.002656009,
+            "cumulative_s": 0.374088576
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 54,
+            "function": "_right_qr",
+            "calls": 1482,
+            "self_s": 0.037387807,
+            "cumulative_s": 0.26006178
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 1009,
+            "function": "einsum",
+            "calls": 5198,
+            "self_s": 0.027099616,
+            "cumulative_s": 0.244527352
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 168,
+            "function": "chunk",
+            "calls": 19,
+            "self_s": 0.000885565,
+            "cumulative_s": 0.19676362500000003
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 162,
+            "function": "__init__",
+            "calls": 1,
+            "self_s": 0.0007666950000000001,
+            "cumulative_s": 0.192251417
+          },
+          {
+            "file": "_util.py",
+            "line": 1149,
+            "function": "wrapper",
+            "calls": 9829,
+            "self_s": 0.017898242,
+            "cumulative_s": 0.189326545
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 706,
+            "function": "einsum_path",
+            "calls": 5197,
+            "self_s": 0.05418945,
+            "cumulative_s": 0.15955518200000002
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 256,
+            "function": "record",
+            "calls": 151,
+            "self_s": 0.00032754100000000004,
+            "cumulative_s": 0.13265279900000002
+          },
+          {
+            "file": "mps_residual.py",
+            "line": 29,
+            "function": "residual_value",
+            "calls": 151,
+            "self_s": 0.006544607,
+            "cumulative_s": 0.132145918
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 71,
+            "function": "_left_qr",
+            "calls": 622,
+            "self_s": 0.015517006000000002,
+            "cumulative_s": 0.11137062
+          },
+          {
+            "file": "_decomp_qr.py",
+            "line": 27,
+            "function": "qr",
+            "calls": 6979,
+            "self_s": 0.015316855,
+            "cumulative_s": 0.102021262
+          },
+          {
+            "file": "index_tricks.py",
+            "line": 34,
+            "function": "ix_",
+            "calls": 23915,
+            "self_s": 0.030737356,
+            "cumulative_s": 0.083273651
+          },
+          {
+            "file": "_decomp_svd.py",
+            "line": 16,
+            "function": "svd",
+            "calls": 2850,
+            "self_s": 0.032158542000000005,
+            "cumulative_s": 0.053493021
+          },
+          {
+            "file": "numeric.py",
+            "line": 932,
+            "function": "tensordot",
+            "calls": 5774,
+            "self_s": 0.023846546000000003,
+            "cumulative_s": 0.044610032
+          },
+          {
+            "file": "numerictypes.py",
+            "line": 357,
+            "function": "issubdtype",
+            "calls": 47830,
+            "self_s": 0.016578235,
+            "cumulative_s": 0.037516082
+          },
+          {
+            "file": "twodim_base.py",
+            "line": 485,
+            "function": "triu",
+            "calls": 6979,
+            "self_s": 0.009561869,
+            "cumulative_s": 0.033950343
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 13,
+            "function": "sector_layout",
+            "calls": 957,
+            "self_s": 0.007804668000000001,
+            "cumulative_s": 0.033213095000000005
+          },
+          {
+            "file": "_decomp_qr.py",
+            "line": 13,
+            "function": "safecall",
+            "calls": 13958,
+            "self_s": 0.024863752000000003,
+            "cumulative_s": 0.032752872
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'reduce' of 'numpy.ufunc' objects>",
+            "calls": 35372,
+            "self_s": 0.030900125,
+            "cumulative_s": 0.030900125
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 312,
+            "function": "_greedy_path",
+            "calls": 1522,
+            "self_s": 0.008156948,
+            "cumulative_s": 0.030888199
+          },
+          {
+            "file": "twodim_base.py",
+            "line": 366,
+            "function": "tri",
+            "calls": 6979,
+            "self_s": 0.005687617000000001,
+            "cumulative_s": 0.022477967
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 71,
+            "function": "_wrapreduction",
+            "calls": 13993,
+            "self_s": 0.00776307,
+            "cumulative_s": 0.020733422
+          },
+          {
+            "file": "function_base.py",
+            "line": 564,
+            "function": "asarray_chkfinite",
+            "calls": 9829,
+            "self_s": 0.007103511000000001,
+            "cumulative_s": 0.018823109
+          },
+          {
+            "file": "numerictypes.py",
+            "line": 283,
+            "function": "issubclass_",
+            "calls": 95660,
+            "self_s": 0.011791794000000001,
+            "cumulative_s": 0.018768281
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 2322,
+            "function": "any",
+            "calls": 10373,
+            "self_s": 0.0032455210000000003,
+            "cumulative_s": 0.018484394
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 413,
+            "function": "_can_dot",
+            "calls": 5774,
+            "self_s": 0.013026903000000001,
+            "cumulative_s": 0.01847046
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 523,
+            "function": "_parse_einsum_input",
+            "calls": 5197,
+            "self_s": 0.012094394000000001,
+            "cumulative_s": 0.017998496000000003
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 215,
+            "function": "_parse_possible_contraction",
+            "calls": 6088,
+            "self_s": 0.004087602,
+            "cumulative_s": 0.016646434
+          },
+          {
+            "file": "cnot_parity.py",
+            "line": 301,
+            "function": "fuse_operations",
+            "calls": 1,
+            "self_s": 0.003510674,
+            "cumulative_s": 0.015807333
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'reshape' of 'numpy.ndarray' objects>",
+            "calls": 74735,
+            "self_s": 0.015404476,
+            "cumulative_s": 0.015404476
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'append' of 'list' objects>",
+            "calls": 199542,
+            "self_s": 0.013618474,
+            "cumulative_s": 0.013618474
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<built-in method builtins.len>",
+            "calls": 256090,
+            "self_s": 0.013578251000000001,
+            "cumulative_s": 0.013578251000000001
+          },
+          {
+            "file": "numeric.py",
+            "line": 615,
+            "function": "flatnonzero",
+            "calls": 6798,
+            "self_s": 0.0036923880000000004,
+            "cumulative_s": 0.012986542
+          },
+          {
+            "file": "_aliases.py",
+            "line": 70,
+            "function": "asarray",
+            "calls": 9829,
+            "self_s": 0.004054378,
+            "cumulative_s": 0.012717883000000001
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 85,
+            "function": "_find_contraction",
+            "calls": 14329,
+            "self_s": 0.0096287,
+            "cumulative_s": 0.012340236000000001
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'all' of 'numpy.ndarray' objects>",
+            "calls": 9831,
+            "self_s": 0.0022251840000000003,
+            "cumulative_s": 0.010889553000000001
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<built-in method builtins.sum>",
+            "calls": 16597,
+            "self_s": 0.00464198,
+            "cumulative_s": 0.010689753000000001
+          }
+        ]
+      },
+      {
+        "name": "MPS64-pair",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 64,
+          "guide_cap": 64
+        },
+        "seconds": [
+          0.7338390829972923,
+          0.7373420412186533,
+          0.7385325410868973
+        ],
+        "median_s": 0.7373420412186533,
+        "approximate": -0.0018948909163284048,
+        "corrected": -0.0018984028682785979,
+        "process_high_water_bytes": 127025152
+      },
+      {
+        "name": "MPS16-unsigned",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 16,
+          "guide_cap": 16,
+          "unsigned": true
+        },
+        "seconds": [
+          0.39514270797371864,
+          0.3943715419154614,
+          0.39370687515474856
+        ],
+        "median_s": 0.3943715419154614,
+        "approximate": 0.03948452425757081,
+        "corrected": 0.03133786076288007,
+        "process_high_water_bytes": 127188992
+      },
+      {
+        "name": "PEPS4",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "nx": 4,
+          "ny": 4,
+          "steps": 1,
+          "sites": [
+            5,
+            10
+          ],
+          "cap": 4,
+          "boundary_cap": 4,
+          "environment_cap": 8
+        },
+        "seconds": [
+          0.3525682499166578,
+          0.36570333293639123,
+          0.35359495785087347
+        ],
+        "median_s": 0.35359495785087347,
+        "approximate": 0.0009592645383292377,
+        "corrected": 0.0009592645383292375,
+        "process_high_water_bytes": 210485248
+      },
+      {
+        "name": "PEPS8",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "nx": 4,
+          "ny": 4,
+          "steps": 2,
+          "sites": [
+            5,
+            6
+          ],
+          "cap": 8,
+          "boundary_cap": 8,
+          "environment_cap": 16,
+          "gate_backend": "batched-cpu"
+        },
+        "seconds": [
+          1.8978105830028653,
+          1.816916333977133,
+          1.8122976669110358
+        ],
+        "median_s": 1.816916333977133,
+        "approximate": -0.04454737927877416,
+        "corrected": -0.044547130309894926,
+        "process_high_water_bytes": 277381120,
+        "profile": [
+          {
+            "file": "tensor_zne.py",
+            "line": 68,
+            "function": "evaluate_peps",
+            "calls": 1,
+            "self_s": 0.000136042,
+            "cumulative_s": 3.4961977500000003
+          },
+          {
+            "file": "pauli_peps.py",
+            "line": 243,
+            "function": "evaluate_peps",
+            "calls": 1,
+            "self_s": 2.3375000000000002e-05,
+            "cumulative_s": 3.423736459
+          },
+          {
+            "file": "pauli_peps.py",
+            "line": 17,
+            "function": "_evaluate_peps_impl",
+            "calls": 1,
+            "self_s": 0.000492783,
+            "cumulative_s": 3.423699833
+          },
+          {
+            "file": "cnot_parity_peps.py",
+            "line": 18,
+            "function": "evolve",
+            "calls": 1,
+            "self_s": 0.0033669520000000003,
+            "cumulative_s": 3.3834800410000003
+          },
+          {
+            "file": "cnot_parity_peps.py",
+            "line": 35,
+            "function": "flush",
+            "calls": 315,
+            "self_s": 0.021265975000000003,
+            "cumulative_s": 3.2596575580000002
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 241,
+            "function": "apply",
+            "calls": 293,
+            "self_s": 0.029435793000000002,
+            "cumulative_s": 3.238258348
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 184,
+            "function": "contract_many",
+            "calls": 879,
+            "self_s": 0.000916799,
+            "cumulative_s": 1.0580048240000002
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 157,
+            "function": "contract_direct",
+            "calls": 879,
+            "self_s": 0.147021901,
+            "cumulative_s": 1.057088025
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 99,
+            "function": "scale_many",
+            "calls": 586,
+            "self_s": 0.641715095,
+            "cumulative_s": 1.0562689710000002
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 2621,
+            "function": "split",
+            "calls": 2152,
+            "self_s": 0.003681587,
+            "cumulative_s": 0.887885978
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 391,
+            "function": "tensor_split",
+            "calls": 2152,
+            "self_s": 0.021343244,
+            "cumulative_s": 0.884204391
+          },
+          {
+            "file": "autoray.py",
+            "line": 32,
+            "function": "do",
+            "calls": 30882,
+            "self_s": 0.014489503,
+            "cumulative_s": 0.706611867
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 43,
+            "function": "contraction_layout",
+            "calls": 1366,
+            "self_s": 0.24974612100000002,
+            "cumulative_s": 0.700786428
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 2979,
+            "function": "prod",
+            "calls": 204233,
+            "self_s": 0.051091822,
+            "cumulative_s": 0.359942496
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 71,
+            "function": "_wrapreduction",
+            "calls": 225391,
+            "self_s": 0.10875836700000001,
+            "cumulative_s": 0.334120066
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1438,
+            "function": "_fuse_core_abelian",
+            "calls": 2360,
+            "self_s": 0.008406299,
+            "cumulative_s": 0.322776977
+          },
+          {
+            "file": "interface.py",
+            "line": 403,
+            "function": "fuse",
+            "calls": 2178,
+            "self_s": 0.001056148,
+            "cumulative_s": 0.30748585500000003
+          },
+          {
+            "file": "array_common.py",
+            "line": 486,
+            "function": "fuse",
+            "calls": 2178,
+            "self_s": 0.002950522,
+            "cumulative_s": 0.306429707
+          },
+          {
+            "file": "bosonic_common.py",
+            "line": 140,
+            "function": "_fuse_core",
+            "calls": 2178,
+            "self_s": 0.001192679,
+            "cumulative_s": 0.303127032
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 401,
+            "function": "_fuse_blocks_via_insert",
+            "calls": 2360,
+            "self_s": 0.12328169200000001,
+            "cumulative_s": 0.256337319
+          },
+          {
+            "file": "interface.py",
+            "line": 167,
+            "function": "reshape",
+            "calls": 4044,
+            "self_s": 0.001624423,
+            "cumulative_s": 0.24726888800000002
+          },
+          {
+            "file": "array_common.py",
+            "line": 575,
+            "function": "reshape",
+            "calls": 4044,
+            "self_s": 0.007163799,
+            "cumulative_s": 0.245644465
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1520,
+            "function": "_unfuse_abelian",
+            "calls": 4182,
+            "self_s": 0.09436692,
+            "cumulative_s": 0.228473222
+          },
+          {
+            "file": "bosonic_common.py",
+            "line": 155,
+            "function": "unfuse",
+            "calls": 4044,
+            "self_s": 0.003936778,
+            "cumulative_s": 0.219201159
+          },
+          {
+            "file": "autoray.py",
+            "line": 1282,
+            "function": "__call__",
+            "calls": 33939,
+            "self_s": 0.016675123,
+            "cumulative_s": 0.21247971300000001
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'reduce' of 'numpy.ufunc' objects>",
+            "calls": 225481,
+            "self_s": 0.17564361,
+            "cumulative_s": 0.17564361
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'reshape' of 'numpy.ndarray' objects>",
+            "calls": 1037815,
+            "self_s": 0.173614231,
+            "cumulative_s": 0.173614231
+          },
+          {
+            "file": "decomp.py",
+            "line": 34,
+            "function": "array_split",
+            "calls": 8567,
+            "self_s": 0.006432837,
+            "cumulative_s": 0.169732074
+          },
+          {
+            "file": "bosonic_common.py",
+            "line": 35,
+            "function": "_split",
+            "calls": 2152,
+            "self_s": 0.00175957,
+            "cumulative_s": 0.159339427
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1933,
+            "function": "_split_abelian",
+            "calls": 2865,
+            "self_s": 0.019399282,
+            "cumulative_s": 0.15757985700000002
+          },
+          {
+            "file": "numeric.py",
+            "line": 136,
+            "function": "ones",
+            "calls": 193713,
+            "self_s": 0.091046975,
+            "cumulative_s": 0.12226437300000001
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 1593,
+            "function": "__init__",
+            "calls": 15146,
+            "self_s": 0.02019694,
+            "cumulative_s": 0.11842838400000001
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 53,
+            "function": "_wrapfunc",
+            "calls": 243598,
+            "self_s": 0.04377093,
+            "cumulative_s": 0.104796153
+          },
+          {
+            "file": "linalg.py",
+            "line": 123,
+            "function": "svd_truncated",
+            "calls": 713,
+            "self_s": 0.00043743000000000005,
+            "cumulative_s": 0.100931694
+          },
+          {
+            "file": "array_common.py",
+            "line": 772,
+            "function": "svd_truncated",
+            "calls": 713,
+            "self_s": 0.001047238,
+            "cumulative_s": 0.100494264
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1856,
+            "function": "_split_abelian_dynamic",
+            "calls": 713,
+            "self_s": 0.002129924,
+            "cumulative_s": 0.09666171600000001
+          },
+          {
+            "file": "linalg_common.py",
+            "line": 19,
+            "function": "array_split",
+            "calls": 6415,
+            "self_s": 0.0026781070000000003,
+            "cumulative_s": 0.090833806
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 200,
+            "function": "reshape",
+            "calls": 138291,
+            "self_s": 0.023628336,
+            "cumulative_s": 0.090784295
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 1009,
+            "function": "einsum",
+            "calls": 86426,
+            "self_s": 0.009412416,
+            "cumulative_s": 0.07988436800000001
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 29,
+            "function": "diagonal_center",
+            "calls": 534,
+            "self_s": 0.023031472,
+            "cumulative_s": 0.07876522300000001
+          }
+        ]
+      },
+      {
+        "name": "PEPS16",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "nx": 4,
+          "ny": 4,
+          "steps": 2,
+          "sites": [
+            5,
+            6
+          ],
+          "cap": 16,
+          "boundary_cap": 8,
+          "environment_cap": 16,
+          "gate_backend": "batched-cpu"
+        },
+        "seconds": [
+          2.7362825830932707,
+          2.8680437500588596,
+          3.12185849994421
+        ],
+        "median_s": 2.8680437500588596,
+        "approximate": -0.06327885132322204,
+        "corrected": -0.06330965895464916,
+        "process_high_water_bytes": 575389696
+      }
+    ]
+  },
+  "before_confirmation": {
+    "source": "/private/tmp/pauli-apple-priority-baseline",
+    "hashes": {
+      "cnot_parity_mps.py": "7be727b509b264aae96dfbf1b81ac0be9fd21b83b35b26fb76f504f1b5e9361b",
+      "mps_residual.py": "d6f4ee9f409bea20350128539fb66a72111975ca4073f8549afdde6a49d7b4cb",
+      "peps_metal_layer.py": "3cbd6c87d6a6f965cd958156429aac04ccc334b18263d99496047f9f5974a0b7"
+    },
+    "rows": [
+      {
+        "name": "MPS16-single",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 16,
+          "guide_cap": 16
+        },
+        "seconds": [
+          0.05225350009277463,
+          0.05124991689808667,
+          0.05152608314529061,
+          0.05256529105827212,
+          0.051994041074067354
+        ],
+        "median_s": 0.051994041074067354,
+        "approximate": -0.00023666541436896863,
+        "corrected": -0.002027144974579282,
+        "process_high_water_bytes": 93601792
+      },
+      {
+        "name": "MPS16-pair",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 16,
+          "guide_cap": 16
+        },
+        "seconds": [
+          0.3906424168962985,
+          0.39283699984662235,
+          0.39061175007373095,
+          0.39335470902733505,
+          0.39250483294017613
+        ],
+        "median_s": 0.39250483294017613,
+        "approximate": -0.0006085392632785289,
+        "corrected": -0.0018985823892712383,
+        "process_high_water_bytes": 97763328,
+        "profile": [
+          {
+            "file": "tensor_zne.py",
+            "line": 25,
+            "function": "evaluate_mps",
+            "calls": 1,
+            "self_s": 8.1042e-05,
+            "cumulative_s": 0.7589431670000001
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 224,
+            "function": "evaluate",
+            "calls": 1,
+            "self_s": 0.001505339,
+            "cumulative_s": 0.758862125
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 99,
+            "function": "apply",
+            "calls": 990,
+            "self_s": 0.040839518000000005,
+            "cumulative_s": 0.7183625170000001
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 87,
+            "function": "move_center",
+            "calls": 990,
+            "self_s": 0.002665827,
+            "cumulative_s": 0.378381363
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 54,
+            "function": "_right_qr",
+            "calls": 1482,
+            "self_s": 0.038087269,
+            "cumulative_s": 0.263902477
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 1009,
+            "function": "einsum",
+            "calls": 5198,
+            "self_s": 0.027048512,
+            "cumulative_s": 0.24398898700000002
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 168,
+            "function": "chunk",
+            "calls": 19,
+            "self_s": 0.000881314,
+            "cumulative_s": 0.19822124800000002
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 162,
+            "function": "__init__",
+            "calls": 1,
+            "self_s": 0.0008072960000000001,
+            "cumulative_s": 0.196324041
+          },
+          {
+            "file": "_util.py",
+            "line": 1149,
+            "function": "wrapper",
+            "calls": 9829,
+            "self_s": 0.01823383,
+            "cumulative_s": 0.19325651800000002
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 706,
+            "function": "einsum_path",
+            "calls": 5197,
+            "self_s": 0.053732882,
+            "cumulative_s": 0.158464807
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 256,
+            "function": "record",
+            "calls": 151,
+            "self_s": 0.000314107,
+            "cumulative_s": 0.132135792
+          },
+          {
+            "file": "mps_residual.py",
+            "line": 29,
+            "function": "residual_value",
+            "calls": 151,
+            "self_s": 0.006666507,
+            "cumulative_s": 0.131632628
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 71,
+            "function": "_left_qr",
+            "calls": 622,
+            "self_s": 0.015602605,
+            "cumulative_s": 0.11181289200000001
+          },
+          {
+            "file": "_decomp_qr.py",
+            "line": 27,
+            "function": "qr",
+            "calls": 6979,
+            "self_s": 0.015556875000000001,
+            "cumulative_s": 0.104263323
+          },
+          {
+            "file": "index_tricks.py",
+            "line": 34,
+            "function": "ix_",
+            "calls": 23915,
+            "self_s": 0.030682986000000002,
+            "cumulative_s": 0.08316673200000001
+          },
+          {
+            "file": "_decomp_svd.py",
+            "line": 16,
+            "function": "svd",
+            "calls": 2850,
+            "self_s": 0.032566795,
+            "cumulative_s": 0.054469413
+          },
+          {
+            "file": "numeric.py",
+            "line": 932,
+            "function": "tensordot",
+            "calls": 5774,
+            "self_s": 0.023884257000000002,
+            "cumulative_s": 0.045138475000000004
+          },
+          {
+            "file": "numerictypes.py",
+            "line": 357,
+            "function": "issubdtype",
+            "calls": 47830,
+            "self_s": 0.016421592000000002,
+            "cumulative_s": 0.037285287
+          },
+          {
+            "file": "twodim_base.py",
+            "line": 485,
+            "function": "triu",
+            "calls": 6979,
+            "self_s": 0.009705294000000001,
+            "cumulative_s": 0.034646519
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 13,
+            "function": "sector_layout",
+            "calls": 957,
+            "self_s": 0.008002394000000001,
+            "cumulative_s": 0.033834736000000004
+          },
+          {
+            "file": "_decomp_qr.py",
+            "line": 13,
+            "function": "safecall",
+            "calls": 13958,
+            "self_s": 0.02520257,
+            "cumulative_s": 0.033421182
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'reduce' of 'numpy.ufunc' objects>",
+            "calls": 35372,
+            "self_s": 0.032150687000000004,
+            "cumulative_s": 0.032150687000000004
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 312,
+            "function": "_greedy_path",
+            "calls": 1522,
+            "self_s": 0.008127279000000001,
+            "cumulative_s": 0.030605299000000002
+          },
+          {
+            "file": "twodim_base.py",
+            "line": 366,
+            "function": "tri",
+            "calls": 6979,
+            "self_s": 0.0056730290000000004,
+            "cumulative_s": 0.022957164000000002
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 71,
+            "function": "_wrapreduction",
+            "calls": 13993,
+            "self_s": 0.007941149,
+            "cumulative_s": 0.021389379
+          },
+          {
+            "file": "function_base.py",
+            "line": 564,
+            "function": "asarray_chkfinite",
+            "calls": 9829,
+            "self_s": 0.007319052,
+            "cumulative_s": 0.019496458
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 2322,
+            "function": "any",
+            "calls": 10373,
+            "self_s": 0.003308642,
+            "cumulative_s": 0.019023574
+          },
+          {
+            "file": "numerictypes.py",
+            "line": 283,
+            "function": "issubclass_",
+            "calls": 95660,
+            "self_s": 0.011824495,
+            "cumulative_s": 0.018785127000000002
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 413,
+            "function": "_can_dot",
+            "calls": 5774,
+            "self_s": 0.012990717,
+            "cumulative_s": 0.018413624
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 523,
+            "function": "_parse_einsum_input",
+            "calls": 5197,
+            "self_s": 0.012023347,
+            "cumulative_s": 0.017940353000000003
+          },
+          {
+            "file": "cnot_parity.py",
+            "line": 301,
+            "function": "fuse_operations",
+            "calls": 1,
+            "self_s": 0.0036835640000000003,
+            "cumulative_s": 0.016633250000000002
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 215,
+            "function": "_parse_possible_contraction",
+            "calls": 6088,
+            "self_s": 0.0040778970000000005,
+            "cumulative_s": 0.0164485
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'reshape' of 'numpy.ndarray' objects>",
+            "calls": 74735,
+            "self_s": 0.015747097,
+            "cumulative_s": 0.015747097
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<built-in method builtins.len>",
+            "calls": 256090,
+            "self_s": 0.013643810000000001,
+            "cumulative_s": 0.013643810000000001
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'append' of 'list' objects>",
+            "calls": 199542,
+            "self_s": 0.01361701,
+            "cumulative_s": 0.01361701
+          },
+          {
+            "file": "_aliases.py",
+            "line": 70,
+            "function": "asarray",
+            "calls": 9829,
+            "self_s": 0.004556414,
+            "cumulative_s": 0.013220633
+          },
+          {
+            "file": "numeric.py",
+            "line": 615,
+            "function": "flatnonzero",
+            "calls": 6798,
+            "self_s": 0.003739786,
+            "cumulative_s": 0.013162848000000001
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 85,
+            "function": "_find_contraction",
+            "calls": 14329,
+            "self_s": 0.009564293,
+            "cumulative_s": 0.012275657
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'all' of 'numpy.ndarray' objects>",
+            "calls": 9831,
+            "self_s": 0.002252333,
+            "cumulative_s": 0.011343724000000001
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<built-in method builtins.sum>",
+            "calls": 16597,
+            "self_s": 0.004643436,
+            "cumulative_s": 0.010779548
+          }
+        ]
+      },
+      {
+        "name": "MPS64-pair",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 64,
+          "guide_cap": 64
+        },
+        "seconds": [
+          0.7443513330072165,
+          0.7474387919064611,
+          0.7463702918030322,
+          0.7484862920828164,
+          0.7444411250762641
+        ],
+        "median_s": 0.7463702918030322,
+        "approximate": -0.0018948909163284048,
+        "corrected": -0.0018984028682785979,
+        "process_high_water_bytes": 148144128
+      },
+      {
+        "name": "MPS16-unsigned",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 16,
+          "guide_cap": 16,
+          "unsigned": true
+        },
+        "seconds": [
+          0.40039591607637703,
+          0.3976166248321533,
+          0.40150183299556375,
+          0.4017656669020653,
+          0.3973320000804961
+        ],
+        "median_s": 0.40039591607637703,
+        "approximate": 0.03948452425757081,
+        "corrected": 0.03133786076288007,
+        "process_high_water_bytes": 148209664
+      },
+      {
+        "name": "PEPS4",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "nx": 4,
+          "ny": 4,
+          "steps": 1,
+          "sites": [
+            5,
+            10
+          ],
+          "cap": 4,
+          "boundary_cap": 4,
+          "environment_cap": 8
+        },
+        "seconds": [
+          0.36724258307367563,
+          0.36165137495845556,
+          0.3929678339045495,
+          0.39388712495565414,
+          0.39455950004048645
+        ],
+        "median_s": 0.3929678339045495,
+        "approximate": 0.0009592645383292377,
+        "corrected": 0.0009592645383292375,
+        "process_high_water_bytes": 227229696
+      },
+      {
+        "name": "PEPS8",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "nx": 4,
+          "ny": 4,
+          "steps": 2,
+          "sites": [
+            5,
+            6
+          ],
+          "cap": 8,
+          "boundary_cap": 8,
+          "environment_cap": 16,
+          "gate_backend": "batched-cpu"
+        },
+        "seconds": [
+          2.116957083111629,
+          2.0540592500474304,
+          2.044472249923274,
+          2.0546452500857413,
+          2.029202291974798
+        ],
+        "median_s": 2.0540592500474304,
+        "approximate": -0.04454737927877416,
+        "corrected": -0.044547130309894926,
+        "process_high_water_bytes": 290242560,
+        "profile": [
+          {
+            "file": "tensor_zne.py",
+            "line": 68,
+            "function": "evaluate_peps",
+            "calls": 1,
+            "self_s": 8.016700000000001e-05,
+            "cumulative_s": 3.51783825
+          },
+          {
+            "file": "pauli_peps.py",
+            "line": 243,
+            "function": "evaluate_peps",
+            "calls": 1,
+            "self_s": 2.2707e-05,
+            "cumulative_s": 3.4513466250000002
+          },
+          {
+            "file": "pauli_peps.py",
+            "line": 17,
+            "function": "_evaluate_peps_impl",
+            "calls": 1,
+            "self_s": 0.000414501,
+            "cumulative_s": 3.451312
+          },
+          {
+            "file": "cnot_parity_peps.py",
+            "line": 18,
+            "function": "evolve",
+            "calls": 1,
+            "self_s": 0.00353068,
+            "cumulative_s": 3.412648625
+          },
+          {
+            "file": "cnot_parity_peps.py",
+            "line": 35,
+            "function": "flush",
+            "calls": 315,
+            "self_s": 0.020033141,
+            "cumulative_s": 3.2879528380000003
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 241,
+            "function": "apply",
+            "calls": 293,
+            "self_s": 0.029183076000000002,
+            "cumulative_s": 3.2677881280000003
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 184,
+            "function": "contract_many",
+            "calls": 879,
+            "self_s": 0.0009235280000000001,
+            "cumulative_s": 1.067191115
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 99,
+            "function": "scale_many",
+            "calls": 586,
+            "self_s": 0.652234761,
+            "cumulative_s": 1.0666150600000002
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 157,
+            "function": "contract_direct",
+            "calls": 879,
+            "self_s": 0.14902188800000002,
+            "cumulative_s": 1.066267587
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 2621,
+            "function": "split",
+            "calls": 2152,
+            "self_s": 0.0035913530000000003,
+            "cumulative_s": 0.8954330450000001
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 391,
+            "function": "tensor_split",
+            "calls": 2152,
+            "self_s": 0.021630729,
+            "cumulative_s": 0.8918416920000001
+          },
+          {
+            "file": "autoray.py",
+            "line": 32,
+            "function": "do",
+            "calls": 30882,
+            "self_s": 0.014359992,
+            "cumulative_s": 0.708901933
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 43,
+            "function": "contraction_layout",
+            "calls": 1366,
+            "self_s": 0.2545177,
+            "cumulative_s": 0.707147803
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 2979,
+            "function": "prod",
+            "calls": 204233,
+            "self_s": 0.052011903000000005,
+            "cumulative_s": 0.36164939900000004
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 71,
+            "function": "_wrapreduction",
+            "calls": 225391,
+            "self_s": 0.111116137,
+            "cumulative_s": 0.335042043
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1438,
+            "function": "_fuse_core_abelian",
+            "calls": 2360,
+            "self_s": 0.008433330000000001,
+            "cumulative_s": 0.323084759
+          },
+          {
+            "file": "interface.py",
+            "line": 403,
+            "function": "fuse",
+            "calls": 2178,
+            "self_s": 0.001045048,
+            "cumulative_s": 0.308288114
+          },
+          {
+            "file": "array_common.py",
+            "line": 486,
+            "function": "fuse",
+            "calls": 2178,
+            "self_s": 0.002934702,
+            "cumulative_s": 0.307243066
+          },
+          {
+            "file": "bosonic_common.py",
+            "line": 140,
+            "function": "_fuse_core",
+            "calls": 2178,
+            "self_s": 0.001174359,
+            "cumulative_s": 0.303954414
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 401,
+            "function": "_fuse_blocks_via_insert",
+            "calls": 2360,
+            "self_s": 0.123381317,
+            "cumulative_s": 0.257001166
+          },
+          {
+            "file": "interface.py",
+            "line": 167,
+            "function": "reshape",
+            "calls": 4044,
+            "self_s": 0.00155074,
+            "cumulative_s": 0.250924356
+          },
+          {
+            "file": "array_common.py",
+            "line": 575,
+            "function": "reshape",
+            "calls": 4044,
+            "self_s": 0.007288632000000001,
+            "cumulative_s": 0.24937361600000002
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1520,
+            "function": "_unfuse_abelian",
+            "calls": 4182,
+            "self_s": 0.095047924,
+            "cumulative_s": 0.231312921
+          },
+          {
+            "file": "bosonic_common.py",
+            "line": 155,
+            "function": "unfuse",
+            "calls": 4044,
+            "self_s": 0.0039770100000000004,
+            "cumulative_s": 0.22231272600000002
+          },
+          {
+            "file": "autoray.py",
+            "line": 1282,
+            "function": "__call__",
+            "calls": 33939,
+            "self_s": 0.016908004,
+            "cumulative_s": 0.212124736
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'reduce' of 'numpy.ufunc' objects>",
+            "calls": 225481,
+            "self_s": 0.17492653800000002,
+            "cumulative_s": 0.17492653800000002
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'reshape' of 'numpy.ndarray' objects>",
+            "calls": 1037815,
+            "self_s": 0.17247056900000002,
+            "cumulative_s": 0.17247056900000002
+          },
+          {
+            "file": "decomp.py",
+            "line": 34,
+            "function": "array_split",
+            "calls": 8567,
+            "self_s": 0.006396535,
+            "cumulative_s": 0.16903366
+          },
+          {
+            "file": "bosonic_common.py",
+            "line": 35,
+            "function": "_split",
+            "calls": 2152,
+            "self_s": 0.0017674490000000001,
+            "cumulative_s": 0.15858292200000002
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1933,
+            "function": "_split_abelian",
+            "calls": 2865,
+            "self_s": 0.019501656000000003,
+            "cumulative_s": 0.156815473
+          },
+          {
+            "file": "numeric.py",
+            "line": 136,
+            "function": "ones",
+            "calls": 193713,
+            "self_s": 0.091600234,
+            "cumulative_s": 0.122965923
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 1593,
+            "function": "__init__",
+            "calls": 15146,
+            "self_s": 0.020851665000000002,
+            "cumulative_s": 0.12009235300000001
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 53,
+            "function": "_wrapfunc",
+            "calls": 243598,
+            "self_s": 0.044513915,
+            "cumulative_s": 0.104828286
+          },
+          {
+            "file": "linalg.py",
+            "line": 123,
+            "function": "svd_truncated",
+            "calls": 713,
+            "self_s": 0.00044336600000000005,
+            "cumulative_s": 0.100474879
+          },
+          {
+            "file": "array_common.py",
+            "line": 772,
+            "function": "svd_truncated",
+            "calls": 713,
+            "self_s": 0.0010675160000000001,
+            "cumulative_s": 0.100031513
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1856,
+            "function": "_split_abelian_dynamic",
+            "calls": 713,
+            "self_s": 0.00210513,
+            "cumulative_s": 0.096135073
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 200,
+            "function": "reshape",
+            "calls": 138291,
+            "self_s": 0.023925974000000003,
+            "cumulative_s": 0.090770719
+          },
+          {
+            "file": "linalg_common.py",
+            "line": 19,
+            "function": "array_split",
+            "calls": 6415,
+            "self_s": 0.002746559,
+            "cumulative_s": 0.09004355800000001
+          },
+          {
+            "file": "einsumfunc.py",
+            "line": 1009,
+            "function": "einsum",
+            "calls": 86426,
+            "self_s": 0.009633942000000001,
+            "cumulative_s": 0.080580592
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 29,
+            "function": "diagonal_center",
+            "calls": 534,
+            "self_s": 0.022867557,
+            "cumulative_s": 0.07901058400000001
+          }
+        ]
+      },
+      {
+        "name": "PEPS16",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "nx": 4,
+          "ny": 4,
+          "steps": 2,
+          "sites": [
+            5,
+            6
+          ],
+          "cap": 16,
+          "boundary_cap": 8,
+          "environment_cap": 16,
+          "gate_backend": "batched-cpu"
+        },
+        "seconds": [
+          3.092053084168583,
+          3.1254079591017216,
+          2.802968292031437,
+          2.8584864588920027,
+          2.840335709042847
+        ],
+        "median_s": 2.8584864588920027,
+        "approximate": -0.06327885132322204,
+        "corrected": -0.06330965895464916,
+        "process_high_water_bytes": 572719104
+      }
+    ]
+  },
+  "final": {
+    "source": "/Users/jcohn/Documents/ChatGPT/Pauli Path ZNE/publish/latest-methods",
+    "hashes": {
+      "cnot_parity_mps.py": "4ed9659ba0d2476e6ddf9e60724accab0be1c0e046f4aa92e75b6b7db6b8348e",
+      "mps_residual.py": "54c70eda5c9fd6fb921052073f6a1b6952c70decf163d21603dfb745e8ed287d",
+      "mps_contractions.py": "34df70e4c6d422de22ce45fe04b1d238ca82fa99f062af2f52fcfb431f5e7f1c",
+      "peps_metal_layer.py": "c4874c8c446413ebcfd528836b09b6d515bd3efb536b59d12d951e55c77daa63"
+    },
+    "rows": [
+      {
+        "name": "MPS16-single",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 16,
+          "guide_cap": 16
+        },
+        "seconds": [
+          0.037176250014454126,
+          0.03696720884181559,
+          0.03693762491457164,
+          0.037205166183412075,
+          0.036721291951835155
+        ],
+        "median_s": 0.03696720884181559,
+        "approximate": -0.00023666541436899975,
+        "corrected": -0.0020271449745792795,
+        "process_high_water_bytes": 94011392
+      },
+      {
+        "name": "MPS16-pair",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 16,
+          "guide_cap": 16
+        },
+        "seconds": [
+          0.2434156669769436,
+          0.2518335417844355,
+          0.24542874982580543,
+          0.24477641703560948,
+          0.24335795803926885
+        ],
+        "median_s": 0.24477641703560948,
+        "approximate": -0.0006085392632785073,
+        "corrected": -0.0018985823892712205,
+        "process_high_water_bytes": 98287616,
+        "profile": [
+          {
+            "file": "tensor_zne.py",
+            "line": 25,
+            "function": "evaluate_mps",
+            "calls": 1,
+            "self_s": 6.708300000000001e-05,
+            "cumulative_s": 0.388315042
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 225,
+            "function": "evaluate",
+            "calls": 1,
+            "self_s": 0.001242794,
+            "cumulative_s": 0.38824795900000003
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 100,
+            "function": "apply",
+            "calls": 990,
+            "self_s": 0.035698691000000005,
+            "cumulative_s": 0.35055593300000004
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 88,
+            "function": "move_center",
+            "calls": 990,
+            "self_s": 0.0022304350000000002,
+            "cumulative_s": 0.203159799
+          },
+          {
+            "file": "_util.py",
+            "line": 1149,
+            "function": "wrapper",
+            "calls": 9829,
+            "self_s": 0.015701906,
+            "cumulative_s": 0.174527244
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 55,
+            "function": "_right_qr",
+            "calls": 1482,
+            "self_s": 0.028834386000000004,
+            "cumulative_s": 0.140324199
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 169,
+            "function": "chunk",
+            "calls": 19,
+            "self_s": 0.000757232,
+            "cumulative_s": 0.11655445800000001
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 163,
+            "function": "__init__",
+            "calls": 1,
+            "self_s": 0.0006877890000000001,
+            "cumulative_s": 0.11369295800000001
+          },
+          {
+            "file": "_decomp_qr.py",
+            "line": 27,
+            "function": "qr",
+            "calls": 6979,
+            "self_s": 0.013699981000000002,
+            "cumulative_s": 0.094147694
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 72,
+            "function": "_left_qr",
+            "calls": 622,
+            "self_s": 0.011964164000000001,
+            "cumulative_s": 0.060604956
+          },
+          {
+            "file": "_decomp_svd.py",
+            "line": 16,
+            "function": "svd",
+            "calls": 2850,
+            "self_s": 0.030881082,
+            "cumulative_s": 0.050443169
+          },
+          {
+            "file": "twodim_base.py",
+            "line": 485,
+            "function": "triu",
+            "calls": 6979,
+            "self_s": 0.00892048,
+            "cumulative_s": 0.031357438
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 14,
+            "function": "sector_layout",
+            "calls": 957,
+            "self_s": 0.007364444,
+            "cumulative_s": 0.031024339
+          },
+          {
+            "file": "_decomp_qr.py",
+            "line": 13,
+            "function": "safecall",
+            "calls": 13958,
+            "self_s": 0.023581784,
+            "cumulative_s": 0.030845942
+          },
+          {
+            "file": "twodim_base.py",
+            "line": 366,
+            "function": "tri",
+            "calls": 6979,
+            "self_s": 0.005109848,
+            "cumulative_s": 0.020655779000000003
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 71,
+            "function": "_wrapreduction",
+            "calls": 13993,
+            "self_s": 0.006807430000000001,
+            "cumulative_s": 0.018506188
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'reduce' of 'numpy.ufunc' objects>",
+            "calls": 23824,
+            "self_s": 0.017390407,
+            "cumulative_s": 0.017390407
+          },
+          {
+            "file": "function_base.py",
+            "line": 564,
+            "function": "asarray_chkfinite",
+            "calls": 9829,
+            "self_s": 0.00626563,
+            "cumulative_s": 0.017303081
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 2322,
+            "function": "any",
+            "calls": 10373,
+            "self_s": 0.003033519,
+            "cumulative_s": 0.016771609
+          },
+          {
+            "file": "cnot_parity.py",
+            "line": 301,
+            "function": "fuse_operations",
+            "calls": 1,
+            "self_s": 0.0035512240000000004,
+            "cumulative_s": 0.016115166
+          },
+          {
+            "file": "cnot_parity_mps.py",
+            "line": 257,
+            "function": "record",
+            "calls": 151,
+            "self_s": 0.00027586200000000004,
+            "cumulative_s": 0.012295952
+          },
+          {
+            "file": "numeric.py",
+            "line": 615,
+            "function": "flatnonzero",
+            "calls": 6798,
+            "self_s": 0.003515151,
+            "cumulative_s": 0.01217175
+          },
+          {
+            "file": "mps_residual.py",
+            "line": 30,
+            "function": "residual_value",
+            "calls": 151,
+            "self_s": 0.003712978,
+            "cumulative_s": 0.011862045
+          },
+          {
+            "file": "_aliases.py",
+            "line": 70,
+            "function": "asarray",
+            "calls": 9829,
+            "self_s": 0.0035539820000000002,
+            "cumulative_s": 0.011165580000000001
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'all' of 'numpy.ndarray' objects>",
+            "calls": 9831,
+            "self_s": 0.0020011340000000003,
+            "cumulative_s": 0.010238763000000001
+          },
+          {
+            "file": "cnot_parity.py",
+            "line": 258,
+            "function": "route_operations",
+            "calls": 1,
+            "self_s": 0.001048139,
+            "cumulative_s": 0.009957750000000001
+          },
+          {
+            "file": "_util.py",
+            "line": 423,
+            "function": "_asarray_validated",
+            "calls": 2850,
+            "self_s": 0.00208955,
+            "cumulative_s": 0.009570221
+          },
+          {
+            "file": "arraysetops.py",
+            "line": 373,
+            "function": "intersect1d",
+            "calls": 957,
+            "self_s": 0.002530421,
+            "cumulative_s": 0.009535923
+          },
+          {
+            "file": "cnot_parity.py",
+            "line": 73,
+            "function": "check_operation",
+            "calls": 945,
+            "self_s": 0.0020882030000000003,
+            "cumulative_s": 0.008798652
+          },
+          {
+            "file": "_methods.py",
+            "line": 61,
+            "function": "_all",
+            "calls": 9831,
+            "self_s": 0.001450881,
+            "cumulative_s": 0.008237629
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<built-in method numpy.array>",
+            "calls": 18826,
+            "self_s": 0.005677219000000001,
+            "cumulative_s": 0.0077715480000000005
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'extend' of 'list' objects>",
+            "calls": 10227,
+            "self_s": 0.00270899,
+            "cumulative_s": 0.006872055
+          },
+          {
+            "file": "arraysetops.py",
+            "line": 138,
+            "function": "unique",
+            "calls": 1914,
+            "self_s": 0.000897443,
+            "cumulative_s": 0.006545536
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'outer' of 'numpy.ufunc' objects>",
+            "calls": 6979,
+            "self_s": 0.00654289,
+            "cumulative_s": 0.00654289
+          },
+          {
+            "file": "cnot_parity.py",
+            "line": 308,
+            "function": "embed",
+            "calls": 615,
+            "self_s": 0.000337583,
+            "cumulative_s": 0.0064875770000000004
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'astype' of 'numpy.generic' objects>",
+            "calls": 13958,
+            "self_s": 0.006409121,
+            "cumulative_s": 0.006409121
+          },
+          {
+            "file": "blas.py",
+            "line": 395,
+            "function": "getter",
+            "calls": 16808,
+            "self_s": 0.004519604,
+            "cumulative_s": 0.006213452
+          },
+          {
+            "file": "lapack.py",
+            "line": 1028,
+            "function": "_compute_lwork",
+            "calls": 2850,
+            "self_s": 0.004387898,
+            "cumulative_s": 0.006160176000000001
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 2692,
+            "function": "max",
+            "calls": 3469,
+            "self_s": 0.001086825,
+            "cumulative_s": 0.005638296
+          },
+          {
+            "file": "arraysetops.py",
+            "line": 323,
+            "function": "_unique1d",
+            "calls": 1914,
+            "self_s": 0.0035818340000000003,
+            "cumulative_s": 0.005180977000000001
+          }
+        ]
+      },
+      {
+        "name": "MPS64-pair",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 64,
+          "guide_cap": 64
+        },
+        "seconds": [
+          0.5792566670570523,
+          0.5791437919251621,
+          0.6006602079141885,
+          0.620841708034277,
+          0.5814965830650181
+        ],
+        "median_s": 0.5814965830650181,
+        "approximate": -0.0018948909163285848,
+        "corrected": -0.0018984028682786315,
+        "process_high_water_bytes": 147456000
+      },
+      {
+        "name": "MPS16-unsigned",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "n": 12,
+          "steps": 3,
+          "sites": [
+            3,
+            8
+          ],
+          "cap": 16,
+          "guide_cap": 16,
+          "unsigned": true
+        },
+        "seconds": [
+          0.2499007498845458,
+          0.2511134999804199,
+          0.2493802080862224,
+          0.24817174999043345,
+          0.24825770896859467
+        ],
+        "median_s": 0.2493802080862224,
+        "approximate": 0.039484524257570826,
+        "corrected": 0.031337860762880226,
+        "process_high_water_bytes": 147537920
+      },
+      {
+        "name": "PEPS4",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "nx": 4,
+          "ny": 4,
+          "steps": 1,
+          "sites": [
+            5,
+            10
+          ],
+          "cap": 4,
+          "boundary_cap": 4,
+          "environment_cap": 8
+        },
+        "seconds": [
+          0.30709066707640886,
+          0.3184722918085754,
+          0.3063975418917835,
+          0.3069677499588579,
+          0.30597100011073053
+        ],
+        "median_s": 0.3069677499588579,
+        "approximate": 0.0009592645383292485,
+        "corrected": 0.0009592645383292487,
+        "process_high_water_bytes": 228491264
+      },
+      {
+        "name": "PEPS8",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "nx": 4,
+          "ny": 4,
+          "steps": 2,
+          "sites": [
+            5,
+            6
+          ],
+          "cap": 8,
+          "boundary_cap": 8,
+          "environment_cap": 16,
+          "gate_backend": "batched-cpu"
+        },
+        "seconds": [
+          1.2442634999752045,
+          1.2283819171134382,
+          1.226692375028506,
+          1.2242364170961082,
+          1.2231049579568207
+        ],
+        "median_s": 1.226692375028506,
+        "approximate": -0.04454737927877385,
+        "corrected": -0.04454713030989461,
+        "process_high_water_bytes": 289587200,
+        "profile": [
+          {
+            "file": "tensor_zne.py",
+            "line": 68,
+            "function": "evaluate_peps",
+            "calls": 1,
+            "self_s": 6.425e-05,
+            "cumulative_s": 2.4016345
+          },
+          {
+            "file": "pauli_peps.py",
+            "line": 243,
+            "function": "evaluate_peps",
+            "calls": 1,
+            "self_s": 2.0917e-05,
+            "cumulative_s": 2.336794917
+          },
+          {
+            "file": "pauli_peps.py",
+            "line": 17,
+            "function": "_evaluate_peps_impl",
+            "calls": 1,
+            "self_s": 0.000441583,
+            "cumulative_s": 2.336762791
+          },
+          {
+            "file": "cnot_parity_peps.py",
+            "line": 18,
+            "function": "evolve",
+            "calls": 1,
+            "self_s": 0.0032668650000000003,
+            "cumulative_s": 2.299072375
+          },
+          {
+            "file": "cnot_parity_peps.py",
+            "line": 35,
+            "function": "flush",
+            "calls": 315,
+            "self_s": 0.01789019,
+            "cumulative_s": 2.177207172
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 250,
+            "function": "apply",
+            "calls": 293,
+            "self_s": 0.021702173,
+            "cumulative_s": 2.159199371
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 2621,
+            "function": "split",
+            "calls": 2152,
+            "self_s": 0.003451477,
+            "cumulative_s": 0.8720733780000001
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 391,
+            "function": "tensor_split",
+            "calls": 2152,
+            "self_s": 0.020795488,
+            "cumulative_s": 0.868621901
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 112,
+            "function": "scale_many",
+            "calls": 586,
+            "self_s": 0.46644734200000004,
+            "cumulative_s": 0.716159674
+          },
+          {
+            "file": "autoray.py",
+            "line": 32,
+            "function": "do",
+            "calls": 30882,
+            "self_s": 0.013706377,
+            "cumulative_s": 0.689118106
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 193,
+            "function": "contract_many",
+            "calls": 879,
+            "self_s": 0.000776028,
+            "cumulative_s": 0.34340459900000003
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 172,
+            "function": "contract_direct",
+            "calls": 879,
+            "self_s": 0.046228294,
+            "cumulative_s": 0.34262857100000005
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1438,
+            "function": "_fuse_core_abelian",
+            "calls": 2360,
+            "self_s": 0.008122403,
+            "cumulative_s": 0.31408088300000003
+          },
+          {
+            "file": "interface.py",
+            "line": 403,
+            "function": "fuse",
+            "calls": 2178,
+            "self_s": 0.001019221,
+            "cumulative_s": 0.29956715700000003
+          },
+          {
+            "file": "array_common.py",
+            "line": 486,
+            "function": "fuse",
+            "calls": 2178,
+            "self_s": 0.002776787,
+            "cumulative_s": 0.298547936
+          },
+          {
+            "file": "bosonic_common.py",
+            "line": 140,
+            "function": "_fuse_core",
+            "calls": 2178,
+            "self_s": 0.0011319370000000002,
+            "cumulative_s": 0.295416829
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 401,
+            "function": "_fuse_blocks_via_insert",
+            "calls": 2360,
+            "self_s": 0.120244891,
+            "cumulative_s": 0.24994903400000001
+          },
+          {
+            "file": "interface.py",
+            "line": 167,
+            "function": "reshape",
+            "calls": 4044,
+            "self_s": 0.0015564250000000002,
+            "cumulative_s": 0.24362918600000003
+          },
+          {
+            "file": "array_common.py",
+            "line": 575,
+            "function": "reshape",
+            "calls": 4044,
+            "self_s": 0.006978763000000001,
+            "cumulative_s": 0.24207276100000003
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1520,
+            "function": "_unfuse_abelian",
+            "calls": 4182,
+            "self_s": 0.092709305,
+            "cumulative_s": 0.224779273
+          },
+          {
+            "file": "bosonic_common.py",
+            "line": 155,
+            "function": "unfuse",
+            "calls": 4044,
+            "self_s": 0.003716277,
+            "cumulative_s": 0.215926741
+          },
+          {
+            "file": "autoray.py",
+            "line": 1282,
+            "function": "__call__",
+            "calls": 33939,
+            "self_s": 0.016347073,
+            "cumulative_s": 0.208127117
+          },
+          {
+            "file": "decomp.py",
+            "line": 34,
+            "function": "array_split",
+            "calls": 8567,
+            "self_s": 0.0063076830000000006,
+            "cumulative_s": 0.166050252
+          },
+          {
+            "file": "bosonic_common.py",
+            "line": 35,
+            "function": "_split",
+            "calls": 2152,
+            "self_s": 0.001742608,
+            "cumulative_s": 0.155894954
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1933,
+            "function": "_split_abelian",
+            "calls": 2865,
+            "self_s": 0.018852144,
+            "cumulative_s": 0.15415234600000002
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 64,
+            "function": "contract_block_products",
+            "calls": 2306,
+            "self_s": 0.087219931,
+            "cumulative_s": 0.149144446
+          },
+          {
+            "file": "~",
+            "line": 0,
+            "function": "<method 'reshape' of 'numpy.ndarray' objects>",
+            "calls": 844190,
+            "self_s": 0.13921233700000002,
+            "cumulative_s": 0.13921233700000002
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 1593,
+            "function": "__init__",
+            "calls": 15146,
+            "self_s": 0.020068688,
+            "cumulative_s": 0.11659432400000001
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 44,
+            "function": "contraction_layout",
+            "calls": 1366,
+            "self_s": 0.07120238200000001,
+            "cumulative_s": 0.108349045
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 53,
+            "function": "_wrapfunc",
+            "calls": 243598,
+            "self_s": 0.042965439,
+            "cumulative_s": 0.10234430100000001
+          },
+          {
+            "file": "linalg.py",
+            "line": 123,
+            "function": "svd_truncated",
+            "calls": 713,
+            "self_s": 0.00042021100000000003,
+            "cumulative_s": 0.09953015100000001
+          },
+          {
+            "file": "array_common.py",
+            "line": 772,
+            "function": "svd_truncated",
+            "calls": 713,
+            "self_s": 0.001080704,
+            "cumulative_s": 0.09910994000000001
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 1856,
+            "function": "_split_abelian_dynamic",
+            "calls": 713,
+            "self_s": 0.002086716,
+            "cumulative_s": 0.09527764300000001
+          },
+          {
+            "file": "linalg_common.py",
+            "line": 19,
+            "function": "array_split",
+            "calls": 6415,
+            "self_s": 0.002616387,
+            "cumulative_s": 0.088720038
+          },
+          {
+            "file": "fromnumeric.py",
+            "line": 200,
+            "function": "reshape",
+            "calls": 138291,
+            "self_s": 0.022234412000000002,
+            "cumulative_s": 0.08765136200000001
+          },
+          {
+            "file": "peps_metal_layer.py",
+            "line": 30,
+            "function": "diagonal_center",
+            "calls": 534,
+            "self_s": 0.022368398,
+            "cumulative_s": 0.077892158
+          },
+          {
+            "file": "sparse_array_common.py",
+            "line": 670,
+            "function": "shape",
+            "calls": 29529,
+            "self_s": 0.014686711000000002,
+            "cumulative_s": 0.066124176
+          },
+          {
+            "file": "tensor_core.py",
+            "line": 1621,
+            "function": "_set_data",
+            "calls": 17561,
+            "self_s": 0.009833649,
+            "cumulative_s": 0.066048086
+          },
+          {
+            "file": "peps_boundary_residual.py",
+            "line": 73,
+            "function": "streaming_residuals",
+            "calls": 1,
+            "self_s": 0.00010654300000000001,
+            "cumulative_s": 0.064693375
+          },
+          {
+            "file": "interface.py",
+            "line": 172,
+            "function": "tensordot",
+            "calls": 160,
+            "self_s": 7.3027e-05,
+            "cumulative_s": 0.064494285
+          }
+        ]
+      },
+      {
+        "name": "PEPS16",
+        "settings": {
+          "noise_placement": "after_cnot",
+          "pair_rates": 0.0001,
+          "residual": true,
+          "nx": 4,
+          "ny": 4,
+          "steps": 2,
+          "sites": [
+            5,
+            6
+          ],
+          "cap": 16,
+          "boundary_cap": 8,
+          "environment_cap": 16,
+          "gate_backend": "batched-cpu"
+        },
+        "seconds": [
+          2.0955239159520715,
+          2.4221261250786483,
+          2.2157878750003874,
+          2.288223165785894,
+          2.2996158748865128
+        ],
+        "median_s": 2.288223165785894,
+        "approximate": -0.06327885132322235,
+        "corrected": -0.0633096589546494,
+        "process_high_water_bytes": 571408384
+      }
+    ]
+  },
+  "paired": [
+    {
+      "name": "MPS16",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 16,
+        "guide_cap": 16,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "before_s": 0.4135142501909286,
+      "after_s": 0.2638143328949809,
+      "speedup": 1.5674442159878408,
+      "reduction_percent": 36.20187629007415,
+      "corrected_difference": 1.7780915628762273e-17,
+      "before_samples": [
+        0.38935162499547005,
+        0.3909594160504639,
+        0.4366890420205891,
+        0.45025470899417996,
+        0.4135142501909286
+      ],
+      "after_samples": [
+        0.24755787500180304,
+        0.25457866699434817,
+        0.2793766660615802,
+        0.2638143328949809,
+        0.26977558294311166
+      ]
+    },
+    {
+      "name": "MPS64",
+      "settings": {
+        "n": 12,
+        "steps": 3,
+        "sites": [
+          3,
+          8
+        ],
+        "cap": 64,
+        "guide_cap": 64,
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "before_s": 0.7892410829663277,
+      "after_s": 0.6156236662063748,
+      "speedup": 1.2820187499123066,
+      "reduction_percent": 21.998020694439713,
+      "corrected_difference": 3.361026734705064e-17,
+      "before_samples": [
+        0.849392417119816,
+        0.8097101249732077,
+        0.7876766251865774,
+        0.7892410829663277,
+        0.7884368340019137
+      ],
+      "after_samples": [
+        0.6390050000045449,
+        0.6156236662063748,
+        0.615217125043273,
+        0.6201259160879999,
+        0.6150939171202481
+      ]
+    },
+    {
+      "name": "PEPS8",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 2,
+        "sites": [
+          5,
+          6
+        ],
+        "cap": 8,
+        "boundary_cap": 8,
+        "environment_cap": 16,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "before_s": 2.024351292056963,
+      "after_s": 1.3777954580727965,
+      "speedup": 1.4692683737603127,
+      "reduction_percent": 31.938914778333494,
+      "corrected_difference": 3.191891195797325e-16,
+      "before_samples": [
+        2.0204611248336732,
+        2.0064934589900076,
+        2.024351292056963,
+        2.0441896251868457,
+        2.0243788750376552
+      ],
+      "after_samples": [
+        1.3420336251147091,
+        1.3777954580727965,
+        1.364753750152886,
+        1.4064953338820487,
+        1.4253044999204576
+      ]
+    },
+    {
+      "name": "PEPS16",
+      "settings": {
+        "nx": 4,
+        "ny": 4,
+        "steps": 2,
+        "sites": [
+          5,
+          6
+        ],
+        "cap": 16,
+        "boundary_cap": 8,
+        "environment_cap": 16,
+        "gate_backend": "batched-cpu",
+        "noise_placement": "after_cnot",
+        "pair_rates": 0.0001,
+        "residual": true
+      },
+      "before_s": 2.99246699991636,
+      "after_s": 2.232402625028044,
+      "speedup": 1.3404692175000321,
+      "reduction_percent": 25.399256697218707,
+      "corrected_difference": 2.498001805406602e-16,
+      "before_samples": [
+        3.0007163749542087,
+        2.9904950000345707,
+        2.989122834056616,
+        2.99246699991636,
+        3.036464500008151
+      ],
+      "after_samples": [
+        2.220356416888535,
+        2.21907129092142,
+        2.232402625028044,
+        2.2453260419424623,
+        2.255611250177026
+      ]
+    }
+  ],
+  "product_replay": [
+    {
+      "cap": 4,
+      "requests": 329,
+      "captured_bytes": 322464,
+      "products": 7968,
+      "output_groups": 7680,
+      "repeated_output_groups": 112,
+      "seconds": {
+        "matmul": 0.009552582865580916,
+        "einsum": 0.013643250102177262,
+        "accelerate": 0.008288457989692688,
+        "reuse": 0.010819083079695702,
+        "grouped": 0.01068695797584951
+      },
+      "max_absolute_error": {
+        "matmul": 0.0,
+        "einsum": 5.551115123125783e-17,
+        "accelerate": 1.1102230246251565e-16,
+        "reuse": 0.0,
+        "grouped": 1.3877787807814457e-17
+      }
+    },
+    {
+      "cap": 8,
+      "requests": 329,
+      "captured_bytes": 2255296,
+      "products": 12598,
+      "output_groups": 12262,
+      "repeated_output_groups": 112,
+      "seconds": {
+        "matmul": 0.016331291059032083,
+        "einsum": 0.02310537500306964,
+        "accelerate": 0.013862249907106161,
+        "reuse": 0.01795670809224248,
+        "grouped": 0.01807241700589657
+      },
+      "max_absolute_error": {
+        "matmul": 0.0,
+        "einsum": 1.1102230246251565e-16,
+        "accelerate": 2.220446049250313e-16,
+        "reuse": 0.0,
+        "grouped": 6.938893903907228e-18
+      }
+    },
+    {
+      "cap": 16,
+      "requests": 329,
+      "captured_bytes": 22397528,
+      "products": 12598,
+      "output_groups": 12262,
+      "repeated_output_groups": 112,
+      "seconds": {
+        "matmul": 0.021104541840031743,
+        "einsum": 0.038639500038698316,
+        "accelerate": 0.021110374946147203,
+        "reuse": 0.022167959017679095,
+        "grouped": 0.02222941699437797
+      },
+      "max_absolute_error": {
+        "matmul": 0.0,
+        "einsum": 2.7755575615628914e-17,
+        "accelerate": 3.3306690738754696e-16,
+        "reuse": 0.0,
+        "grouped": 5.551115123125783e-17
+      }
+    }
+  ],
+  "product_whole": [
+    {
+      "cap": 4,
+      "seconds": {
+        "matmul": 1.0367263338994235,
+        "einsum": 1.0732742920517921,
+        "accelerate": 1.0246287500485778
+      },
+      "values": {
+        "matmul": -0.05092783998588488,
+        "einsum": -0.05092783998588405,
+        "accelerate": -0.050927839985884134
+      }
+    },
+    {
+      "cap": 8,
+      "seconds": {
+        "matmul": 1.573954249965027,
+        "einsum": 1.6227937499061227,
+        "accelerate": 1.5617178329266608
+      },
+      "values": {
+        "matmul": -0.04454713030989461,
+        "einsum": -0.044547130309894926,
+        "accelerate": -0.044547130309895176
+      }
+    },
+    {
+      "cap": 16,
+      "seconds": {
+        "matmul": 2.4585878329817206,
+        "einsum": 2.4999420419335365,
+        "accelerate": 2.405708916950971
+      },
+      "values": {
+        "matmul": -0.0633096589546494,
+        "einsum": -0.06330965895464916,
+        "accelerate": -0.06330965895465063
+      }
+    }
+  ]
+}
